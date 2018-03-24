@@ -3,12 +3,12 @@
 This is the groundwork for a C microservices library. The goal is to learn by relying only on platform libraries and support most operating systems and architectures. This means that 3rd party libraries are avoided even if they would reduce development time, provide more features, or offer higher quality.
 
 Things I'm proud of
-- the build system doesn't use autotools, but building on top of make and a POSIX shell it has many of autotools features
+- the build system doesn't use autotools, but building on top of make and a POSIX shell it has many of autotools features (see [configure](configure) and [make/make.mk](make/make.mk))
 - portability across multiple OSs, compilers, POSIX shells and POSIX makes
 - target identification (see [config/identify.c](config/identify.c) and [the build/make/target.mk make rule](make/make.mk))
 - minimizing the inclusion of platform headers by discovering struct sizes and alignment during configuration (see [src/dr_types_impl.h](src/dr_types_impl.h), [config/dr_types.c](config/dr_types.c), and [the build/include/dr_types.h make rule](make/make.mk)) which even works when cross compiling
 - only depends on platform libraries (with build time dependencies on cygwin for Windows)
-- green threading
+- [green threading](src/dr_task.c)
 
 ## Status
 
