@@ -708,7 +708,9 @@ static void server_func(void *restrict const arg) {
 }
 
 WARN_UNUSED_RESULT static int print_version(void) {
-  printf("9p_server %u.%u.%u\n", DR_VERSION_MAJOR, DR_VERSION_MINOR, DR_VERSION_PATCH);
+  char buf[256];
+  dr_get_version_long(buf, sizeof(buf));
+  printf("9p_server %s\n", buf);
   return 0;
 }
 
@@ -758,6 +760,12 @@ int main(int argc, char *argv[]) {
   if (port == NULL) {
     return print_usage();
   }
+  {
+    char buf[256];
+    int written = snprintf(buf, sizeof(buf), "9p_server ");
+    dr_get_version_long(buf + written, sizeof(buf) - written);
+    dr_log(buf);
+  }
   INIT_LIST_HEAD(&clients);
   {
     const struct dr_result_void r = dr_socket_startup();
@@ -783,6 +791,7 @@ int main(int argc, char *argv[]) {
   }
   // Switch to allow server_func to run for the first time
   dr_schedule(true);
+  dr_log("Listening for clients");
   while (true) {
     struct dr_event events[16];
     unsigned int count;

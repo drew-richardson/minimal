@@ -4,6 +4,11 @@
 include build/make/dr_config.mk
 include $(PROJROOT)make/quiet.mk
 
+VERSION_MAJOR = 0
+VERSION_MINOR = 1
+VERSION_PATCH = 0
+VERSION_EXTRA = -a0
+
 all: deps
 	$(Q)$(MAKE) -f $(PROJROOT)make/build.mk build/dist/9p_client$(EEXT) build/dist/9p_code$(EEXT) build/dist/9p_fuzz$(EEXT) build/dist/9p_server$(EEXT) build/dist/client$(EEXT) build/dist/perms$(EEXT) build/dist/queue$(EEXT) build/dist/server$(EEXT) build/dist/task$(EEXT)
 
@@ -116,7 +121,29 @@ fi > $@
 build/make/deps.mk: force
 	$(E_GEN)find build/obj -type f -name '*.d' | xargs cat > $@
 
-build/include/dr_types.h: build/include/dr_config.h $(PROJROOT)config/dr_types.c
+build/src/dr_source.c: force
+	$(E_GEN) \
+. make/dr_source.sh; \
+printf "%s\n" \
+"#include \"dr.h\"" \
+"const char *dr_source_revision(void) { return \"$${SOURCE_REVISION}\"; }" \
+"const char *dr_source_status(void) { return \"$${SOURCE_STATUS}\"; }" \
+"const char *dr_source_date(void) { return \"$${SOURCE_DATE}\"; }" > $@.new; \
+if ! diff $@.new $@ 2>&1 > /dev/null; then \
+    mv $@.new $@; \
+fi
+
+build/include/dr_version.h:
+	$(E_GEN)printf "%s\n" \
+"#if !defined(DR_VERSION_H)" \
+"#define DR_VERSION_H" \
+"#define DR_VERSION_MAJOR $(VERSION_MAJOR)" \
+"#define DR_VERSION_MINOR $(VERSION_MINOR)" \
+"#define DR_VERSION_PATCH $(VERSION_PATCH)" \
+"#define DR_VERSION_EXTRA \"$(VERSION_EXTRA)\"" \
+"#endif // DR_VERSION_H" > $@
+
+build/include/dr_types.h: build/include/dr_config.h build/include/dr_version.h $(PROJROOT)config/dr_types.c
 	$(E_GEN) \
 ( \
     cd build/make_obj && \
@@ -126,7 +153,7 @@ build/include/dr_types.h: build/include/dr_config.h $(PROJROOT)config/dr_types.c
 
 #	@echo MAKECMDGOALS = $(MAKECMDGOALS)
 #	@echo .TARGETS = $(.TARGETS)
-deps: build/make/target.mk build/make/overrides.mk build/make/cppflags.mk build/make/cflags.mk build/make/ACCEPT_LDLIBS.mk build/make/ACCEPTEX_LDLIBS.mk build/make/deps.mk build/include/dr_config.h build/include/dr_types.h
+deps: build/make/target.mk build/make/overrides.mk build/make/cppflags.mk build/make/cflags.mk build/make/ACCEPT_LDLIBS.mk build/make/ACCEPTEX_LDLIBS.mk build/make/deps.mk build/include/dr_config.h build/include/dr_version.h build/include/dr_types.h build/src/dr_source.c
 	$(Q)$(SHELL) $(PROJROOT)make/mkdirs.sh
 
 clean:
@@ -146,7 +173,14 @@ install: all
 dist: minimal.tar.gz
 
 minimal.tar.gz: force
-	$(E_GEN)TZ=UTC LC_ALL=C.UTF-8 tar cf - --mode=u+rw,go=rX --mtime='1970-01-01' --group=0 --numeric-owner --owner=0 --sort=name --transform='s,^,minimal/,' config configure COPYING COPYRIGHT.musl make README.md src test | gzip -n9 > $@
+	$(E_GEN) \
+. make/dr_source.sh; \
+if [ "${VERSION_PATCH}" = "0" ]; then \
+    VERSION=${VERSION_MAJOR}.${VERSION_MINOR}${VERSION_EXTRA}; \
+else \
+    VERSION=${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}${VERSION_EXTRA}; \
+fi; \
+LC_ALL=C.UTF-8 tar cf - --mode=u+rw,go=rX --mtime="$${SOURCE_DATE}" --group=0 --numeric-owner --owner=0 --sort=name --transform='s,^,minimal/,' config configure COPYING COPYRIGHT.musl make README.md src test | gzip -n9 > minimal-$${VERSION}.tar.gz
 
 distclean:
-	rm -rf build Makefile minimal.tar.gz
+	rm -rf build Makefile minimal*.tar.gz

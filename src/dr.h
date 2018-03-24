@@ -147,6 +147,12 @@ extern dr_handle_t dr_stdin;
 extern dr_handle_t dr_stdout;
 extern dr_handle_t dr_stderr;
 
+const char *dr_source_revision(void);
+const char *dr_source_status(void);
+const char *dr_source_date(void);
+int dr_get_version_short(char *restrict const str, const size_t size);
+int dr_get_version_long(char *restrict const str, const size_t size);
+
 #define DR_NONBLOCK  (1U<<0) // DR Should this just always be the default? Doesn't play well on windows
 #define DR_CLOEXEC   (1U<<1)
 #define DR_REUSEADDR (1U<<2)

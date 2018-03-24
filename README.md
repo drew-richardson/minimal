@@ -111,6 +111,7 @@ Start the 9p server. Note that this server is read only, but other 9p compatible
 
 ```
 $ build/dist/9p_server -p 7000
+1521919519.694033624 main(src/9p_server.c:794) : Listening for clients
 ```
 
 Connect to the server using the 9p client

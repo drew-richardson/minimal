@@ -10,11 +10,12 @@ makedir() {
 }
 
 makedir build
+makedir build/dist
+makedir build/include
 makedir build/make
 makedir build/make_obj
-makedir build/include
 makedir build/obj
-makedir build/dist
+makedir build/src
 
 if [ -f build/make/target.mk ]; then
     . build/make/target.mk

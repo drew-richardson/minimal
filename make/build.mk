@@ -54,11 +54,14 @@ build/obj/dr_log$(OEXT): build/make/dr_config.mk $(PROJROOT)src/dr_log.c
 build/obj/dr_pipe$(OEXT): build/make/dr_config.mk $(PROJROOT)src/dr_pipe.c
 	$(E_CC)$(CC) $(FLAGS_C) $(PROJROOT)src/dr_pipe.c $(OUTPUT_C)$@
 
+build/obj/dr_sem$(OEXT): build/make/dr_config.mk $(PROJROOT)src/dr_sem.c
+	$(E_CC)$(CC) $(FLAGS_C) $(PROJROOT)src/dr_sem.c $(OUTPUT_C)$@
+
 build/obj/dr_socket$(OEXT): build/make/dr_config.mk $(PROJROOT)src/dr_socket.c
 	$(E_CC)$(CC) $(FLAGS_C) $(PROJROOT)src/dr_socket.c $(OUTPUT_C)$@
 
-build/obj/dr_sem$(OEXT): build/make/dr_config.mk $(PROJROOT)src/dr_sem.c
-	$(E_CC)$(CC) $(FLAGS_C) $(PROJROOT)src/dr_sem.c $(OUTPUT_C)$@
+build/obj/dr_source$(OEXT): build/make/dr_config.mk build/src/dr_source.c
+	$(E_CC)$(CC) $(FLAGS_C) build/src/dr_source.c $(OUTPUT_C)$@
 
 build/obj/dr_str$(OEXT): build/make/dr_config.mk $(PROJROOT)src/dr_str.c
 	$(E_CC)$(CC) $(FLAGS_C) $(PROJROOT)src/dr_str.c $(OUTPUT_C)$@
@@ -71,6 +74,9 @@ build/obj/$(dr_task_destroy_on_do$(AEXT))dr_task_destroy_on_do$(OEXT): build/mak
 
 build/obj/$(dr_task_switch$(AEXT))dr_task_switch$(OEXT): build/make/dr_config.mk $(PROJROOT)src/$(dr_task_switch$(AEXT))dr_task_switch$(AEXT)
 	$(E_CCAS)$(CCAS) $(FLAGS_C) $(OUTPUT_C)$@ $(PROJROOT)src/$(dr_task_switch$(AEXT))dr_task_switch$(AEXT)
+
+build/obj/dr_version$(OEXT): build/make/dr_config.mk $(PROJROOT)src/dr_version.c
+	$(E_CC)$(CC) $(FLAGS_C) $(PROJROOT)src/dr_version.c $(OUTPUT_C)$@
 
 build/obj/dr_vfs$(OEXT): build/make/dr_config.mk $(PROJROOT)src/dr_vfs.c
 	$(E_CC)$(CC) $(FLAGS_C) $(PROJROOT)src/dr_vfs.c $(OUTPUT_C)$@
@@ -108,11 +114,11 @@ build/dist/9p_code$(EEXT): build/make/dr_config.mk build/obj/dr_9p_decode$(OEXT)
 build/dist/9p_fuzz$(EEXT): build/make/dr_config.mk build/obj/dr_9p_decode$(OEXT) build/obj/dr_clock$(OEXT) build/obj/dr_console$(OEXT) build/obj/dr_io$(OEXT) build/obj/dr_log$(OEXT) build/obj/9p_fuzz$(OEXT)
 	$(E_CCLD)$(CC) $(FLAGS_L) build/obj/dr_9p_decode$(OEXT) build/obj/dr_clock$(OEXT) build/obj/dr_console$(OEXT) build/obj/dr_io$(OEXT) build/obj/dr_log$(OEXT) build/obj/9p_fuzz$(OEXT) $(ACCEPT_LDLIBS) $(LDLIBS) $(OUTPUT_L)$@
 
-build/dist/9p_client$(EEXT): build/make/dr_config.mk build/obj/getopt$(OEXT) build/obj/dr_9p_encode$(OEXT) build/obj/dr_9p_decode$(OEXT) build/obj/dr_clock$(OEXT) build/obj/dr_io$(OEXT) build/obj/dr_log$(OEXT) build/obj/dr_pipe$(OEXT) build/obj/dr_socket$(OEXT) build/obj/9p_client$(OEXT)
-	$(E_CCLD)$(CC) $(FLAGS_L) build/obj/getopt$(OEXT) build/obj/dr_9p_encode$(OEXT) build/obj/dr_9p_decode$(OEXT) build/obj/dr_clock$(OEXT) build/obj/dr_io$(OEXT) build/obj/dr_log$(OEXT) build/obj/dr_pipe$(OEXT) build/obj/dr_socket$(OEXT) build/obj/9p_client$(OEXT) $(ACCEPT_LDLIBS) $(LDLIBS) $(OUTPUT_L)$@
+build/dist/9p_client$(EEXT): build/make/dr_config.mk build/obj/getopt$(OEXT) build/obj/dr_9p_encode$(OEXT) build/obj/dr_9p_decode$(OEXT) build/obj/dr_clock$(OEXT) build/obj/dr_io$(OEXT) build/obj/dr_log$(OEXT) build/obj/dr_pipe$(OEXT) build/obj/dr_socket$(OEXT) build/obj/dr_source$(OEXT) build/obj/dr_version$(OEXT) build/obj/9p_client$(OEXT)
+	$(E_CCLD)$(CC) $(FLAGS_L) build/obj/getopt$(OEXT) build/obj/dr_9p_encode$(OEXT) build/obj/dr_9p_decode$(OEXT) build/obj/dr_clock$(OEXT) build/obj/dr_io$(OEXT) build/obj/dr_log$(OEXT) build/obj/dr_pipe$(OEXT) build/obj/dr_socket$(OEXT) build/obj/dr_source$(OEXT) build/obj/dr_version$(OEXT) build/obj/9p_client$(OEXT) $(ACCEPT_LDLIBS) $(LDLIBS) $(OUTPUT_L)$@
 
-build/dist/9p_server$(EEXT): build/make/dr_config.mk build/obj/getopt$(OEXT) build/obj/dr_9p_decode$(OEXT) build/obj/dr_clock$(OEXT) build/obj/dr_9p_encode$(OEXT) build/obj/dr_event$(OEXT) build/obj/dr_io$(OEXT) build/obj/dr_log$(OEXT) build/obj/dr_pipe$(OEXT) build/obj/dr_socket$(OEXT) build/obj/dr_str$(OEXT) build/obj/dr_task$(OEXT) build/obj/$(dr_task_destroy_on_do$(AEXT))dr_task_destroy_on_do$(OEXT) build/obj/$(dr_task_switch$(AEXT))dr_task_switch$(OEXT) build/obj/dr_vfs$(OEXT) build/obj/9p_server$(OEXT)
-	$(E_CCLD)$(CC) $(FLAGS_L) build/obj/getopt$(OEXT) build/obj/dr_9p_decode$(OEXT) build/obj/dr_clock$(OEXT) build/obj/dr_9p_encode$(OEXT) build/obj/dr_event$(OEXT) build/obj/dr_io$(OEXT) build/obj/dr_log$(OEXT) build/obj/dr_pipe$(OEXT) build/obj/dr_socket$(OEXT) build/obj/dr_str$(OEXT) build/obj/dr_task$(OEXT) build/obj/$(dr_task_destroy_on_do$(AEXT))dr_task_destroy_on_do$(OEXT) build/obj/$(dr_task_switch$(AEXT))dr_task_switch$(OEXT) build/obj/dr_vfs$(OEXT) build/obj/9p_server$(OEXT) $(ACCEPT_LDLIBS) $(ACCEPTEX_LDLIBS) $(LDLIBS) $(OUTPUT_L)$@
+build/dist/9p_server$(EEXT): build/make/dr_config.mk build/obj/getopt$(OEXT) build/obj/dr_9p_decode$(OEXT) build/obj/dr_clock$(OEXT) build/obj/dr_9p_encode$(OEXT) build/obj/dr_event$(OEXT) build/obj/dr_io$(OEXT) build/obj/dr_log$(OEXT) build/obj/dr_pipe$(OEXT) build/obj/dr_socket$(OEXT) build/obj/dr_source$(OEXT) build/obj/dr_str$(OEXT) build/obj/dr_task$(OEXT) build/obj/$(dr_task_destroy_on_do$(AEXT))dr_task_destroy_on_do$(OEXT) build/obj/$(dr_task_switch$(AEXT))dr_task_switch$(OEXT) build/obj/dr_version$(OEXT) build/obj/dr_vfs$(OEXT) build/obj/9p_server$(OEXT)
+	$(E_CCLD)$(CC) $(FLAGS_L) build/obj/getopt$(OEXT) build/obj/dr_9p_decode$(OEXT) build/obj/dr_clock$(OEXT) build/obj/dr_9p_encode$(OEXT) build/obj/dr_event$(OEXT) build/obj/dr_io$(OEXT) build/obj/dr_log$(OEXT) build/obj/dr_pipe$(OEXT) build/obj/dr_socket$(OEXT) build/obj/dr_source$(OEXT) build/obj/dr_str$(OEXT) build/obj/dr_task$(OEXT) build/obj/$(dr_task_destroy_on_do$(AEXT))dr_task_destroy_on_do$(OEXT) build/obj/$(dr_task_switch$(AEXT))dr_task_switch$(OEXT) build/obj/dr_version$(OEXT) build/obj/dr_vfs$(OEXT) build/obj/9p_server$(OEXT) $(ACCEPT_LDLIBS) $(ACCEPTEX_LDLIBS) $(LDLIBS) $(OUTPUT_L)$@
 
 build/dist/client$(EEXT): build/make/dr_config.mk build/obj/getopt$(OEXT) build/obj/dr_clock$(OEXT) build/obj/dr_console$(OEXT) build/obj/dr_io$(OEXT) build/obj/dr_log$(OEXT) build/obj/dr_socket$(OEXT) build/obj/client$(OEXT)
 	$(E_CCLD)$(CC) $(FLAGS_L) build/obj/getopt$(OEXT) build/obj/dr_clock$(OEXT) build/obj/dr_console$(OEXT) build/obj/dr_io$(OEXT) build/obj/dr_log$(OEXT) build/obj/dr_socket$(OEXT) build/obj/client$(OEXT) $(ACCEPT_LDLIBS) $(LDLIBS) $(OUTPUT_L)$@

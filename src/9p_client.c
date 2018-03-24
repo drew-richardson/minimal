@@ -930,7 +930,9 @@ bool help(dr_handle_t fd, const uint32_t msize, int argc, char *restrict *restri
 }
 
 WARN_UNUSED_RESULT static int print_version(void) {
-  printf("9p_client %u.%u.%u\n", DR_VERSION_MAJOR, DR_VERSION_MINOR, DR_VERSION_PATCH);
+  char buf[256];
+  dr_get_version_long(buf, sizeof(buf));
+  printf("9p_client %s\n", buf);
   return 0;
 }
 
