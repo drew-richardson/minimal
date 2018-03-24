@@ -1,0 +1,105 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-2.0-only
+# Copyright (c) 2018 Drew Richardson <drewrichardson@gmail.com>
+
+set -e
+
+print_help() {
+    printf "%s\n" \
+	   "Usage: $0 [OPTION]... [VAR=VALUE]..." \
+	   " -h, --help      display this help and exit" \
+	   " --prefix=PREFIX install location" \
+	   " SH=VALUE        shell" \
+	   " CC=VALUE        c compiler, defaults to cc" \
+	   " CCAS=VALUE      assembler, defaults to \$CC" \
+	   " CPPFLAGS=VALUE  pre-processor flags" \
+	   " CFLAGS=VALUE    c compiler flags" \
+	   " LDFLAGS=VALUE   ld flags" \
+	   " LDLIBS=VALUE    ld libraries"
+    exit
+}
+
+PREFIX=/usr/local
+for i in "$@"; do
+    if [ "${i#-}" != "$i" ]; then
+	case $i in
+	    -h)
+		print_help
+		;;
+	    --help)
+		print_help
+		;;
+	    --prefix=*)
+		PREFIX=${i#--prefix=}
+		;;
+	    *)
+		echo "Unrecognized option '$i'"
+		false
+		;;
+	esac
+	continue
+    fi
+    if [ "${i#*=}" != "$i" ]; then
+	export "$i"
+	continue
+    fi
+    echo "Unrecognized argument '$i'"
+    false
+done
+
+# From https://www.jasan.tk/posix/2017/05/11/posix_shell_dirname_replacement
+a="/$0"; a=${a%/*}; a=${a:-.}; a=${a#/}/
+
+if [ "${a}x" = "./x" ]; then
+    export PROJROOT=
+else
+    export PROJROOT=$a
+fi
+
+if [ "${SH}x" = "x" ]; then
+    SH=$(which sh 2> /dev/null || true)
+    if [ "${SH}x" = "x" -o ! -f "${SH}" ]; then
+	SH=sh
+    fi
+fi
+
+if [ "${CC}x" = "x" ]; then
+    CC=$(which cc 2> /dev/null || true)
+    if [ "${CC}x" = "x" -o ! -f "${CC}" ]; then
+	CC=$(which clang 2> /dev/null || true)
+	if [ "${CC}x" = "x" -o ! -f "${CC}" ]; then
+	    CC=cc
+	fi
+    fi
+fi
+
+if [ "${CCAS}x" = "x" ]; then
+    CCAS=${CC}
+fi
+
+if [ "${MAKE}x" = "x" ]; then
+    MAKE=$(which make 2> /dev/null || true)
+    if [ "${MAKE}x" = "x" -o ! -f "${MAKE}" ]; then
+	MAKE=make
+    fi
+fi
+
+. ${PROJROOT}make/mkdirs.sh
+
+echo "  GEN      build/make/env.mk"
+printf "%s\n" \
+       "SHELL=${SH}" \
+       "CC=${CC}" \
+       "CCAS=${CCAS}" \
+       "CPPFLAGS=${CPPFLAGS}" \
+       "CFLAGS=${CFLAGS}" \
+       "LDFLAGS=${LDFLAGS}" \
+       "LDLIBS=${LDLIBS}" \
+       "PROJROOT=${PROJROOT}" \
+       "PREFIX=${PREFIX}" \
+       > build/make/env.mk
+
+${MAKE} -f ${PROJROOT}make/configure.mk
+
+echo "  GEN      Makefile"
+echo "include ${PROJROOT}make/make.mk" > Makefile
