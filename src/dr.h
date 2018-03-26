@@ -22,11 +22,13 @@ extern int dr_optind, dr_opterr, dr_optopt, dr_optreset;
 int dr_getopt(int argc, char * const argv[], const char *optstring);
 int dr_getopt_long(int argc, char **argv, const char *optstring, const struct dr_option *longopts, int *idx);
 
-#define DR_ERR_ISO_C 1
+enum {
+  DR_ERR_ISO_C = 1,
 #if defined(_WIN32)
-#define DR_ERR_WIN   2
+  DR_ERR_WIN   = 2,
 #endif
-#define DR_ERR_GAI   3
+  DR_ERR_GAI   = 3,
+};
 
 #define DR_RESULT_OK(TNAME, VALUE) \
   (struct dr_result_##TNAME) { \
@@ -40,8 +42,8 @@ int dr_getopt_long(int argc, char **argv, const char *optstring, const struct dr
     .private_u.private_error.func = __func__, \
     .private_u.private_error.file = __FILE__, \
     .private_u.private_error.line = __LINE__, \
-    .private_u.private_error.domain = DOMAIN, \
-    .private_u.private_error.num = NUM, \
+    .private_u.private_error.domain = (DOMAIN), \
+    .private_u.private_error.num = (NUM), \
   }
 
 #define DR_RESULT_ERRNO(TNAME) DR_RESULT_ERRNUM(TNAME, DR_ERR_ISO_C, errno)
@@ -83,8 +85,8 @@ int dr_getopt_long(int argc, char **argv, const char *optstring, const struct dr
     .private_u.private_error.func = __func__, \
     .private_u.private_error.file = __FILE__, \
     .private_u.private_error.line = __LINE__, \
-    .private_u.private_error.domain = DOMAIN, \
-    .private_u.private_error.num = NUM, \
+    .private_u.private_error.domain = (DOMAIN), \
+    .private_u.private_error.num = (NUM), \
   }
 
 #define DR_RESULT_ERRNO_VOID() DR_RESULT_ERRNUM_VOID(DR_ERR_ISO_C, errno)
@@ -119,8 +121,8 @@ int dr_log_format(char *restrict const buf, size_t size, const struct dr_error *
 
 WARN_UNUSED_RESULT bool dr_str_eq(const struct dr_str *restrict const a, const struct dr_str *restrict const b);
 
-#define DR_NS_PER_S ((int64_t)1000000000)
-#define DR_NS_PER_MS ((int64_t)1000000)
+static const int64_t DR_NS_PER_S = 1000000000;
+static const int64_t DR_NS_PER_MS = 1000000;
 
 // 2^63/1000000000 = 9223372036 -> Sep 21 00:12:44 UTC 1677 - Apr 11 23:47:16 UTC 2262
 WARN_UNUSED_RESULT struct dr_result_int64 dr_system_time_ns(void);
@@ -153,9 +155,11 @@ const char *dr_source_date(void);
 int dr_get_version_short(char *restrict const str, const size_t size);
 int dr_get_version_long(char *restrict const str, const size_t size);
 
-#define DR_NONBLOCK  (1U<<0) // DR Should this just always be the default? Doesn't play well on windows
-#define DR_CLOEXEC   (1U<<1)
-#define DR_REUSEADDR (1U<<2)
+enum {
+  DR_NONBLOCK  = 1U<<0, // DR Should this just always be the default? Doesn't play well on windows
+  DR_CLOEXEC   = 1U<<1,
+  DR_REUSEADDR = 1U<<2,
+};
 
 struct sockaddr; // DR ...
 
@@ -171,12 +175,16 @@ WARN_UNUSED_RESULT struct dr_result_void dr_listen(dr_handle_t sockfd, int backl
 WARN_UNUSED_RESULT struct dr_result_handle dr_pipe_bind(const char *restrict const name, unsigned int flags);
 WARN_UNUSED_RESULT struct dr_result_handle dr_pipe_connect(const char *restrict const name, unsigned int flags);
 
-#define DR_EVENT_IN  (1U<<0)
-#define DR_EVENT_OUT (1U<<1)
+enum {
+  DR_EVENT_IN  = 1U<<0,
+  DR_EVENT_OUT = 1U<<1,
+};
 
-#define DR_EVENT_ADD 0
-#define DR_EVENT_MOD 1
-#define DR_EVENT_DEL 2
+enum {
+  DR_EVENT_ADD = 0,
+  DR_EVENT_MOD = 1,
+  DR_EVENT_DEL = 2,
+};
 
 WARN_UNUSED_RESULT void *dr_event_key(struct dr_event *restrict const events, int i);
 WARN_UNUSED_RESULT bool dr_event_is_read(struct dr_event *restrict const events, int i);
@@ -216,37 +224,45 @@ WARN_UNUSED_RESULT struct dr_result_void dr_sem_post(struct dr_sem *restrict con
 WARN_UNUSED_RESULT struct dr_result_void dr_sem_wait(struct dr_sem *restrict const sem);
 
 // mode
-#define DR_DIR    0x80000000
-#define DR_APPEND 0x40000000
-#define DR_EXCL   0x20000000
-#define DR_AUTH   0x08000000
-#define DR_TMP    0x04000000
-#define DR_RUSR   0x00000100
-#define DR_WUSR   0x00000080
-#define DR_XUSR   0x00000040
-#define DR_RGRP   0x00000020
-#define DR_WGRP   0x00000010
-#define DR_XGRP   0x00000008
-#define DR_ROTH   0x00000004
-#define DR_WOTH   0x00000002
-#define DR_XOTH   0x00000001
+enum {
+  DR_DIR    = 0x80000000,
+  DR_APPEND = 0x40000000,
+  DR_EXCL   = 0x20000000,
+  DR_AUTH   = 0x08000000,
+  DR_TMP    = 0x04000000,
+  DR_RUSR   = 0x00000100,
+  DR_WUSR   = 0x00000080,
+  DR_XUSR   = 0x00000040,
+  DR_RGRP   = 0x00000020,
+  DR_WGRP   = 0x00000010,
+  DR_XGRP   = 0x00000008,
+  DR_ROTH   = 0x00000004,
+  DR_WOTH   = 0x00000002,
+  DR_XOTH   = 0x00000001,
+};
 
 // qid type
-#define DR_QTDIR    0x80
-#define DR_QTAPPEND 0x40
-#define DR_QTEXCL   0x20
-#define DR_QTAUTH   0x08
-#define DR_QTTMP    0x04
+enum {
+  DR_QTDIR    = 0x80,
+  DR_QTAPPEND = 0x40,
+  DR_QTEXCL   = 0x20,
+  DR_QTAUTH   = 0x08,
+  DR_QTTMP    = 0x04,
+};
 
-#define	DR_AEXEC  0x1
-#define	DR_AWRITE 0x2
-#define	DR_AREAD  0x4
+enum {
+  DR_AEXEC  = 0x1,
+  DR_AWRITE = 0x2,
+  DR_AREAD  = 0x4,
+};
 
-#define	DR_OREAD  0
-#define	DR_OWRITE 1
-#define	DR_ORDWR  2
-#define	DR_OEXEC  3
-#define	DR_OTRUNC 0x10
+enum {
+  DR_OREAD  = 0,
+  DR_OWRITE = 1,
+  DR_ORDWR  = 2,
+  DR_OEXEC  = 3,
+  DR_OTRUNC = 0x10,
+};
 
 WARN_UNUSED_RESULT struct dr_result_file dr_vfs_walk(const struct dr_user *restrict const user, const struct dr_file *restrict const file, const struct dr_str *restrict const name);
 WARN_UNUSED_RESULT struct dr_result_fd dr_vfs_open(const struct dr_user *restrict const user, struct dr_file *restrict const file, const uint8_t mode);
@@ -256,35 +272,37 @@ void dr_vfs_close(struct dr_fd *restrict const fd);
 
 extern struct dr_file_vtbl dr_dir_vtbl;
 
-#define DR_TVERSION 100
-#define DR_RVERSION 101
-#define DR_TAUTH    102
+enum {
+  DR_TVERSION = 100,
+  DR_RVERSION = 101,
+  DR_TAUTH    = 102,
 
-#define DR_TATTACH  104
-#define DR_RATTACH  105
+  DR_TATTACH  = 104,
+  DR_RATTACH  = 105,
 
-#define DR_RERROR   107
+  DR_RERROR   = 107,
 
-#define DR_TWALK    110
-#define DR_RWALK    111
-#define DR_TOPEN    112
-#define DR_ROPEN    113
-#define DR_TCREATE  114
-#define DR_RCREATE  115
-#define DR_TREAD    116
-#define DR_RREAD    117
-#define DR_TWRITE   118
-#define DR_RWRITE   119
-#define DR_TCLUNK   120
-#define DR_RCLUNK   121
-#define DR_TREMOVE  122
-#define DR_RREMOVE  123
-#define DR_TSTAT    124
-#define DR_RSTAT    125
-#define DR_TWSTAT   126
-#define DR_RWSTAT   127
+  DR_TWALK    = 110,
+  DR_RWALK    = 111,
+  DR_TOPEN    = 112,
+  DR_ROPEN    = 113,
+  DR_TCREATE  = 114,
+  DR_RCREATE  = 115,
+  DR_TREAD    = 116,
+  DR_RREAD    = 117,
+  DR_TWRITE   = 118,
+  DR_RWRITE   = 119,
+  DR_TCLUNK   = 120,
+  DR_RCLUNK   = 121,
+  DR_TREMOVE  = 122,
+  DR_RREMOVE  = 123,
+  DR_TSTAT    = 124,
+  DR_RSTAT    = 125,
+  DR_TWSTAT   = 126,
+  DR_RWSTAT   = 127,
+};
 
-#define DR_NOFID ((uint32_t)~0)
+static const uint32_t DR_NOFID = ~0;
 
 WARN_UNUSED_RESULT uint8_t dr_decode_uint8(const uint8_t *restrict const buf);
 WARN_UNUSED_RESULT uint16_t dr_decode_uint16(const uint8_t *restrict const buf);
@@ -296,7 +314,7 @@ void dr_encode_uint16(uint8_t *restrict const buf, const uint16_t val);
 void dr_encode_uint32(uint8_t *restrict const buf, const uint32_t val);
 void dr_encode_uint64(uint8_t *restrict const buf, const uint64_t val);
 
-#define FAIL_UINT32 ((uint32_t)~0)
+static const uint32_t FAIL_UINT32 = ~0;
 WARN_UNUSED_RESULT uint32_t dr_9p_decode_stat(struct dr_9p_stat *restrict const stat, const uint8_t *restrict const buf, const uint32_t size);
 WARN_UNUSED_RESULT bool dr_9p_decode_header(uint8_t *restrict const type, uint16_t *restrict const tag, const uint8_t *restrict const buf, const uint32_t size, uint32_t *restrict const pos);
 WARN_UNUSED_RESULT bool dr_9p_decode_Tversion(uint32_t *restrict const msize, struct dr_str *restrict const version, const uint8_t *restrict const buf, const uint32_t size, uint32_t *restrict const pos);

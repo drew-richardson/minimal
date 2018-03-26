@@ -129,7 +129,7 @@ printf "%s\n" \
 "const char *dr_source_revision(void) { return \"$${SOURCE_REVISION}\"; }" \
 "const char *dr_source_status(void) { return \"$${SOURCE_STATUS}\"; }" \
 "const char *dr_source_date(void) { return \"$${SOURCE_DATE}\"; }" > $@.new; \
-if ! diff $@.new $@ 2>&1 > /dev/null; then \
+if ! diff $@.new $@ > /dev/null 2>&1; then \
     mv $@.new $@; \
 fi
 

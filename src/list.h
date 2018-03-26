@@ -6,8 +6,8 @@
 
 #include <stddef.h>
 
-#define container_of(ptr, type, member) (type *)((char *)ptr - offsetof(type, member))
-#define container_of_const(ptr, type, member) (type *)((const char *)ptr - offsetof(type, member))
+#define container_of(ptr, type, member) (type *)((char *)(ptr) - offsetof(type, member))
+#define container_of_const(ptr, type, member) (type *)((const char *)(ptr) - offsetof(type, member))
 
 struct list_head {
   struct list_head *next, *prev;

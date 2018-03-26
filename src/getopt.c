@@ -20,7 +20,7 @@
 #define option dr_option
 #define getopt(argc, argv, optstring) dr_getopt(argc, argv, optstring)
 #define getopt_long(argc, argv, optstring, longopts, idx) dr_getopt_long(argc, argv, optstring, longopts, idx)
-#define __lctrans_cur(msg) msg
+#define __lctrans_cur(msg) (msg)
 
 // Derived from https://git.musl-libc.org/cgit/musl/tree/src/misc/getopt.c?h=v1.1.18
 // Released under a MIT license, see COPYRIGHT.musl

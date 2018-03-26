@@ -43,11 +43,44 @@ printf "%s\n" \
        "	\$(E_GEN)cat${FILES} > \$@" \
        ""
 
-CRULES="-Wfails -Wall -Wextra -Wc++-compat -Wcast-qual -Wmissing-prototypes -Wold-style-definition -Wpointer-arith -Wshadow -Wstrict-prototypes -Wwrite-strings -Wimplicit-function-declaration -Wduplicated-cond -Wduplicated-branches -Wlogical-op -Wrestrict -Wnull-dereference -Wjump-misses-init -Wdouble-promotion -Wformat=2 -Wa,--noexecstack -fno-asynchronous-unwind-tables -fno-exceptions -fno-unwind-tables -fomit-frame-pointer -fvisibility=hidden -fpie -pipe /nologo"
 FILES=
-for i in ${CRULES}; do
-    cflag_rule $i
-done
+
+cflag_rule "-Wfails"
+cflag_rule "-Wall"
+cflag_rule "-Wextra"
+
+cflag_rule "-Wc++-compat"
+cflag_rule "-Wcast-qual"
+cflag_rule "-Wdouble-promotion"
+cflag_rule "-Wduplicated-branches"
+cflag_rule "-Wduplicated-cond"
+cflag_rule "-Wformat=2"
+cflag_rule "-Wimplicit-function-declaration"
+cflag_rule "-Wjump-misses-init"
+cflag_rule "-Wlogical-op"
+cflag_rule "-Wmissing-prototypes"
+cflag_rule "-Wnull-dereference"
+cflag_rule "-Wold-style-definition"
+cflag_rule "-Wpointer-arith"
+cflag_rule "-Wrestrict"
+cflag_rule "-Wshadow"
+cflag_rule "-Wstrict-prototypes"
+cflag_rule "-Wvla"
+cflag_rule "-Wwrite-strings"
+
+cflag_rule "-Wa,--noexecstack"
+
+cflag_rule "-fno-asynchronous-unwind-tables"
+cflag_rule "-fno-exceptions"
+cflag_rule "-fno-unwind-tables"
+cflag_rule "-fomit-frame-pointer"
+cflag_rule "-fpie"
+cflag_rule "-fvisibility=hidden"
+
+cflag_rule "-pipe"
+
+cflag_rule "/nologo"
+
 printf "%s\n" \
        "build/make/cflags.mk:${FILES}" \
        "	\$(E_GEN)cat${FILES} > \$@" \

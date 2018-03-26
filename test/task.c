@@ -5,7 +5,7 @@
 
 #include <stdio.h>
 
-#define STACK_SIZE (1<<16)
+static const size_t STACK_SIZE = 1<<16;
 
 #define DEFS \
   int v00 = buf[0x00]; int v01 = buf[0x01]; \

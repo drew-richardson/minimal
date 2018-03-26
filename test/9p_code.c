@@ -9,13 +9,13 @@
 #include <string.h>
 
 #define BUF_SIZE (1<<13)
-#define HEADER_OFFSET 7
+static const uint32_t HEADER_OFFSET = 7;
 
 #define QID_PATH(f) \
-    (uint64_t)(uintptr_t)(f) >> 0*8, (uint64_t)(uintptr_t)(f) >> 1*8, \
-    (uint64_t)(uintptr_t)(f) >> 2*8, (uint64_t)(uintptr_t)(f) >> 3*8, \
-    (uint64_t)(uintptr_t)(f) >> 4*8, (uint64_t)(uintptr_t)(f) >> 5*8, \
-    (uint64_t)(uintptr_t)(f) >> 6*8, (uint64_t)(uintptr_t)(f) >> 7*8
+  (uint64_t)(uintptr_t)(f) >> 0*8, (uint64_t)(uintptr_t)(f) >> 1*8, \
+  (uint64_t)(uintptr_t)(f) >> 2*8, (uint64_t)(uintptr_t)(f) >> 3*8, \
+  (uint64_t)(uintptr_t)(f) >> 4*8, (uint64_t)(uintptr_t)(f) >> 5*8, \
+  (uint64_t)(uintptr_t)(f) >> 6*8, (uint64_t)(uintptr_t)(f) >> 7*8
 
 static char u0name_buf[] = { 'o', 'w', 'n' };
 static char u1name_buf[] = { 'i', 'd' };

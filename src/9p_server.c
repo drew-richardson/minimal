@@ -557,7 +557,7 @@ static bool dr_handle_request(struct list_head *restrict const fids, const uint8
   }
 }
 
-#define STACK_SIZE (1<<16)
+static const size_t STACK_SIZE = 1<<16;
 
 struct client {
   struct list_head clients;

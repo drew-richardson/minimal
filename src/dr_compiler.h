@@ -19,8 +19,8 @@
 
 #else
 
-#define dr_likely(cond) cond
-#define dr_unlikely(cond) cond
+#define dr_likely(cond) (cond)
+#define dr_unlikely(cond) (cond)
 
 #endif
 

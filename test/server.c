@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define STACK_SIZE (1<<16)
+static const size_t STACK_SIZE = 1<<16;
 
 struct client {
   struct list_head clients;

@@ -31,7 +31,9 @@ struct dr_task_frame {
 
 #define PC rip
 
-#define ALIGN_SP(sp) ((((sp) - 8) & -64) + 8)
+static uintptr_t align_sp(const uintptr_t sp) {
+  return ((sp - 8) & -64) + 8;
+}
 
 #elif defined(_WIN32) && (defined(__x86_64__) || defined(_M_X64))
 
@@ -55,7 +57,9 @@ struct dr_task_frame {
 
 #define PC rip
 
-#define ALIGN_SP(sp) ((((sp) - 8) & -64) + 8)
+static uintptr_t align_sp(const uintptr_t sp) {
+  return ((sp - 8) & -64) + 8;
+}
 
 #elif !defined(_WIN32) && defined(__i386)
 
@@ -70,7 +74,9 @@ struct dr_task_frame {
 
 #define PC eip
 
-#define ALIGN_SP(sp) ((((sp) - 4) & -64) + 4)
+static uintptr_t align_sp(const uintptr_t sp) {
+  return ((sp - 4) & -64) + 4;
+}
 
 #elif defined(_WIN32) && (defined(__i386) || defined(_M_IX86))
 
@@ -90,7 +96,9 @@ struct dr_task_frame {
 
 #define PC eip
 
-#define ALIGN_SP(sp) ((((sp) - 4) & -64) + 4)
+static uintptr_t align_sp(const uintptr_t sp) {
+  return ((sp - 4) & -64) + 4;
+}
 
 #elif !defined(_WIN32) && defined(__aarch64__)
 
@@ -112,7 +120,9 @@ struct dr_task_frame {
 
 #define PC pc
 
-#define ALIGN_SP(sp) ((sp) & -64)
+static uintptr_t align_sp(const uintptr_t sp) {
+  return sp & -64;
+}
 
 #elif !defined(_WIN32) && defined(__arm__)
 
@@ -131,7 +141,9 @@ struct dr_task_frame {
 
 #define PC pc
 
-#define ALIGN_SP(sp) ((sp) & -64)
+static uintptr_t align_sp(const uintptr_t sp) {
+  return sp & -64;
+}
 
 #else
 
@@ -269,7 +281,7 @@ struct dr_result_void dr_task_create(struct dr_task *restrict const task, const 
       stack = value;
     } DR_FI_RESULT;
   }
-  const uintptr_t sp = ALIGN_SP((uintptr_t)stack + alloc_size);
+  const uintptr_t sp = align_sp((uintptr_t)stack + alloc_size);
   struct dr_task_frame *restrict const frame = (struct dr_task_frame *)(sp - sizeof(*frame));
   task->frame = frame;
   task->stack = stack;
