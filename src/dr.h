@@ -6,6 +6,7 @@
 
 #include "dr_config.h"
 
+#include <stdarg.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -22,6 +23,15 @@ DR_WARN_UNUSED_RESULT int dr_getopt_long(int argc, char **argv, const char *opts
 
 DR_WARN_UNUSED_RESULT struct dr_result_size dr_write_all_fn(struct dr_io *restrict const io, dr_io_write_fn_t write, const void *restrict const buf, size_t count);
 DR_WARN_UNUSED_RESULT struct dr_result_size dr_write_all(struct dr_io *restrict const io, const void *restrict const buf, size_t count);
+
+#define DR_ARGMAX 9
+DR_WARN_UNUSED_RESULT struct dr_result_size dr_vfprintf(struct dr_io *restrict const io, const char *restrict const fmt, va_list ap);
+DR_WARN_UNUSED_RESULT struct dr_result_size dr_vsnprintf(char *restrict const s, size_t n, const char *restrict const fmt, va_list ap);
+DR_WARN_UNUSED_RESULT DR_FORMAT_PRINTF(3, 4) struct dr_result_size dr_snprintf(char *restrict const s, size_t n, const char *restrict const fmt, ...);
+DR_WARN_UNUSED_RESULT DR_FORMAT_PRINTF(2, 3) struct dr_result_size dr_fprintf(struct dr_io *restrict const io, const char *restrict const fmt, ...);
+DR_WARN_UNUSED_RESULT DR_FORMAT_PRINTF(1, 2) struct dr_result_size dr_printf(const char *restrict const fmt, ...);
+DR_WARN_UNUSED_RESULT struct dr_result_size dr_fputs(const char *restrict const s, struct dr_io *restrict const io);
+DR_WARN_UNUSED_RESULT struct dr_result_size dr_puts(const char *restrict const s);
 
 #define dr_max_tname_impl(TYPE, TNAME) \
   DR_WARN_UNUSED_RESULT static inline TYPE dr_max_##TNAME##_impl(TYPE lhs, TYPE rhs) { return lhs > rhs ? lhs : rhs; }

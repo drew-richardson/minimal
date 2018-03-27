@@ -10,15 +10,18 @@ VERSION_PATCH = 0
 VERSION_EXTRA = -a0
 
 all: deps
-	$(Q)$(MAKE) -f $(PROJROOT)make/build.mk build/dist/9p_client$(EEXT) build/dist/9p_code$(EEXT) build/dist/9p_fuzz$(EEXT) build/dist/9p_server$(EEXT) build/dist/client$(EEXT) build/dist/perms$(EEXT) build/dist/queue$(EEXT) build/dist/server$(EEXT) build/dist/task$(EEXT)
+	$(Q)$(MAKE) -f $(PROJROOT)make/build.mk build/dist/9p_client$(EEXT) build/dist/9p_code$(EEXT) build/dist/9p_fuzz$(EEXT) build/dist/9p_server$(EEXT) build/dist/client$(EEXT) build/dist/perms$(EEXT) build/dist/printf$(EEXT) build/dist/queue$(EEXT) build/dist/server$(EEXT) build/dist/task$(EEXT)
 
-check: check_9p_code check_perms check_queue check_task check_server_client
+check: check_9p_code check_perms check_printf check_queue check_task check_server_client
 
 check_9p_code: all
 	$(Q)build/dist/9p_code$(EEXT)
 
 check_perms: all
 	$(Q)build/dist/perms$(EEXT)
+
+check_printf: all
+	$(Q)build/dist/printf$(EEXT)
 
 check_queue: all
 	$(Q)build/dist/queue$(EEXT)
@@ -53,6 +56,9 @@ build/dist/client$(EEXT): deps
 	$(Q)$(MAKE) -f $(PROJROOT)make/build.mk $@
 
 build/dist/perms$(EEXT): deps
+	$(Q)$(MAKE) -f $(PROJROOT)make/build.mk $@
+
+build/dist/printf$(EEXT): deps
 	$(Q)$(MAKE) -f $(PROJROOT)make/build.mk $@
 
 build/dist/queue$(EEXT): deps

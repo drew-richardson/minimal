@@ -52,4 +52,10 @@
 #define DR_NORETURN
 #endif
 
+#if defined(DR_HAS_ATTRIBUTE_FORMAT_PRINTF)
+#define DR_FORMAT_PRINTF(FORMAT_IND, ARG_IND) __attribute__((__format__(__printf__, FORMAT_IND, ARG_IND)))
+#else
+#define DR_FORMAT_PRINTF(FORMAT_IND, ARG_IND)
+#endif
+
 #endif // DR_COMPILER_H

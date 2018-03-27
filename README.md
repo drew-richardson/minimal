@@ -20,6 +20,7 @@ Things I'm proud of
 - scheduling
 - async networking
 - getopt
+- printf
 
 ### Incomplete
 
@@ -33,7 +34,6 @@ Things I'm proud of
 ### Planned
 
 - service discovery
-- printf
 
 ## Prerequisites
 
@@ -199,6 +199,6 @@ This project is licensed under the GPL v2.0 License - see [COPYING](COPYING) for
 ## Acknowledgments
 
 Thanks to:
-- [musl](https://www.musl-libc.org/) for [src/getopt.c](src/getopt.c)
+- [musl](https://www.musl-libc.org/) for [src/getopt.c](src/getopt.c) and [src/vfprintf.c](src/vfprintf.c)
 - [Linux](https://www.kernel.org/) for [src/list.h](src/list.h)
 - [boost.context](https://github.com/boostorg/context) for inspiring [dr_task](src/dr_task.c)

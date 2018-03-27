@@ -63,6 +63,9 @@ FLAGS_L = $(CFLAG_NOLOGO) $(CFLAG_FPIE) $(LDFLAGS)
 build/obj/getopt$(OEXT): build/make/dr_config.mk $(PROJROOT)src/getopt.c
 	$(E_CC)$(CC) $(FLAGS_C) $(PROJROOT)src/getopt.c $(OUTPUT_C)$@
 
+build/obj/vfprintf$(OEXT): build/make/dr_config.mk $(PROJROOT)src/vfprintf.c
+	$(E_CC)$(CC) $(FLAGS_C) $(PROJROOT)src/vfprintf.c $(OUTPUT_C)$@
+
 build/obj/dr_9p_decode$(OEXT): build/make/dr_config.mk $(PROJROOT)src/dr_9p_decode.c
 	$(E_CC)$(CC) $(FLAGS_C) $(PROJROOT)src/dr_9p_decode.c $(OUTPUT_C)$@
 
@@ -83,6 +86,9 @@ build/obj/dr_io$(OEXT): build/make/dr_config.mk $(PROJROOT)src/dr_io.c
 
 build/obj/dr_io_buf$(OEXT): build/make/dr_config.mk $(PROJROOT)src/dr_io_buf.c
 	$(E_CC)$(CC) $(FLAGS_C) $(PROJROOT)src/dr_io_buf.c $(OUTPUT_C)$@
+
+build/obj/dr_io_print$(OEXT): build/make/dr_config.mk $(PROJROOT)src/dr_io_print.c
+	$(E_CC)$(CC) $(FLAGS_C) $(PROJROOT)src/dr_io_print.c $(OUTPUT_C)$@
 
 build/obj/dr_log$(OEXT): build/make/dr_config.mk $(PROJROOT)src/dr_log.c
 	$(E_CC)$(CC) $(FLAGS_C) $(PROJROOT)src/dr_log.c $(OUTPUT_C)$@
@@ -134,6 +140,9 @@ build/obj/client$(OEXT): build/make/dr_config.mk $(PROJROOT)test/client.c
 
 build/obj/perms$(OEXT): build/make/dr_config.mk $(PROJROOT)test/perms.c
 	$(E_CC)$(CC) $(FLAGS_C) $(PROJROOT)test/perms.c $(OUTPUT_C)$@
+
+build/obj/printf$(OEXT): build/make/dr_config.mk $(PROJROOT)test/printf.c
+	$(E_CC)$(CC) $(FLAGS_C) $(PROJROOT)test/printf.c $(OUTPUT_C)$@
 
 build/obj/queue$(OEXT): build/make/dr_config.mk $(PROJROOT)test/queue.c
 	$(E_CC)$(CC) $(FLAGS_C) $(PROJROOT)test/queue.c $(OUTPUT_C)$@
@@ -218,6 +227,18 @@ perms_deps = \
 	build/obj/perms$(OEXT)
 build/dist/perms$(EEXT): build/make/dr_config.mk $(perms_deps)
 	$(E_CCLD)$(CC) $(FLAGS_L) $(perms_deps) $(ACCEPT_LDLIBS) $(LDLIBS) $(OUTPUT_L)$@
+
+printf_deps = \
+	build/obj/vfprintf$(OEXT) \
+	build/obj/dr_clock$(OEXT) \
+	build/obj/dr_console$(OEXT) \
+	build/obj/dr_io$(OEXT) \
+	build/obj/dr_io_buf$(OEXT) \
+	build/obj/dr_io_print$(OEXT) \
+	build/obj/dr_log$(OEXT) \
+	build/obj/printf$(OEXT)
+build/dist/printf$(EEXT): build/make/dr_config.mk $(printf_deps)
+	$(E_CCLD)$(CC) $(FLAGS_L) $(printf_deps) $(ACCEPT_LDLIBS) $(LDLIBS) $(OUTPUT_L)$@
 
 queue_deps = \
 	build/obj/dr_clock$(OEXT) \
