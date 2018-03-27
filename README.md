@@ -202,3 +202,4 @@ Thanks to:
 - [musl](https://www.musl-libc.org/) for [src/getopt.c](src/getopt.c) and [src/vfprintf.c](src/vfprintf.c)
 - [Linux](https://www.kernel.org/) for [src/list.h](src/list.h)
 - [boost.context](https://github.com/boostorg/context) for inspiring [dr_task](src/dr_task.c)
+- [qrintf](https://github.com/h2o/qrintf) for inspiring [dr_print*](src/dr.h)

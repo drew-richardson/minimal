@@ -4,6 +4,7 @@
 #include "dr.h"
 
 #include <limits.h>
+#include <stdlib.h>
 #include <string.h>
 
 #define DR_UINT64_MAX 0xffffffffffffffff
@@ -142,16 +143,7 @@
 #error Unrecognized ULONG_MAX
 #endif
 
-int main(void) {
-  {
-    const struct dr_result_void r = dr_console_startup();
-    DR_IF_RESULT_ERR(r, err) {
-      // If dr_log is changed to use dr_*printf, which uses dr_std*, we have a problem here. But perhaps the solution is that things are logged to multiple endpoints, console, file, socket and hopefully at least one of them works.
-      dr_log_error("dr_console_startup failed", err);
-      return -1;
-    } DR_FI_RESULT;
-  }
-
+static void test_snprintf(void) {
   char buf[23];
 
   {
@@ -706,7 +698,61 @@ int main(void) {
     dr_assert(DR_IS_RESULT_OK(r));
     dr_assert(strcmp(buf, "Something that is def") == 0);
   }
+}
 
+static void test_print(void) {
+  {
+    char *restrict const buf = (char *)malloc(12);
+    dr_assert(buf != NULL);
+    struct dr_print p;
+    const int result = dr_print_finalize(
+      dr_print_s(
+        dr_print_c(
+          dr_print_sp(
+            dr_print_sp(
+              dr_print_init(&p, buf, 12),
+            10, "bar"),
+          2, "foo"),
+        '-'),
+      "baz")
+    );
+    dr_assert(result == 9);
+    dr_assert(strcmp(buf, "barfo-baz") == 0);
+    free(buf);
+  }
+  for (size_t i = 1; i < 9; ++i) {
+    char *restrict const buf = (char *)malloc(i);
+    dr_assert(buf != NULL);
+    struct dr_print p;
+    const int result = dr_print_finalize(
+      dr_print_s(
+        dr_print_c(
+          dr_print_sp(
+            dr_print_sp(
+              dr_print_init(&p, buf, i),
+            10, "bar"),
+          2, "foo"),
+        '-'),
+      "baz")
+    );
+    dr_assert(result == 9);
+    dr_assert(memcmp(buf, "barfo-baz", i - 1) == 0);
+    dr_assert(buf[i - 1] == '\0');
+    free(buf);
+  }
+}
+
+int main(void) {
+  {
+    const struct dr_result_void r = dr_console_startup();
+    DR_IF_RESULT_ERR(r, err) {
+      // If dr_log is changed to use dr_*printf, which uses dr_std*, we have a problem here. But perhaps the solution is that things are logged to multiple endpoints, console, file, socket and hopefully at least one of them works.
+      dr_log_error("dr_console_startup failed", err);
+      return -1;
+    } DR_FI_RESULT;
+  }
+  test_snprintf();
+  test_print();
   dr_log("OK");
   return 0;
 }

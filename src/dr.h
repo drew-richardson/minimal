@@ -413,4 +413,56 @@ DR_WARN_UNUSED_RESULT bool dr_9p_encode_Rstat(uint8_t *restrict const buf, const
 DR_WARN_UNUSED_RESULT bool dr_9p_encode_Twstat(uint8_t *restrict const buf, const uint32_t size, uint32_t *restrict const pos, const uint16_t tag, const uint32_t fid, const struct dr_9p_stat *restrict const stat);
 DR_WARN_UNUSED_RESULT bool dr_9p_encode_Rwstat(uint8_t *restrict const buf, const uint32_t size, uint32_t *restrict const pos, const uint16_t tag);
 
+DR_WARN_UNUSED_RESULT static inline struct dr_print *dr_print_init(struct dr_print *restrict const r, char *restrict const s, const size_t n) {
+  *r = (struct dr_print) {
+    .s = s,
+    .n = n,
+  };
+  return r;
+}
+
+DR_WARN_UNUSED_RESULT static inline struct dr_print *dr_print_init_pos(struct dr_print *restrict const r, char *restrict const s, const size_t n, const size_t pos) {
+  *r = (struct dr_print) {
+    .s = s,
+    .n = n,
+    .pos = pos,
+  };
+  return r;
+}
+
+DR_WARN_UNUSED_RESULT static inline int dr_print_finalize(struct dr_print *restrict const r) {
+  r->s[dr_min_size(r->pos, r->n - 1)] = '\0';
+  return r->pos;
+}
+
+DR_WARN_UNUSED_RESULT static inline struct dr_print *dr_print_c(struct dr_print *restrict const r, const char c) {
+  if (dr_likely(r->pos < r->n)) {
+    r->s[r->pos] = c;
+  }
+  ++r->pos;
+  return r;
+}
+
+DR_WARN_UNUSED_RESULT static inline struct dr_print *dr_print_sp(struct dr_print *restrict const r, const size_t p, const char *restrict const s) {
+  size_t i;
+  for (i = 0; i < p && s[i] != '\0'; ++i) {
+    if (dr_likely(r->pos + i < r->n)) {
+      r->s[r->pos + i] = s[i];
+    }
+  }
+  r->pos += i;
+  return r;
+}
+
+DR_WARN_UNUSED_RESULT static inline struct dr_print *dr_print_s(struct dr_print *restrict const r, const char *restrict const s) {
+  size_t i;
+  for (i = 0; s[i] != '\0'; ++i) {
+    if (dr_likely(r->pos + i < r->n)) {
+      r->s[r->pos + i] = s[i];
+    }
+  }
+  r->pos += i;
+  return r;
+}
+
 #endif // DR_H

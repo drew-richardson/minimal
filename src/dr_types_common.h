@@ -275,6 +275,12 @@ struct dr_9p_stat {
   uint16_t type;
 };
 
+struct dr_print {
+  char *restrict s;
+  size_t n;
+  size_t pos;
+};
+
 DR_RESULT_DECL(dr_handle_t, handle);
 DR_RESULT_DECL(size_t, size);
 DR_RESULT_DECL(uint32_t, uint32);
