@@ -167,12 +167,12 @@ WARN_UNUSED_RESULT struct dr_result_void dr_socket_startup(void);
 WARN_UNUSED_RESULT struct dr_result_handle dr_socket(int domain, int type, int protocol, unsigned int flags);
 WARN_UNUSED_RESULT struct dr_result_handle dr_accept(dr_handle_t sockfd, struct sockaddr *restrict const addr, dr_socklen_t *restrict const addrlen, unsigned int flags);
 WARN_UNUSED_RESULT struct dr_result_void dr_bind(dr_handle_t sockfd, const struct sockaddr *restrict const addr, dr_socklen_t addrlen);
-WARN_UNUSED_RESULT struct dr_result_handle dr_sock_bind(const char *restrict const hostname, const char *restrict const port, unsigned int flags);
+WARN_UNUSED_RESULT struct dr_result_handle dr_sock_listen(const char *restrict const hostname, const char *restrict const port, unsigned int flags);
 WARN_UNUSED_RESULT struct dr_result_void dr_connect(dr_handle_t sockfd, const struct sockaddr *restrict const addr, dr_socklen_t addrlen);
 WARN_UNUSED_RESULT struct dr_result_handle dr_sock_connect(const char *restrict const hostname, const char *restrict const port, unsigned int flags);
 WARN_UNUSED_RESULT struct dr_result_void dr_listen(dr_handle_t sockfd, int backlog);
 
-WARN_UNUSED_RESULT struct dr_result_handle dr_pipe_bind(const char *restrict const name, unsigned int flags);
+WARN_UNUSED_RESULT struct dr_result_handle dr_pipe_listen(const char *restrict const name, unsigned int flags);
 WARN_UNUSED_RESULT struct dr_result_handle dr_pipe_connect(const char *restrict const name, unsigned int flags);
 
 enum {
@@ -270,7 +270,9 @@ WARN_UNUSED_RESULT struct dr_result_uint32 dr_vfs_read(const struct dr_fd *restr
 WARN_UNUSED_RESULT struct dr_result_uint32 dr_vfs_write(const struct dr_fd *restrict const fd, const uint64_t offset, const uint32_t count, const void *restrict const buf);
 void dr_vfs_close(struct dr_fd *restrict const fd);
 
-extern struct dr_file_vtbl dr_dir_vtbl;
+WARN_UNUSED_RESULT struct dr_result_uint32 dr_9p_read_enosys(const struct dr_fd *restrict const fd, const uint64_t offset, const uint32_t count, void *restrict const buf);
+WARN_UNUSED_RESULT struct dr_result_uint32 dr_9p_write_enosys(const struct dr_fd *restrict const fd, const uint64_t offset, const uint32_t count, const void *restrict const buf);
+WARN_UNUSED_RESULT struct dr_result_uint32 dr_dir_read(const struct dr_fd *restrict const fd, const uint64_t offset, const uint32_t count, void *restrict const buf);
 
 enum {
   DR_TVERSION = 100,

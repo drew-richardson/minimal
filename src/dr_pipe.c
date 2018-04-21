@@ -12,7 +12,7 @@
 #include <sys/un.h>
 #include <unistd.h>
 
-struct dr_result_handle dr_pipe_bind(const char *restrict const name, unsigned int flags) {
+struct dr_result_handle dr_pipe_listen(const char *restrict const name, unsigned int flags) {
   struct sockaddr_un addr = {
     .sun_family = AF_UNIX,
   };
@@ -33,6 +33,13 @@ struct dr_result_handle dr_pipe_bind(const char *restrict const name, unsigned i
   }
   {
     const struct dr_result_void r = dr_bind(fd, (struct sockaddr *)&addr, offsetof(struct sockaddr_un, sun_path) + name_len);
+    DR_IF_RESULT_ERR(r, err) {
+      dr_close(fd);
+      return DR_RESULT_ERROR(handle, err);
+    } DR_FI_RESULT;
+  }
+  {
+    const struct dr_result_void r = dr_listen(fd, 16);
     DR_IF_RESULT_ERR(r, err) {
       dr_close(fd);
       return DR_RESULT_ERROR(handle, err);
@@ -74,7 +81,7 @@ struct dr_result_handle dr_pipe_connect(const char *restrict const name, unsigne
 #include <stdio.h>
 #include <windows.h>
 
-struct dr_result_handle dr_pipe_bind(const char *restrict const name, unsigned int flags) {
+struct dr_result_handle dr_pipe_listen(const char *restrict const name, unsigned int flags) {
   // DR Although this returns a valid named pipe, the resulting value cannot be used with dr_listen or dr_accept.
   if (dr_unlikely((flags & ~(DR_NONBLOCK | DR_CLOEXEC | DR_REUSEADDR)) != 0)) {
     return DR_RESULT_ERRNUM(handle, DR_ERR_ISO_C, EINVAL);

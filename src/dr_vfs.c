@@ -85,22 +85,32 @@ struct dr_result_fd dr_vfs_open(const struct dr_user *restrict const user, struc
   return DR_RESULT_OK(fd, fd);
 }
 
+struct dr_result_uint32 dr_9p_read_enosys(const struct dr_fd *restrict const fd, const uint64_t offset, const uint32_t count, void *restrict const buf) {
+  (void)fd;
+  (void)offset;
+  (void)count;
+  (void)buf;
+  return DR_RESULT_ERRNUM(uint32, DR_ERR_ISO_C, ENOSYS);
+}
+
 struct dr_result_uint32 dr_vfs_read(const struct dr_fd *restrict const fd, const uint64_t offset, const uint32_t count, void *restrict const buf) {
   if (dr_unlikely((fd->mode & DR_AREAD) == 0)) {
     return DR_RESULT_ERRNUM(uint32, DR_ERR_ISO_C, EBADF);
   }
-  if (dr_unlikely(fd->file->vtbl->read == NULL)) {
-    return DR_RESULT_ERRNUM(uint32, DR_ERR_ISO_C, ENOSYS);
-  }
   return fd->file->vtbl->read(fd, offset, count, buf);
+}
+
+struct dr_result_uint32 dr_9p_write_enosys(const struct dr_fd *restrict const fd, const uint64_t offset, const uint32_t count, const void *restrict const buf) {
+  (void)fd;
+  (void)offset;
+  (void)count;
+  (void)buf;
+  return DR_RESULT_ERRNUM(uint32, DR_ERR_ISO_C, ENOSYS);
 }
 
 struct dr_result_uint32 dr_vfs_write(const struct dr_fd *restrict const fd, const uint64_t offset, const uint32_t count, const void *restrict const buf) {
   if (dr_unlikely((fd->mode & DR_AWRITE) == 0)) {
     return DR_RESULT_ERRNUM(uint32, DR_ERR_ISO_C, EBADF);
-  }
-  if (dr_unlikely(fd->file->vtbl->write == NULL)) {
-    return DR_RESULT_ERRNUM(uint32, DR_ERR_ISO_C, ENOSYS);
   }
   return fd->file->vtbl->write(fd, offset, count, buf);
 }

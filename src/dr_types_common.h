@@ -101,7 +101,7 @@ struct dr_file {
   struct dr_user *restrict uid;
   struct dr_group *restrict gid;
   struct dr_user *restrict muid;
-  struct dr_file_vtbl *restrict vtbl;
+  const struct dr_file_vtbl *restrict vtbl;
 };
 
 struct dr_dir {
@@ -117,8 +117,8 @@ struct dr_fd {
 };
 
 struct dr_file_vtbl {
-  struct dr_result_uint32 (*read)(const struct dr_fd *restrict const, const uint64_t, const uint32_t, void *restrict const);
-  struct dr_result_uint32 (*write)(const struct dr_fd *restrict const, const uint64_t, const uint32_t, const void *restrict const);
+  WARN_UNUSED_RESULT struct dr_result_uint32 (*read)(const struct dr_fd *restrict const, const uint64_t, const uint32_t, void *restrict const);
+  WARN_UNUSED_RESULT struct dr_result_uint32 (*write)(const struct dr_fd *restrict const, const uint64_t, const uint32_t, const void *restrict const);
 };
 
 struct dr_9p_qid {

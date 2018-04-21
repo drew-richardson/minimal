@@ -397,7 +397,7 @@ WARN_UNUSED_RESULT static bool dr_9p_wstat(dr_handle_t fd, uint8_t *restrict con
 }
 
 struct client_app {
-  bool (*const func)(dr_handle_t, const uint32_t, int, char *restrict *restrict);
+  WARN_UNUSED_RESULT bool (*const func)(dr_handle_t, const uint32_t, int, char *restrict *restrict);
   const char *restrict const name;
   const char *restrict const help;
 };

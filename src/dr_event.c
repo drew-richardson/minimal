@@ -351,12 +351,12 @@ struct dr_result_handle dr_equeue_accept(struct dr_equeue *restrict const arg0, 
   struct dr_equeue_server_impl *restrict const s = (struct dr_equeue_server_impl *)arg1;
   {
     const struct dr_result_handle r = dr_accept(s->h.fd, NULL, NULL, DR_NONBLOCK | DR_CLOEXEC);
-    DR_IF_RESULT_OK(dr_handle_t, r, value) {
-      return DR_RESULT_OK(handle, value);
-    } DR_ELIF_RESULT_ERR(r, err) {
+    DR_IF_RESULT_ERR(r, err) {
       if (dr_unlikely(err->num != EAGAIN)) {
 	return DR_RESULT_ERROR(handle, err);
       }
+    } DR_ELIF_RESULT_OK(dr_handle_t, r, value) {
+      return DR_RESULT_OK(handle, value);
     } DR_FI_RESULT;
   }
   dr_event_subscribe(e, &s->h, DR_EVENT_IN);
@@ -370,12 +370,12 @@ struct dr_result_size dr_equeue_read(struct dr_equeue *restrict const arg0, stru
   struct dr_equeue_client_impl *restrict const c = (struct dr_equeue_client_impl *)arg1;
   {
     const struct dr_result_size r = dr_read(c->h.fd, buf, count);
-    DR_IF_RESULT_OK(size_t, r, value) {
-      return DR_RESULT_OK(size, value);
-    } DR_ELIF_RESULT_ERR(r, err) {
+    DR_IF_RESULT_ERR(r, err) {
       if (dr_unlikely(err->num != EAGAIN)) {
 	return DR_RESULT_ERROR(size, err);
       }
+    } DR_ELIF_RESULT_OK(size_t, r, value) {
+      return DR_RESULT_OK(size, value);
     } DR_FI_RESULT;
   }
   dr_event_subscribe(e, &c->h, DR_EVENT_IN);
@@ -389,12 +389,12 @@ struct dr_result_size dr_equeue_write(struct dr_equeue *restrict const arg0, str
   struct dr_equeue_client_impl *restrict const c = (struct dr_equeue_client_impl *)arg1;
   {
     const struct dr_result_size r = dr_write(c->h.fd, buf, count);
-    DR_IF_RESULT_OK(size_t, r, value) {
-      return DR_RESULT_OK(size, value);
-    } DR_ELIF_RESULT_ERR(r, err) {
+    DR_IF_RESULT_ERR(r, err) {
       if (dr_unlikely(err->num != EAGAIN)) {
 	return DR_RESULT_ERROR(size, err);
       }
+    } DR_ELIF_RESULT_OK(size_t, r, value) {
+      return DR_RESULT_OK(size, value);
     } DR_FI_RESULT;
   }
   dr_event_subscribe(e, &c->h, DR_EVENT_OUT);
@@ -523,12 +523,12 @@ struct dr_result_size dr_equeue_read(struct dr_equeue *restrict const arg0, stru
   {
     {
       const struct dr_result_size r = dr_read_ol(c->fd, buf, count, &c->rol);
-      DR_IF_RESULT_OK(size_t, r, value) {
-	return DR_RESULT_OK(size, value);
-      } DR_ELIF_RESULT_ERR(r, err) {
+      DR_IF_RESULT_ERR(r, err) {
 	if (dr_unlikely(err->num != ERROR_IO_PENDING)) {
 	  return DR_RESULT_ERROR(size, err);
 	}
+      } DR_ELIF_RESULT_OK(size_t, r, value) {
+	return DR_RESULT_OK(size, value);
       } DR_FI_RESULT;
     }
     if (!c->subscribed) {
@@ -552,12 +552,12 @@ struct dr_result_size dr_equeue_write(struct dr_equeue *restrict const arg0, str
   {
     {
       const struct dr_result_size r = dr_write_ol(c->fd, buf, count, &c->wol);
-      DR_IF_RESULT_OK(size_t, r, value) {
-	return DR_RESULT_OK(size, value);
-      } DR_ELIF_RESULT_ERR(r, err) {
+      DR_IF_RESULT_ERR(r, err) {
 	if (dr_unlikely(err->num != ERROR_IO_PENDING)) {
 	  return DR_RESULT_ERROR(size, err);
 	}
+      } DR_ELIF_RESULT_OK(size_t, r, value) {
+	return DR_RESULT_OK(size, value);
       } DR_FI_RESULT;
     }
     if (!c->subscribed) {

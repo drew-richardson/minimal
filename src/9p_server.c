@@ -43,7 +43,7 @@ static struct dr_user dr_nobody = {
 static struct dr_result_uint32 file_read(const struct dr_fd *restrict const fd, const uint64_t offset, const uint32_t count, void *restrict const buf);
 static struct dr_result_uint32 file_write(const struct dr_fd *restrict const fd, const uint64_t offset, const uint32_t count, const void *restrict const buf);
 
-static struct dr_file_vtbl dr_file_vtbl = {
+static const struct dr_file_vtbl dr_file_vtbl = {
   .read = file_read,
   .write = file_write,
 };
@@ -63,6 +63,11 @@ static struct dr_file dr_file = {
 };
 
 static struct dr_dir dr_root;
+
+static const struct dr_file_vtbl dr_dir_vtbl = {
+  .read = dr_dir_read,
+  .write = dr_9p_write_enosys,
+};
 
 static struct dr_dir dr_dir = {
   .file = {
@@ -623,7 +628,6 @@ static void client_func(void *restrict const arg) {
       } DR_FI_RESULT;
     }
     if (bytes == 0) {
-      dr_log("Closing client");
       break;
     }
     if (bytes < sizeof(uint32_t) + sizeof(uint8_t) + sizeof(uint16_t)) {
@@ -654,6 +658,7 @@ static void client_func(void *restrict const arg) {
       break;
     }
   }
+  dr_task_exit(c, (void (*)(void *restrict const))client_destroy);
 }
 
 static void server_func(void *restrict const arg) {
@@ -661,22 +666,14 @@ static void server_func(void *restrict const arg) {
   {
     dr_handle_t sfd;
     {
-      const struct dr_result_handle r = dr_sock_bind(NULL, port, DR_CLOEXEC | DR_NONBLOCK | DR_REUSEADDR);
-      //const struct dr_result_handle r = dr_pipe_bind("/tmp/9p_server", DR_CLOEXEC | DR_NONBLOCK | DR_REUSEADDR);
+      const struct dr_result_handle r = dr_sock_listen(NULL, port, DR_CLOEXEC | DR_NONBLOCK | DR_REUSEADDR);
+      //const struct dr_result_handle r = dr_pipe_listen("/tmp/9p_server", DR_CLOEXEC | DR_NONBLOCK | DR_REUSEADDR);
       DR_IF_RESULT_ERR(r, err) {
-	dr_log_error("dr_sock_bind failed", err);
-	//dr_log_error("dr_pipe_bind failed", err);
+	dr_log_error("dr_sock_listen failed", err);
+	//dr_log_error("dr_pipe_listen failed", err);
 	goto fail;
       } DR_ELIF_RESULT_OK(dr_handle_t, r, value) {
 	sfd = value;
-      } DR_FI_RESULT;
-    }
-    {
-      const struct dr_result_void r = dr_listen(sfd, 16);
-      DR_IF_RESULT_ERR(r, err) {
-	dr_log_error("dr_listen failed", err);
-	dr_close(sfd);
-	goto fail;
       } DR_FI_RESULT;
     }
     dr_equeue_server_init(&server, sfd);

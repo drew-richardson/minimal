@@ -477,7 +477,8 @@ bool dr_9p_encode_Rwstat(uint8_t *restrict const buf, const uint32_t size, uint3
   return dr_9p_encode_null(DR_RWSTAT, buf, size, pos, tag);
 }
 
-WARN_UNUSED_RESULT static struct dr_result_uint32 dr_dir_read(const struct dr_fd *restrict const fd, const uint64_t offset, const uint32_t count, void *restrict const b) {
+
+struct dr_result_uint32 dr_dir_read(const struct dr_fd *restrict const fd, const uint64_t offset, const uint32_t count, void *restrict const b) {
   uint8_t *restrict const buf = (uint8_t *)b;
   if (offset != 0) {
     // DR Fix later
@@ -497,7 +498,3 @@ WARN_UNUSED_RESULT static struct dr_result_uint32 dr_dir_read(const struct dr_fd
   }
   return DR_RESULT_OK(uint32, pos);
 }
-
-struct dr_file_vtbl dr_dir_vtbl = {
-  .read = dr_dir_read,
-};

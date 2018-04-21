@@ -149,20 +149,12 @@ static void server_func(void *restrict const arg) {
   {
     dr_handle_t sfd;
     {
-      const struct dr_result_handle r = dr_sock_bind("localhost", port, DR_CLOEXEC | DR_NONBLOCK | DR_REUSEADDR);
+      const struct dr_result_handle r = dr_sock_listen("localhost", port, DR_CLOEXEC | DR_NONBLOCK | DR_REUSEADDR);
       DR_IF_RESULT_ERR(r, err) {
-	dr_log_error("dr_sock_bind failed", err);
+	dr_log_error("dr_sock_listen failed", err);
 	goto fail;
       } DR_ELIF_RESULT_OK(dr_handle_t, r, value) {
 	sfd = value;
-      } DR_FI_RESULT;
-    }
-    {
-      const struct dr_result_void r = dr_listen(sfd, 16);
-      DR_IF_RESULT_ERR(r, err) {
-	dr_log_error("dr_listen failed", err);
-	dr_close(sfd);
-	goto fail;
       } DR_FI_RESULT;
     }
     dr_equeue_server_init(&server, sfd);

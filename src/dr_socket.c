@@ -246,7 +246,7 @@ struct dr_result_handle dr_sock_connect(const char *restrict const hostname, con
   return DR_RESULT_OK(handle, fd);
 }
 
-struct dr_result_handle dr_sock_bind(const char *restrict const hostname, const char *restrict const port, unsigned int flags) {
+struct dr_result_handle dr_sock_listen(const char *restrict const hostname, const char *restrict const port, unsigned int flags) {
   const struct addrinfo hints = {
     .ai_family = AF_UNSPEC,
     .ai_socktype = SOCK_STREAM,
@@ -291,5 +291,14 @@ struct dr_result_handle dr_sock_bind(const char *restrict const hostname, const 
   if (dr_unlikely(ai == NULL)) {
     return DR_RESULT_ERROR(handle, &last_error);
   }
+
+  {
+    const struct dr_result_void r = dr_listen(fd, 16);
+    DR_IF_RESULT_ERR(r, err) {
+      dr_close(fd);
+      return DR_RESULT_ERROR(handle, err);
+    } DR_FI_RESULT;
+  }
+
   return DR_RESULT_OK(handle, fd);
 }
