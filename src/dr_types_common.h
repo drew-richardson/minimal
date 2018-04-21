@@ -52,6 +52,29 @@ typedef int dr_handle_t;
 typedef unsigned int dr_socklen_t;
 #endif
 
+struct dr_io_vtbl;
+
+struct dr_io {
+  const struct dr_io_vtbl *restrict vtbl;
+};
+
+struct dr_io_vtbl {
+  DR_WARN_UNUSED_RESULT struct dr_result_size (*read)(struct dr_io *restrict const io, void *restrict const buf, size_t count);
+  DR_WARN_UNUSED_RESULT struct dr_result_size (*write)(struct dr_io *restrict const io, const void *restrict const buf, size_t count);
+  void (*close)(struct dr_io *restrict const io);
+};
+
+struct dr_ioserver_vtbl;
+
+struct dr_ioserver {
+  const struct dr_ioserver_vtbl *restrict vtbl;
+};
+
+struct dr_ioserver_vtbl {
+  DR_WARN_UNUSED_RESULT struct dr_result_void (*accept)(struct dr_ioserver *restrict const ioserver, struct dr_io *restrict const io, size_t iolen, dr_sockaddr_t *restrict const addr, dr_socklen_t *restrict const addrlen, unsigned int flags);
+  void (*close)(struct dr_ioserver *restrict const ioserver);
+};
+
 #if defined(_WIN32)
 
 struct dr_equeue {
