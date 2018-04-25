@@ -75,6 +75,21 @@ struct dr_ioserver_vtbl {
   void (*close)(struct dr_ioserver *restrict const ioserver);
 };
 
+struct dr_io_handle {
+  struct dr_io io;
+  dr_handle_t fd;
+};
+
+struct dr_ioserver_handle {
+  struct dr_ioserver ioserver;
+  dr_handle_t fd;
+};
+
+struct dr_ioserver_handle_vtbl {
+  struct dr_ioserver_vtbl ioserver;
+  DR_WARN_UNUSED_RESULT struct dr_result_void (*accept_handle)(struct dr_ioserver_handle *restrict const ihserver, struct dr_io_handle *restrict const ih, size_t iolen, dr_sockaddr_t *restrict const addr, dr_socklen_t *restrict const addrlen, unsigned int flags);
+};
+
 #if defined(_WIN32)
 
 struct dr_equeue {

@@ -130,6 +130,8 @@ DR_WARN_UNUSED_RESULT struct dr_result_size dr_read(dr_handle_t fd, void *restri
 DR_WARN_UNUSED_RESULT struct dr_result_size dr_write(dr_handle_t fd, const void *restrict const buf, size_t count);
 void dr_close(dr_handle_t fd);
 
+void dr_io_handle_init(struct dr_io_handle *restrict const ih, dr_handle_t fd);
+
 #if defined(_WIN32)
 
 DR_WARN_UNUSED_RESULT struct dr_result_size dr_read_ol(dr_handle_t fd, void *restrict const buf, size_t count, dr_overlapped_t *restrict const ol);
@@ -168,6 +170,8 @@ DR_WARN_UNUSED_RESULT struct dr_result_void dr_listen(dr_handle_t sockfd, int ba
 
 DR_WARN_UNUSED_RESULT struct dr_result_handle dr_pipe_listen(const char *restrict const name, unsigned int flags);
 DR_WARN_UNUSED_RESULT struct dr_result_handle dr_pipe_connect(const char *restrict const name, unsigned int flags);
+
+void dr_ioserver_sock_init(struct dr_ioserver_handle *restrict const ihserver, dr_handle_t fd);
 
 enum {
   DR_EVENT_IN  = 1U<<0,

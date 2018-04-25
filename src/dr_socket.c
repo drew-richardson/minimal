@@ -2,6 +2,7 @@
 // Copyright (c) 2018 Drew Richardson <drewrichardson@gmail.com>
 
 #include "dr.h"
+#include "dr_io_internal.h"
 
 #include <errno.h>
 
@@ -163,6 +164,41 @@ struct dr_result_handle dr_accept(dr_handle_t sockfd, dr_sockaddr_t *restrict co
 
   return DR_RESULT_OK(handle, result);
 #endif
+}
+
+struct dr_result_void dr_ioserver_sock_accept_handle(struct dr_ioserver_handle *restrict const ihserver, struct dr_io_handle *restrict const ih, size_t iolen, dr_sockaddr_t *restrict const addr, dr_socklen_t *restrict const addrlen, unsigned int flags) {
+  if (dr_unlikely(sizeof(*ih) < iolen)) {
+    return DR_RESULT_ERRNUM_VOID(DR_ERR_ISO_C, ENOMEM);
+  }
+  {
+    const struct dr_result_handle r = dr_accept(ihserver->fd, addr, addrlen, flags);
+    DR_IF_RESULT_ERR(r, err) {
+      return DR_RESULT_ERROR_VOID(err);
+    } DR_ELIF_RESULT_OK(dr_handle_t, r, value) {
+      dr_io_handle_init(ih, value);
+      return DR_RESULT_OK_VOID();
+    } DR_FI_RESULT;
+  }
+}
+
+DR_WARN_UNUSED_RESULT static struct dr_result_void dr_ioserver_sock_accept(struct dr_ioserver *restrict const ioserver, struct dr_io *restrict const io, size_t iolen, dr_sockaddr_t *restrict const addr, dr_socklen_t *restrict const addrlen, unsigned int flags) {
+  struct dr_ioserver_handle *restrict const ihserver = container_of(ioserver, struct dr_ioserver_handle, ioserver);
+  struct dr_io_handle *restrict const ih = container_of(io, struct dr_io_handle, io);
+  dr_assert((uintptr_t)io == (uintptr_t)ih);
+  return dr_ioserver_sock_accept_handle(ihserver, ih, iolen, addr, addrlen, flags);
+}
+
+static const struct dr_ioserver_handle_vtbl dr_ioserver_sock_vtbl = {
+  .ioserver.accept = dr_ioserver_sock_accept,
+  .ioserver.close = dr_ioserver_handle_close,
+  .accept_handle = dr_ioserver_sock_accept_handle,
+};
+
+void dr_ioserver_sock_init(struct dr_ioserver_handle *restrict const ihserver, dr_handle_t fd) {
+  *ihserver = (struct dr_ioserver_handle) {
+    .ioserver.vtbl = &dr_ioserver_sock_vtbl.ioserver,
+    .fd = fd,
+  };
 }
 
 struct dr_result_void dr_bind(dr_handle_t sockfd, const dr_sockaddr_t *restrict const addr, dr_socklen_t addrlen) {
