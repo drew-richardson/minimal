@@ -48,20 +48,20 @@ struct dr_result_handle dr_pipe_listen(const char *restrict const name, unsigned
   return DR_RESULT_OK(handle, fd);
 }
 
-struct dr_result_handle dr_pipe_connect(const char *restrict const name, unsigned int flags) {
+struct dr_result_void dr_pipe_connect(struct dr_io_handle *restrict const ih, const char *restrict const name, unsigned int flags) {
   struct sockaddr_un addr = {
     .sun_family = AF_UNIX,
   };
   const size_t name_len = strlen(name) + 1;
   if (dr_unlikely(name_len > sizeof(addr.sun_path))) {
-    return DR_RESULT_ERRNUM(handle, DR_ERR_ISO_C, EINVAL);
+    return DR_RESULT_ERRNUM_VOID(DR_ERR_ISO_C, EINVAL);
   }
   memcpy(addr.sun_path, name, name_len);
   dr_handle_t fd;
   {
     const struct dr_result_handle r = dr_socket(AF_UNIX, SOCK_STREAM, 0, flags);
     DR_IF_RESULT_ERR(r, err) {
-      return DR_RESULT_ERROR(handle, err);
+      return DR_RESULT_ERROR_VOID(err);
     } DR_ELIF_RESULT_OK(dr_handle_t, r, value) {
       fd = value;
     } DR_FI_RESULT;
@@ -70,10 +70,11 @@ struct dr_result_handle dr_pipe_connect(const char *restrict const name, unsigne
     const struct dr_result_void r = dr_connect(fd, (dr_sockaddr_t *)&addr, offsetof(struct sockaddr_un, sun_path) + name_len);
     DR_IF_RESULT_ERR(r, err) {
       dr_close(fd);
-      return DR_RESULT_ERROR(handle, err);
+      return DR_RESULT_ERROR_VOID(err);
     } DR_FI_RESULT;
   }
-  return DR_RESULT_OK(handle, fd);
+  dr_io_handle_init(ih, fd);
+  return DR_RESULT_OK_VOID();
 }
 
 #else
@@ -102,8 +103,8 @@ struct dr_result_handle dr_pipe_listen(const char *restrict const name, unsigned
   return DR_RESULT_OK(handle, (dr_handle_t)fd);
 }
 
-struct dr_result_handle dr_pipe_connect(const char *restrict const name, unsigned int flags) {
-  return DR_RESULT_ERRNUM(handle, DR_ERR_ISO_C, ENOSYS);
+struct dr_result_void dr_pipe_connect(struct dr_io_handle *restrict const ih, const char *restrict const name, unsigned int flags) {
+  return DR_RESULT_ERRNUM_VOID(DR_ERR_ISO_C, ENOSYS);
 }
 
 #endif

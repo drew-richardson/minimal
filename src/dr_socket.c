@@ -110,9 +110,9 @@ struct dr_result_handle dr_socket(int domain, int type, int protocol, unsigned i
   return DR_RESULT_OK(handle, result);
 }
 
-struct dr_result_handle dr_accept(dr_handle_t sockfd, dr_sockaddr_t *restrict const addr, dr_socklen_t *restrict const addrlen, unsigned int flags) {
+struct dr_result_void dr_accept(dr_handle_t sockfd, struct dr_io_handle *restrict const ih, dr_sockaddr_t *restrict const addr, dr_socklen_t *restrict const addrlen, unsigned int flags) {
   if (dr_unlikely((flags & ~(DR_NONBLOCK | DR_CLOEXEC)) != 0)) {
-    return DR_RESULT_ERRNUM(handle, DR_ERR_ISO_C, EINVAL);
+    return DR_RESULT_ERRNUM_VOID(DR_ERR_ISO_C, EINVAL);
   }
 
 #if defined(DR_HAS_ACCEPT4)
@@ -125,19 +125,20 @@ struct dr_result_handle dr_accept(dr_handle_t sockfd, dr_sockaddr_t *restrict co
   }
   const dr_handle_t result = accept4(sockfd, (struct sockaddr *)addr, addrlen, f);
   if (dr_unlikely(result < 0)) {
-    return DR_RESULT_ERRNO(handle);
+    return DR_RESULT_ERRNO_VOID();
   }
-  return DR_RESULT_OK(handle, result);
+  dr_io_handle_init(ih, result);
+  return DR_RESULT_OK_VOID();
 
 #else
   const dr_handle_t result = accept(sockfd, (struct sockaddr *)addr, addrlen);
 #if defined(_WIN32)
   if (dr_unlikely(result == INVALID_SOCKET)) {
-    return DR_RESULT_WSAGETLASTERROR(handle);
+    return DR_RESULT_WSAGETLASTERROR_VOID();
   }
 #else
   if (dr_unlikely(result < 0)) {
-    return DR_RESULT_ERRNO(handle);
+    return DR_RESULT_ERRNO_VOID();
   }
 #endif
 
@@ -148,7 +149,7 @@ struct dr_result_handle dr_accept(dr_handle_t sockfd, dr_sockaddr_t *restrict co
     if (dr_unlikely(sf < 0 || fcntl(result, F_SETFL, sf | O_NONBLOCK) != 0)) {
       const int errnum = errno;
       dr_close(result);
-      return DR_RESULT_ERRNUM(handle, DR_ERR_ISO_C, errnum);
+      return DR_RESULT_ERRNUM_VOID(DR_ERR_ISO_C, errnum);
     }
   }
 
@@ -157,12 +158,13 @@ struct dr_result_handle dr_accept(dr_handle_t sockfd, dr_sockaddr_t *restrict co
     if (dr_unlikely(df < 0 || fcntl(result, F_SETFD, df | FD_CLOEXEC) != 0)) {
       const int errnum = errno;
       dr_close(result);
-      return DR_RESULT_ERRNUM(handle, DR_ERR_ISO_C, errnum);
+      return DR_RESULT_ERRNUM_VOID(DR_ERR_ISO_C, errnum);
     }
   }
 #endif
 
-  return DR_RESULT_OK(handle, result);
+  dr_io_handle_init(ih, result);
+  return DR_RESULT_OK_VOID();
 #endif
 }
 
@@ -170,15 +172,7 @@ struct dr_result_void dr_ioserver_sock_accept_handle(struct dr_ioserver_handle *
   if (dr_unlikely(sizeof(*ih) < iolen)) {
     return DR_RESULT_ERRNUM_VOID(DR_ERR_ISO_C, ENOMEM);
   }
-  {
-    const struct dr_result_handle r = dr_accept(ihserver->fd, addr, addrlen, flags);
-    DR_IF_RESULT_ERR(r, err) {
-      return DR_RESULT_ERROR_VOID(err);
-    } DR_ELIF_RESULT_OK(dr_handle_t, r, value) {
-      dr_io_handle_init(ih, value);
-      return DR_RESULT_OK_VOID();
-    } DR_FI_RESULT;
-  }
+  return dr_accept(ihserver->fd, ih, addr, addrlen, flags);
 }
 
 DR_WARN_UNUSED_RESULT static struct dr_result_void dr_ioserver_sock_accept(struct dr_ioserver *restrict const ioserver, struct dr_io *restrict const io, size_t iolen, dr_sockaddr_t *restrict const addr, dr_socklen_t *restrict const addrlen, unsigned int flags) {
@@ -234,7 +228,7 @@ struct dr_result_void dr_listen(dr_handle_t sockfd, int backlog) {
   return DR_RESULT_OK_VOID();
 }
 
-struct dr_result_handle dr_sock_connect(const char *restrict const hostname, const char *restrict const port, unsigned int flags) {
+struct dr_result_void dr_sock_connect(struct dr_io_handle *restrict const ih, const char *restrict const hostname, const char *restrict const port, unsigned int flags) {
   struct addrinfo hints = {
     .ai_family = AF_UNSPEC,
     .ai_socktype = SOCK_STREAM,
@@ -245,7 +239,7 @@ struct dr_result_handle dr_sock_connect(const char *restrict const hostname, con
   {
     const int errnum = getaddrinfo(hostname, port, &hints, &res);
     if (dr_unlikely(errnum != 0)) {
-      return DR_RESULT_ERRNUM(handle, DR_ERR_GAI, errnum);
+      return DR_RESULT_ERRNUM_VOID(DR_ERR_GAI, errnum);
     }
   }
 
@@ -277,9 +271,10 @@ struct dr_result_handle dr_sock_connect(const char *restrict const hostname, con
 
   freeaddrinfo(res);
   if (dr_unlikely(ai == NULL)) {
-    return DR_RESULT_ERROR(handle, &last_error);
+    return DR_RESULT_ERROR_VOID(&last_error);
   }
-  return DR_RESULT_OK(handle, fd);
+  dr_io_handle_init(ih, fd);
+  return DR_RESULT_OK_VOID();
 }
 
 struct dr_result_handle dr_sock_listen(const char *restrict const hostname, const char *restrict const port, unsigned int flags) {

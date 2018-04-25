@@ -30,7 +30,7 @@ static struct dr_equeue_server server;
 static void read_func(void *restrict const arg);
 static void write_func(void *restrict const arg);
 
-static DR_WARN_UNUSED_RESULT struct dr_result_void client_init(dr_handle_t fd) {
+static DR_WARN_UNUSED_RESULT struct dr_result_void client_init(struct dr_io_handle *restrict const ih) {
   struct client *restrict const c = (struct client *)malloc(sizeof(*c));
   if (c == NULL) {
     return DR_RESULT_ERRNO_VOID();
@@ -38,7 +38,7 @@ static DR_WARN_UNUSED_RESULT struct dr_result_void client_init(dr_handle_t fd) {
   *c = (struct client) {
     .clients = LIST_HEAD_INIT(c->clients),
   };
-  dr_equeue_client_init(&c->c, fd);
+  dr_equeue_client_init(&c->c, ih);
   dr_wait_init(&c->read_wait);
   {
     const struct dr_result_void r = dr_task_create(&c->read_task, STACK_SIZE, read_func, c);
@@ -160,19 +160,17 @@ static void server_func(void *restrict const arg) {
     dr_equeue_server_init(&server, sfd);
   }
   while (dr_likely(!cleanup)) {
-    dr_handle_t cfd;
+    struct dr_io_handle ih;
     {
-      const struct dr_result_handle r = dr_equeue_accept(&equeue, &server);
+      const struct dr_result_void r = dr_equeue_accept(&ih, &equeue, &server);
       DR_IF_RESULT_ERR(r, err) {
 	dr_log_error("dr_equeue_accept failed", err);
 	goto fail_equeue_server_destroy;
-      } DR_ELIF_RESULT_OK(dr_handle_t, r, value) {
-	cfd = value;
       } DR_FI_RESULT;
     }
     dr_log("Accepted client");
     {
-      const struct dr_result_void r = client_init(cfd);
+      const struct dr_result_void r = client_init(&ih);
       DR_IF_RESULT_ERR(r, err) {
 	dr_log_error("client_init failed", err);
 	goto fail_equeue_server_destroy;

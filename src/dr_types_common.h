@@ -105,7 +105,7 @@ struct dr_equeue_server {
 };
 
 struct dr_equeue_client {
-  dr_handle_t fd;
+  struct dr_io_handle ih;
   dr_overlapped_t rol;
   dr_overlapped_t wol;
   bool subscribed;
@@ -129,10 +129,12 @@ struct dr_equeue {
 
 struct dr_equeue_server {
   struct dr_equeue_handle h;
+  dr_handle_t fd;
 };
 
 struct dr_equeue_client {
   struct dr_equeue_handle h;
+  struct dr_io_handle ih;
 };
 
 #endif

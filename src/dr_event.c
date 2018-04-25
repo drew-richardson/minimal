@@ -2,6 +2,7 @@
 // Copyright (c) 2018 Drew Richardson <drewrichardson@gmail.com>
 
 #include "dr.h"
+#include "dr_io_internal.h"
 
 #include <errno.h>
 
@@ -343,26 +344,26 @@ struct dr_result_uint dr_equeue_dequeue(struct dr_equeue *restrict const e, dr_e
 
 #endif
 
-struct dr_result_handle dr_equeue_accept(struct dr_equeue *restrict const e, struct dr_equeue_server *restrict const s) {
+struct dr_result_void dr_equeue_accept(struct dr_io_handle *restrict const ih, struct dr_equeue *restrict const e, struct dr_equeue_server *restrict const s) {
   {
-    const struct dr_result_handle r = dr_accept(s->h.fd, NULL, NULL, DR_NONBLOCK | DR_CLOEXEC);
+    const struct dr_result_void r = dr_accept(s->fd, ih, NULL, NULL, DR_NONBLOCK | DR_CLOEXEC);
     DR_IF_RESULT_ERR(r, err) {
       if (dr_unlikely(err->num != EAGAIN)) {
-	return DR_RESULT_ERROR(handle, err);
+	return DR_RESULT_ERROR_VOID(err);
       }
-    } DR_ELIF_RESULT_OK(dr_handle_t, r, value) {
-      return DR_RESULT_OK(handle, value);
+    } DR_ELIF_RESULT_OK_VOID(r) {
+      return DR_RESULT_OK_VOID();
     } DR_FI_RESULT;
   }
   dr_event_subscribe(e, &s->h, DR_EVENT_IN);
   dr_schedule(true);
   dr_event_unsubscribe(e, &s->h, DR_EVENT_IN);
-  return dr_accept(s->h.fd, NULL, NULL, DR_NONBLOCK | DR_CLOEXEC);
+  return dr_accept(s->fd, ih, NULL, NULL, DR_NONBLOCK | DR_CLOEXEC);
 }
 
 struct dr_result_size dr_equeue_read(struct dr_equeue *restrict const e, struct dr_equeue_client *restrict const c, void *restrict const buf, const size_t count) {
   {
-    const struct dr_result_size r = dr_read(c->h.fd, buf, count);
+    const struct dr_result_size r = dr_io_handle_read(&c->ih.io, buf, count);
     DR_IF_RESULT_ERR(r, err) {
       if (dr_unlikely(err->num != EAGAIN)) {
 	return DR_RESULT_ERROR(size, err);
@@ -374,12 +375,12 @@ struct dr_result_size dr_equeue_read(struct dr_equeue *restrict const e, struct 
   dr_event_subscribe(e, &c->h, DR_EVENT_IN);
   dr_schedule(true);
   dr_event_unsubscribe(e, &c->h, DR_EVENT_IN);
-  return dr_read(c->h.fd, buf, count);
+  return dr_io_handle_read(&c->ih.io, buf, count);
 }
 
 struct dr_result_size dr_equeue_write(struct dr_equeue *restrict const e, struct dr_equeue_client *restrict const c, const void *restrict const buf, const size_t count) {
   {
-    const struct dr_result_size r = dr_write(c->h.fd, buf, count);
+    const struct dr_result_size r = dr_io_handle_write(&c->ih.io, buf, count);
     DR_IF_RESULT_ERR(r, err) {
       if (dr_unlikely(err->num != EAGAIN)) {
 	return DR_RESULT_ERROR(size, err);
@@ -391,7 +392,7 @@ struct dr_result_size dr_equeue_write(struct dr_equeue *restrict const e, struct
   dr_event_subscribe(e, &c->h, DR_EVENT_OUT);
   dr_schedule(true);
   dr_event_unsubscribe(e, &c->h, DR_EVENT_OUT);
-  return dr_write(c->h.fd, buf, count);
+  return dr_io_handle_write(&c->ih.io, buf, count);
 }
 
 struct dr_result_void dr_equeue_init(struct dr_equeue *restrict const e) {
@@ -417,27 +418,30 @@ static void dr_equeue_handle_destroy(struct dr_equeue_handle *restrict const h) 
   if (h->changed_clients.next != NULL) {
     list_del(&h->changed_clients);
   }
-  dr_close(h->fd);
 }
 
 void dr_equeue_server_init(struct dr_equeue_server *restrict const s, dr_handle_t fd) {
   *s = (struct dr_equeue_server) {
     .h = dr_equeue_handle_init(fd),
+    .fd = fd,
   };
 }
 
 void dr_equeue_server_destroy(struct dr_equeue_server *restrict const s) {
   dr_equeue_handle_destroy(&s->h);
+  dr_close(s->fd);
 }
 
-void dr_equeue_client_init(struct dr_equeue_client *restrict const c, dr_handle_t fd) {
+void dr_equeue_client_init(struct dr_equeue_client *restrict const c, struct dr_io_handle *restrict const ih) {
   *c = (struct dr_equeue_client) {
-    .h = dr_equeue_handle_init(fd),
+    .h = dr_equeue_handle_init(ih->fd),
+    .ih = *ih,
   };
 }
 
 void dr_equeue_client_destroy(struct dr_equeue_client *restrict const c) {
   dr_equeue_handle_destroy(&c->h);
+  dr_io_handle_close(&c->ih.io);
 }
 
 #elif defined(_WIN32)
@@ -465,13 +469,13 @@ DR_WARN_UNUSED_RESULT static uintptr_t dr_overlapped_count(dr_overlapped_t *rest
   return ((OVERLAPPED *)ol)->InternalHigh;
 }
 
-struct dr_result_handle dr_equeue_accept(struct dr_equeue *restrict const e, struct dr_equeue_server *restrict const s) {
+struct dr_result_void dr_equeue_accept(struct dr_io_handle *restrict const ih, struct dr_equeue *restrict const e, struct dr_equeue_server *restrict const s) {
   dr_handle_t cfd;
   {
     {
       const struct dr_result_handle r = dr_socket(AF_INET6, SOCK_STREAM, 0, DR_NONBLOCK | DR_CLOEXEC); // DR ...
       DR_IF_RESULT_ERR(r, err) {
-	return DR_RESULT_ERROR(handle, err);
+	return DR_RESULT_ERROR_VOID(err);
       } DR_ELIF_RESULT_OK(dr_handle_t, r, value) {
 	cfd = value;
       } DR_FI_RESULT;
@@ -480,20 +484,20 @@ struct dr_result_handle dr_equeue_accept(struct dr_equeue *restrict const e, str
     dr_assert(sizeof(dr_overlapped_t) == sizeof(OVERLAPPED));
     dr_assert(sizeof(dr_sockaddr_t) == sizeof(struct sockaddr_storage));
     if (AcceptEx(s->sfd, cfd, s->buf, 0, sizeof(struct sockaddr_storage) + 16, sizeof(struct sockaddr_storage) + 16, &bytes, (OVERLAPPED *)&s->ol) != 0) {
-      return DR_RESULT_OK(handle, cfd);
+      goto ok;
     }
     {
       const DWORD errnum = WSAGetLastError();
       if (dr_unlikely(errnum != ERROR_IO_PENDING)) {
 	closesocket(cfd);
-	return DR_RESULT_ERRNUM(handle, DR_ERR_WIN, errnum);
+	return DR_RESULT_ERRNUM_VOID(DR_ERR_WIN, errnum);
       }
     }
     if (!s->subscribed) {
       const struct dr_result_void r = dr_event_associate(e->fd, s->sfd, s);
       DR_IF_RESULT_ERR(r, err) {
 	closesocket(cfd);
-	return DR_RESULT_ERROR(handle, err);
+	return DR_RESULT_ERROR_VOID(err);
       } DR_FI_RESULT;
       s->subscribed = true;
     }
@@ -503,15 +507,17 @@ struct dr_result_handle dr_equeue_accept(struct dr_equeue *restrict const e, str
   s->cfd = INVALID_SOCKET;
   if (dr_unlikely(dr_overlapped_err(&s->ol) != 0)) {
     closesocket(cfd);
-    return DR_RESULT_ERRNUM(handle, DR_ERR_WIN, dr_overlapped_err(&s->ol));
+    return DR_RESULT_ERRNUM_VOID(DR_ERR_WIN, dr_overlapped_err(&s->ol));
   }
-  return DR_RESULT_OK(handle, cfd);
+ ok:
+  dr_io_handle_init(ih, cfd);
+  return DR_RESULT_OK_VOID();
 }
 
 struct dr_result_size dr_equeue_read(struct dr_equeue *restrict const e, struct dr_equeue_client *restrict const c, void *restrict const buf, const size_t count) {
   {
     {
-      const struct dr_result_size r = dr_read_ol(c->fd, buf, count, &c->rol);
+      const struct dr_result_size r = dr_io_handle_read_ol(&c->ih, buf, count, &c->rol);
       DR_IF_RESULT_ERR(r, err) {
 	if (dr_unlikely(err->num != ERROR_IO_PENDING)) {
 	  return DR_RESULT_ERROR(size, err);
@@ -521,7 +527,7 @@ struct dr_result_size dr_equeue_read(struct dr_equeue *restrict const e, struct 
       } DR_FI_RESULT;
     }
     if (!c->subscribed) {
-      const struct dr_result_void r = dr_event_associate(e->fd, c->fd, c);
+      const struct dr_result_void r = dr_event_associate(e->fd, c->ih.fd, c);
       DR_IF_RESULT_ERR(r, err) {
 	return DR_RESULT_ERROR(size, err);
       } DR_FI_RESULT;
@@ -538,7 +544,7 @@ struct dr_result_size dr_equeue_read(struct dr_equeue *restrict const e, struct 
 struct dr_result_size dr_equeue_write(struct dr_equeue *restrict const e, struct dr_equeue_client *restrict const c, const void *restrict const buf, const size_t count) {
   {
     {
-      const struct dr_result_size r = dr_write_ol(c->fd, buf, count, &c->wol);
+      const struct dr_result_size r = dr_io_handle_write_ol(&c->ih, buf, count, &c->wol);
       DR_IF_RESULT_ERR(r, err) {
 	if (dr_unlikely(err->num != ERROR_IO_PENDING)) {
 	  return DR_RESULT_ERROR(size, err);
@@ -548,7 +554,7 @@ struct dr_result_size dr_equeue_write(struct dr_equeue *restrict const e, struct
       } DR_FI_RESULT;
     }
     if (!c->subscribed) {
-      const struct dr_result_void r = dr_event_associate(e->fd, c->fd, c);
+      const struct dr_result_void r = dr_event_associate(e->fd, c->ih.fd, c);
       DR_IF_RESULT_ERR(r, err) {
 	return DR_RESULT_ERROR(size, err);
       } DR_FI_RESULT;
@@ -612,14 +618,14 @@ void dr_equeue_server_destroy(struct dr_equeue_server *restrict const s) {
   dr_close(s->sfd);
 }
 
-void dr_equeue_client_init(struct dr_equeue_client *restrict const c, dr_handle_t fd) {
+void dr_equeue_client_init(struct dr_equeue_client *restrict const c, struct dr_io_handle *restrict const ih) {
   *c = (struct dr_equeue_client) {
-    .fd = fd,
+    .ih = *ih,
   };
 }
 
 void dr_equeue_client_destroy(struct dr_equeue_client *restrict const c) {
-  dr_close(c->fd);
+  dr_io_handle_close(&c->ih.io);
 }
 
 #endif

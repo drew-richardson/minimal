@@ -49,9 +49,9 @@ int main(int argc, char *argv[]) {
     } DR_FI_RESULT;
   }
 
-  dr_handle_t cfd;
+  struct dr_io_handle ih;
   for (int i = 0;; ++i) {
-    const struct dr_result_handle r = dr_sock_connect("localhost", port, DR_CLOEXEC);
+    const struct dr_result_void r = dr_sock_connect(&ih, "localhost", port, DR_CLOEXEC);
     DR_IF_RESULT_ERR(r, err) {
       if (i < 2) {
 	const struct dr_result_void r1 = dr_system_sleep_ns(10*DR_NS_PER_MS);
@@ -60,10 +60,8 @@ int main(int argc, char *argv[]) {
       }
       dr_log_error("dr_sock_connect failed", err);
       goto fail;
-    } DR_ELIF_RESULT_OK(dr_handle_t, r, value) {
-      cfd = value;
-      break;
     } DR_FI_RESULT;
+    break;
   }
 
   char buf[64];
@@ -91,9 +89,9 @@ int main(int argc, char *argv[]) {
       }
 
       {
-	const struct dr_result_size r = dr_write(cfd, buf, bytes);
+	const struct dr_result_size r = ih.io.vtbl->write(&ih.io, buf, bytes);
 	DR_IF_RESULT_ERR(r, err) {
-	  dr_log_error("dr_write failed", err);
+	  dr_log_error("dr_io::write failed", err);
 	  goto fail_close_cfd;
 	} DR_FI_RESULT;
       }
@@ -101,9 +99,9 @@ int main(int argc, char *argv[]) {
     {
       size_t bytes;
       {
-	const struct dr_result_size r = dr_read(cfd, buf, sizeof(buf));
+	const struct dr_result_size r = ih.io.vtbl->read(&ih.io, buf, sizeof(buf));
 	DR_IF_RESULT_ERR(r, err) {
-	  dr_log_error("dr_read failed", err);
+	  dr_log_error("dr_io::read failed", err);
 	  goto fail_close_cfd;
 	} DR_ELIF_RESULT_OK(size_t, r, value) {
 	  bytes = value;
@@ -125,7 +123,7 @@ int main(int argc, char *argv[]) {
 
   result = 0;
  fail_close_cfd:
-  dr_close(cfd);
+  ih.io.vtbl->close(&ih.io);
  fail:
   return result;
 }
