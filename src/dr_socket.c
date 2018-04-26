@@ -277,7 +277,7 @@ struct dr_result_void dr_sock_connect(struct dr_io_handle *restrict const ih, co
   return DR_RESULT_OK_VOID();
 }
 
-struct dr_result_handle dr_sock_listen(const char *restrict const hostname, const char *restrict const port, unsigned int flags) {
+struct dr_result_void dr_sock_listen(struct dr_ioserver_handle *restrict const ihserver, const char *restrict const hostname, const char *restrict const port, unsigned int flags) {
   const struct addrinfo hints = {
     .ai_family = AF_UNSPEC,
     .ai_socktype = SOCK_STREAM,
@@ -288,7 +288,7 @@ struct dr_result_handle dr_sock_listen(const char *restrict const hostname, cons
   {
     const int errnum = getaddrinfo(hostname, port, &hints, &res);
     if (dr_unlikely(errnum != 0)) {
-      return DR_RESULT_ERRNUM(handle, DR_ERR_GAI, errnum);
+      return DR_RESULT_ERRNUM_VOID(DR_ERR_GAI, errnum);
     }
   }
 
@@ -320,16 +320,17 @@ struct dr_result_handle dr_sock_listen(const char *restrict const hostname, cons
 
   freeaddrinfo(res);
   if (dr_unlikely(ai == NULL)) {
-    return DR_RESULT_ERROR(handle, &last_error);
+    return DR_RESULT_ERROR_VOID(&last_error);
   }
 
   {
     const struct dr_result_void r = dr_listen(fd, 16);
     DR_IF_RESULT_ERR(r, err) {
       dr_close(fd);
-      return DR_RESULT_ERROR(handle, err);
+      return DR_RESULT_ERROR_VOID(err);
     } DR_FI_RESULT;
   }
 
-  return DR_RESULT_OK(handle, fd);
+  dr_ioserver_sock_init(ihserver, fd);
+  return DR_RESULT_OK_VOID();
 }

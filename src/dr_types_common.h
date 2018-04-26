@@ -97,7 +97,7 @@ struct dr_equeue {
 };
 
 struct dr_equeue_server {
-  dr_handle_t sfd;
+  struct dr_ioserver_handle ihserver;
   dr_handle_t cfd;
   dr_overlapped_t ol;
   char buf[2*(sizeof(dr_sockaddr_t) + 16)];
@@ -129,7 +129,7 @@ struct dr_equeue {
 
 struct dr_equeue_server {
   struct dr_equeue_handle h;
-  dr_handle_t fd;
+  struct dr_ioserver_handle ihserver;
 };
 
 struct dr_equeue_client {

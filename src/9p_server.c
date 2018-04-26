@@ -664,19 +664,17 @@ static void client_func(void *restrict const arg) {
 static void server_func(void *restrict const arg) {
   char *restrict const port = (char *)arg;
   {
-    dr_handle_t sfd;
+    struct dr_ioserver_handle ihserver;
     {
-      const struct dr_result_handle r = dr_sock_listen(NULL, port, DR_CLOEXEC | DR_NONBLOCK | DR_REUSEADDR);
-      //const struct dr_result_handle r = dr_pipe_listen("/tmp/9p_server", DR_CLOEXEC | DR_NONBLOCK | DR_REUSEADDR);
+      const struct dr_result_void r = dr_sock_listen(&ihserver, NULL, port, DR_CLOEXEC | DR_NONBLOCK | DR_REUSEADDR);
+      //const struct dr_result_void r = dr_pipe_listen(&ihserver, "/tmp/9p_server", DR_CLOEXEC | DR_NONBLOCK | DR_REUSEADDR);
       DR_IF_RESULT_ERR(r, err) {
 	dr_log_error("dr_sock_listen failed", err);
 	//dr_log_error("dr_pipe_listen failed", err);
 	goto fail;
-      } DR_ELIF_RESULT_OK(dr_handle_t, r, value) {
-	sfd = value;
       } DR_FI_RESULT;
     }
-    dr_equeue_server_init(&server, sfd);
+    dr_equeue_server_init(&server, &ihserver);
   }
   while (true) {
     struct dr_io_handle ih;

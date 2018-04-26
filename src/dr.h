@@ -163,12 +163,12 @@ DR_WARN_UNUSED_RESULT struct dr_result_void dr_socket_startup(void);
 DR_WARN_UNUSED_RESULT struct dr_result_handle dr_socket(int domain, int type, int protocol, unsigned int flags);
 DR_WARN_UNUSED_RESULT struct dr_result_void dr_accept(dr_handle_t sockfd, struct dr_io_handle *restrict const ih, dr_sockaddr_t *restrict const addr, dr_socklen_t *restrict const addrlen, unsigned int flags);
 DR_WARN_UNUSED_RESULT struct dr_result_void dr_bind(dr_handle_t sockfd, const dr_sockaddr_t *restrict const addr, dr_socklen_t addrlen);
-DR_WARN_UNUSED_RESULT struct dr_result_handle dr_sock_listen(const char *restrict const hostname, const char *restrict const port, unsigned int flags);
+DR_WARN_UNUSED_RESULT struct dr_result_void dr_sock_listen(struct dr_ioserver_handle *restrict const ihserver, const char *restrict const hostname, const char *restrict const port, unsigned int flags);
 DR_WARN_UNUSED_RESULT struct dr_result_void dr_connect(dr_handle_t sockfd, const dr_sockaddr_t *restrict const addr, dr_socklen_t addrlen);
 DR_WARN_UNUSED_RESULT struct dr_result_void dr_sock_connect(struct dr_io_handle *restrict const ih, const char *restrict const hostname, const char *restrict const port, unsigned int flags);
 DR_WARN_UNUSED_RESULT struct dr_result_void dr_listen(dr_handle_t sockfd, int backlog);
 
-DR_WARN_UNUSED_RESULT struct dr_result_handle dr_pipe_listen(const char *restrict const name, unsigned int flags);
+DR_WARN_UNUSED_RESULT struct dr_result_void dr_pipe_listen(struct dr_ioserver_handle *restrict const ihserver, const char *restrict const name, unsigned int flags);
 DR_WARN_UNUSED_RESULT struct dr_result_void dr_pipe_connect(struct dr_io_handle *restrict const ih, const char *restrict const name, unsigned int flags);
 
 void dr_ioserver_sock_init(struct dr_ioserver_handle *restrict const ihserver, dr_handle_t fd);
@@ -193,7 +193,7 @@ void dr_equeue_destroy(struct dr_equeue *restrict const e);
 
 DR_WARN_UNUSED_RESULT struct dr_result_uint dr_equeue_dequeue(struct dr_equeue *restrict const e, dr_event_t *restrict const events, size_t bytes);
 
-void dr_equeue_server_init(struct dr_equeue_server *restrict const s, dr_handle_t fd);
+void dr_equeue_server_init(struct dr_equeue_server *restrict const s, struct dr_ioserver_handle *restrict const ihserver);
 void dr_equeue_server_destroy(struct dr_equeue_server *restrict const s);
 
 void dr_equeue_client_init(struct dr_equeue_client *restrict const c, struct dr_io_handle *restrict const ih);
