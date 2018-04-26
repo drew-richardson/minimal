@@ -126,18 +126,9 @@ static const int64_t DR_NS_PER_MS = 1000000;
 DR_WARN_UNUSED_RESULT struct dr_result_int64 dr_system_time_ns(void);
 DR_WARN_UNUSED_RESULT struct dr_result_void dr_system_sleep_ns(const int64_t time);
 
-DR_WARN_UNUSED_RESULT struct dr_result_size dr_read(dr_handle_t fd, void *restrict const buf, size_t count);
-DR_WARN_UNUSED_RESULT struct dr_result_size dr_write(dr_handle_t fd, const void *restrict const buf, size_t count);
 void dr_close(dr_handle_t fd);
 
 void dr_io_handle_init(struct dr_io_handle *restrict const ih, dr_handle_t fd);
-
-#if defined(_WIN32)
-
-DR_WARN_UNUSED_RESULT struct dr_result_size dr_read_ol(dr_handle_t fd, void *restrict const buf, size_t count, dr_overlapped_t *restrict const ol);
-DR_WARN_UNUSED_RESULT struct dr_result_size dr_write_ol(dr_handle_t fd, const void *restrict const buf, size_t count, dr_overlapped_t *restrict const ol);
-
-#endif
 
 #define DR_QUEUE_READABLE(c) ((c)->write_pos >= (c)->read_pos ? (c)->write_pos - (c)->read_pos : sizeof((c)->buf) - (c)->read_pos)
 #define DR_QUEUE_WRITABLE(c) ((c)->write_pos < (c)->read_pos ? (c)->read_pos - 1 - (c)->write_pos : (c)->read_pos == 0 ? sizeof((c)->buf) - 1 - (c)->write_pos : sizeof((c)->buf) - (c)->write_pos)
@@ -161,7 +152,6 @@ enum {
 
 DR_WARN_UNUSED_RESULT struct dr_result_void dr_socket_startup(void);
 DR_WARN_UNUSED_RESULT struct dr_result_handle dr_socket(int domain, int type, int protocol, unsigned int flags);
-DR_WARN_UNUSED_RESULT struct dr_result_void dr_accept(dr_handle_t sockfd, struct dr_io_handle *restrict const ih, dr_sockaddr_t *restrict const addr, dr_socklen_t *restrict const addrlen, unsigned int flags);
 DR_WARN_UNUSED_RESULT struct dr_result_void dr_bind(dr_handle_t sockfd, const dr_sockaddr_t *restrict const addr, dr_socklen_t addrlen);
 DR_WARN_UNUSED_RESULT struct dr_result_void dr_sock_listen(struct dr_ioserver_handle *restrict const ihserver, const char *restrict const hostname, const char *restrict const port, unsigned int flags);
 DR_WARN_UNUSED_RESULT struct dr_result_void dr_connect(dr_handle_t sockfd, const dr_sockaddr_t *restrict const addr, dr_socklen_t addrlen);

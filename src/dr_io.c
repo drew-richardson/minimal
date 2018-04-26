@@ -8,24 +8,16 @@
 
 #include <windows.h>
 
-struct dr_result_size dr_read_ol(dr_handle_t fd, void *restrict const buf, size_t count, dr_overlapped_t *restrict const ol) {
+struct dr_result_size dr_io_handle_read_ol(struct dr_io_handle *restrict const ih, void *restrict const buf, size_t count, dr_overlapped_t *restrict const ol) {
   if (dr_unlikely(count > 0xffffffff)) {
     count = 0xffffffff;
   }
   DWORD result;
   dr_assert(sizeof(dr_overlapped_t) == sizeof(OVERLAPPED));
-  if (dr_unlikely(ReadFile((HANDLE)fd, buf, count, &result, (OVERLAPPED *)ol) == 0)) {
+  if (dr_unlikely(ReadFile((HANDLE)ih->fd, buf, count, &result, (OVERLAPPED *)ol) == 0)) {
     return DR_RESULT_GETLASTERROR(size);
   }
   return DR_RESULT_OK(size, result);
-}
-
-struct dr_result_size dr_io_handle_read_ol(struct dr_io_handle *restrict const ih, void *restrict const buf, size_t count, dr_overlapped_t *restrict const ol) {
-  return dr_read_ol(ih->fd, buf, count, ol);
-}
-
-struct dr_result_size dr_read(dr_handle_t fd, void *restrict const buf, size_t count) {
-  return dr_read_ol(fd, buf, count, NULL);
 }
 
 DR_WARN_UNUSED_RESULT static struct dr_result_size dr_io_handle_read(struct dr_io *restrict const io, void *restrict const buf, size_t count) {
@@ -33,24 +25,16 @@ DR_WARN_UNUSED_RESULT static struct dr_result_size dr_io_handle_read(struct dr_i
   return dr_io_handle_read_ol(ih, buf, count, NULL);
 }
 
-struct dr_result_size dr_write_ol(dr_handle_t fd, const void *restrict const buf, size_t count, dr_overlapped_t *restrict const ol) {
+struct dr_result_size dr_io_handle_write_ol(struct dr_io_handle *restrict const ih, const void *restrict const buf, size_t count, dr_overlapped_t *restrict const ol) {
   if (dr_unlikely(count > 0xffffffff)) {
     count = 0xffffffff;
   }
   DWORD result;
   dr_assert(sizeof(dr_overlapped_t) == sizeof(OVERLAPPED));
-  if (dr_unlikely(WriteFile((HANDLE)fd, buf, count, &result, (OVERLAPPED *)ol) == 0)) {
+  if (dr_unlikely(WriteFile((HANDLE)ih->fd, buf, count, &result, (OVERLAPPED *)ol) == 0)) {
     return DR_RESULT_GETLASTERROR(size);
   }
   return DR_RESULT_OK(size, result);
-}
-
-struct dr_result_size dr_io_handle_write_ol(struct dr_io_handle *restrict const ih, const void *restrict const buf, size_t count, dr_overlapped_t *restrict const ol) {
-  return dr_write_ol(ih->fd, buf, count, ol);
-}
-
-struct dr_result_size dr_write(dr_handle_t fd, const void *restrict const buf, size_t count) {
-  return dr_write_ol(fd, buf, count, NULL);
 }
 
 DR_WARN_UNUSED_RESULT static struct dr_result_size dr_io_handle_write(struct dr_io *restrict const io, const void *restrict const buf, size_t count) {
@@ -77,21 +61,9 @@ void dr_ioserver_handle_close(struct dr_ioserver *restrict const ioserver) {
 #include <errno.h>
 #include <unistd.h>
 
-struct dr_result_size dr_read(dr_handle_t fd, void *restrict const buf, size_t count) {
-  const ssize_t result = read(fd, buf, count);
-  if (dr_unlikely(result < 0)) {
-    return DR_RESULT_ERRNO(size);
-  }
-  return DR_RESULT_OK(size, result);
-}
-
 struct dr_result_size dr_io_handle_read(struct dr_io *restrict const io, void *restrict const buf, size_t count) {
   struct dr_io_handle *restrict const ih = container_of(io, struct dr_io_handle, io);
-  return dr_read(ih->fd, buf, count);
-}
-
-struct dr_result_size dr_write(dr_handle_t fd, const void *restrict const buf, size_t count) {
-  const ssize_t result = write(fd, buf, count);
+  const ssize_t result = read(ih->fd, buf, count);
   if (dr_unlikely(result < 0)) {
     return DR_RESULT_ERRNO(size);
   }
@@ -100,7 +72,11 @@ struct dr_result_size dr_write(dr_handle_t fd, const void *restrict const buf, s
 
 struct dr_result_size dr_io_handle_write(struct dr_io *restrict const io, const void *restrict const buf, size_t count) {
   struct dr_io_handle *restrict const ih = container_of(io, struct dr_io_handle, io);
-  return dr_write(ih->fd, buf, count);
+  const ssize_t result = write(ih->fd, buf, count);
+  if (dr_unlikely(result < 0)) {
+    return DR_RESULT_ERRNO(size);
+  }
+  return DR_RESULT_OK(size, result);
 }
 
 void dr_close(dr_handle_t fd) {

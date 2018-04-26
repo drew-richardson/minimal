@@ -110,7 +110,10 @@ struct dr_result_handle dr_socket(int domain, int type, int protocol, unsigned i
   return DR_RESULT_OK(handle, result);
 }
 
-struct dr_result_void dr_accept(dr_handle_t sockfd, struct dr_io_handle *restrict const ih, dr_sockaddr_t *restrict const addr, dr_socklen_t *restrict const addrlen, unsigned int flags) {
+struct dr_result_void dr_ioserver_sock_accept_handle(struct dr_ioserver_handle *restrict const ihserver, struct dr_io_handle *restrict const ih, size_t iolen, dr_sockaddr_t *restrict const addr, dr_socklen_t *restrict const addrlen, unsigned int flags) {
+  if (dr_unlikely(sizeof(*ih) < iolen)) {
+    return DR_RESULT_ERRNUM_VOID(DR_ERR_ISO_C, ENOMEM);
+  }
   if (dr_unlikely((flags & ~(DR_NONBLOCK | DR_CLOEXEC)) != 0)) {
     return DR_RESULT_ERRNUM_VOID(DR_ERR_ISO_C, EINVAL);
   }
@@ -123,7 +126,7 @@ struct dr_result_void dr_accept(dr_handle_t sockfd, struct dr_io_handle *restric
   if ((flags & DR_CLOEXEC) != 0) {
     f |= SOCK_CLOEXEC;
   }
-  const dr_handle_t result = accept4(sockfd, (struct sockaddr *)addr, addrlen, f);
+  const dr_handle_t result = accept4(ihserver->fd, (struct sockaddr *)addr, addrlen, f);
   if (dr_unlikely(result < 0)) {
     return DR_RESULT_ERRNO_VOID();
   }
@@ -131,7 +134,7 @@ struct dr_result_void dr_accept(dr_handle_t sockfd, struct dr_io_handle *restric
   return DR_RESULT_OK_VOID();
 
 #else
-  const dr_handle_t result = accept(sockfd, (struct sockaddr *)addr, addrlen);
+  const dr_handle_t result = accept(ihserver->fd, (struct sockaddr *)addr, addrlen);
 #if defined(_WIN32)
   if (dr_unlikely(result == INVALID_SOCKET)) {
     return DR_RESULT_WSAGETLASTERROR_VOID();
@@ -166,13 +169,6 @@ struct dr_result_void dr_accept(dr_handle_t sockfd, struct dr_io_handle *restric
   dr_io_handle_init(ih, result);
   return DR_RESULT_OK_VOID();
 #endif
-}
-
-struct dr_result_void dr_ioserver_sock_accept_handle(struct dr_ioserver_handle *restrict const ihserver, struct dr_io_handle *restrict const ih, size_t iolen, dr_sockaddr_t *restrict const addr, dr_socklen_t *restrict const addrlen, unsigned int flags) {
-  if (dr_unlikely(sizeof(*ih) < iolen)) {
-    return DR_RESULT_ERRNUM_VOID(DR_ERR_ISO_C, ENOMEM);
-  }
-  return dr_accept(ihserver->fd, ih, addr, addrlen, flags);
 }
 
 DR_WARN_UNUSED_RESULT static struct dr_result_void dr_ioserver_sock_accept(struct dr_ioserver *restrict const ioserver, struct dr_io *restrict const io, size_t iolen, dr_sockaddr_t *restrict const addr, dr_socklen_t *restrict const addrlen, unsigned int flags) {
