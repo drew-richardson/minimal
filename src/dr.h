@@ -143,9 +143,9 @@ DR_WARN_UNUSED_RESULT struct dr_result_size dr_write_ol(dr_handle_t fd, const vo
 #define DR_QUEUE_WRITABLE(c) ((c)->write_pos < (c)->read_pos ? (c)->read_pos - 1 - (c)->write_pos : (c)->read_pos == 0 ? sizeof((c)->buf) - 1 - (c)->write_pos : sizeof((c)->buf) - (c)->write_pos)
 
 DR_WARN_UNUSED_RESULT struct dr_result_void dr_console_startup(void);
-extern dr_handle_t dr_stdin;
-extern dr_handle_t dr_stdout;
-extern dr_handle_t dr_stderr;
+extern struct dr_io_handle dr_stdin;
+extern struct dr_io_handle dr_stdout;
+extern struct dr_io_handle dr_stderr;
 
 const char *dr_source_revision(void);
 const char *dr_source_status(void);

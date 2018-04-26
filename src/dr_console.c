@@ -7,9 +7,9 @@
 
 #include <windows.h>
 
-dr_handle_t dr_stdin;
-dr_handle_t dr_stdout;
-dr_handle_t dr_stderr;
+struct dr_io_handle dr_stdin;
+struct dr_io_handle dr_stdout;
+struct dr_io_handle dr_stderr;
 
 struct dr_result_void dr_console_startup(void) {
   HANDLE handle;
@@ -18,19 +18,19 @@ struct dr_result_void dr_console_startup(void) {
   if (dr_unlikely(handle == INVALID_HANDLE_VALUE)) {
     return DR_RESULT_GETLASTERROR_VOID();
   }
-  dr_stdin = (dr_handle_t)handle;
+  dr_io_handle_init(&dr_stdin, (dr_handle_t)handle);
 
   handle = GetStdHandle(STD_OUTPUT_HANDLE);
   if (dr_unlikely(handle == INVALID_HANDLE_VALUE)) {
     return DR_RESULT_GETLASTERROR_VOID();
   }
-  dr_stdout = (dr_handle_t)handle;
+  dr_io_handle_init(&dr_stdout, (dr_handle_t)handle);
 
   handle = GetStdHandle(STD_ERROR_HANDLE);
   if (dr_unlikely(handle == INVALID_HANDLE_VALUE)) {
     return DR_RESULT_GETLASTERROR_VOID();
   }
-  dr_stderr = (dr_handle_t)handle;
+  dr_io_handle_init(&dr_stderr, (dr_handle_t)handle);
 
   return DR_RESULT_OK_VOID();
 }
@@ -39,11 +39,14 @@ struct dr_result_void dr_console_startup(void) {
 
 #include <unistd.h>
 
-dr_handle_t dr_stdin = STDIN_FILENO;
-dr_handle_t dr_stdout = STDOUT_FILENO;
-dr_handle_t dr_stderr = STDERR_FILENO;
+struct dr_io_handle dr_stdin;
+struct dr_io_handle dr_stdout;
+struct dr_io_handle dr_stderr;
 
 struct dr_result_void dr_console_startup(void) {
+  dr_io_handle_init(&dr_stdin, STDIN_FILENO);
+  dr_io_handle_init(&dr_stdout, STDOUT_FILENO);
+  dr_io_handle_init(&dr_stderr, STDERR_FILENO);
   return DR_RESULT_OK_VOID();
 }
 

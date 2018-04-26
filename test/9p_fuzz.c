@@ -29,7 +29,7 @@ int main(void) {
   uint8_t buf[DR_9P_BUF_SIZE];
   size_t bytes;
   {
-    const struct dr_result_size r = dr_read(dr_stdin, buf, sizeof(buf));
+    const struct dr_result_size r = dr_stdin.io.vtbl->read(&dr_stdin.io, buf, sizeof(buf));
     DR_IF_RESULT_ERR(r, err) {
       dr_log_error("dr_read failed", err);
       return -1;

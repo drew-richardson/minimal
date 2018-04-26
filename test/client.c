@@ -69,7 +69,7 @@ int main(int argc, char *argv[]) {
     {
       size_t bytes;
       {
-	const struct dr_result_size r = dr_read(dr_stdin, buf, sizeof(buf));
+	const struct dr_result_size r = dr_stdin.io.vtbl->read(&dr_stdin.io, buf, sizeof(buf));
 	DR_IF_RESULT_ERR(r, err) {
 #if defined(_WIN32)
 	  if (err->domain == DR_ERR_WIN && err->num == 109/*ERROR_BROKEN_PIPE*/) {
@@ -112,7 +112,7 @@ int main(int argc, char *argv[]) {
       }
 
       {
-	const struct dr_result_size r = dr_write(dr_stdout, buf, bytes);
+	const struct dr_result_size r = dr_stdout.io.vtbl->write(&dr_stdout.io, buf, bytes);
 	DR_IF_RESULT_ERR(r, err) {
 	  dr_log_error("dr_write failed", err);
 	  goto fail_close_cfd;
