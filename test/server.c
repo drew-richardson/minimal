@@ -296,7 +296,7 @@ int main(int argc, char *argv[]) {
   dr_schedule(true);
   while (dr_likely(!cleanup)) {
     // DR This stuff should likely be a method in dr_event
-    struct dr_event events[16];
+    dr_event_t events[16];
     unsigned int count;
     {
       const struct dr_result_uint r = dr_equeue_dequeue(&equeue, events, sizeof(events));

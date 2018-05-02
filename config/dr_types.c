@@ -5,6 +5,12 @@
 
 #include "dr_util.h"
 #include "dr_config.h"
+
+// Temporary definitions to satisfy dr_types_common.h usages of dr_types.h definitions
+typedef char dr_event_t;
+typedef char dr_overlapped_t;
+typedef char dr_sockaddr_t;
+
 #include "dr_types_impl.h"
 
 #if defined(HAS___ALIGNOF)
@@ -19,29 +25,23 @@ int main(void) {
   static const char buf[] = {
     '\n',
 
-    's','t','r','u','c','t',' ','d','r','_','e','v','e','n','t',' ','{',' ',
+    't','y','p','e','d','e','f',' ','s','t','r','u','c','t',' ','{',' ',
     DR_XINTXX2(ALIGN(dr_event_impl_t), 1),
     ' ','_','_','p','r','i','v','a','t','e','[',
     DR_HEXSTR((sizeof(dr_event_impl_t) + ALIGN(dr_event_impl_t) - 1)/ALIGN(dr_event_impl_t)),
-    ']',';',' ','}',';','\n',
+    ']',';',' ','}',' ','d','r','_','e','v','e','n','t','_','t',';','\n',
 
-    's','t','r','u','c','t',' ','d','r','_','e','q','u','e','u','e',' ','{',' ',
-    DR_XINTXX2(ALIGN(struct dr_equeue_impl), 1),
+    't','y','p','e','d','e','f',' ','s','t','r','u','c','t',' ','{',' ',
+    DR_XINTXX2(ALIGN(dr_overlapped_impl_t), 1),
     ' ','_','_','p','r','i','v','a','t','e','[',
-    DR_HEXSTR((sizeof(struct dr_equeue_impl) + ALIGN(struct dr_equeue_impl) - 1)/ALIGN(struct dr_equeue_impl)),
-    ']',';',' ','}',';','\n',
+    DR_HEXSTR((sizeof(dr_overlapped_impl_t) + ALIGN(dr_overlapped_impl_t) - 1)/ALIGN(dr_overlapped_impl_t)),
+    ']',';',' ','}',' ','d','r','_','o','v','e','r','l','a','p','p','e','d','_','t',';','\n',
 
-    's','t','r','u','c','t',' ','d','r','_','e','q','u','e','u','e','_','s','e','r','v','e','r',' ','{',' ',
-    DR_XINTXX2(ALIGN(struct dr_equeue_server_impl), 1),
+    't','y','p','e','d','e','f',' ','s','t','r','u','c','t',' ','{',' ',
+    DR_XINTXX2(ALIGN(dr_sockaddr_impl_t), 1),
     ' ','_','_','p','r','i','v','a','t','e','[',
-    DR_HEXSTR((sizeof(struct dr_equeue_server_impl) + ALIGN(struct dr_equeue_server_impl) - 1)/ALIGN(struct dr_equeue_server_impl)),
-    ']',';',' ','}',';','\n',
-
-    's','t','r','u','c','t',' ','d','r','_','e','q','u','e','u','e','_','c','l','i','e','n','t',' ','{',' ',
-    DR_XINTXX2(ALIGN(struct dr_equeue_client_impl), 1),
-    ' ','_','_','p','r','i','v','a','t','e','[',
-    DR_HEXSTR((sizeof(struct dr_equeue_client_impl) + ALIGN(struct dr_equeue_client_impl) - 1)/ALIGN(struct dr_equeue_client_impl)),
-    ']',';',' ','}',';','\n',
+    DR_HEXSTR((sizeof(dr_sockaddr_impl_t) + ALIGN(dr_sockaddr_impl_t) - 1)/ALIGN(dr_sockaddr_impl_t)),
+    ']',';',' ','}',' ','d','r','_','s','o','c','k','a','d','d','r','_','t',';','\n',
 
     '\n','\0',
   };

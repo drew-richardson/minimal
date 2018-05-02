@@ -11,8 +11,6 @@
 #include <stdint.h>
 
 #include "dr_version.h"
-// DR Should be included in dr_types.h
-#include "dr_types_common.h"
 #include "dr_types.h"
 #include "dr_compiler.h"
 
@@ -134,10 +132,8 @@ void dr_close(dr_handle_t fd);
 
 #if defined(_WIN32)
 
-struct _OVERLAPPED;
-
-WARN_UNUSED_RESULT struct dr_result_size dr_read_ol(dr_handle_t fd, void *restrict const buf, size_t count, struct _OVERLAPPED *restrict const ol);
-WARN_UNUSED_RESULT struct dr_result_size dr_write_ol(dr_handle_t fd, const void *restrict const buf, size_t count, struct _OVERLAPPED *restrict const ol);
+WARN_UNUSED_RESULT struct dr_result_size dr_read_ol(dr_handle_t fd, void *restrict const buf, size_t count, dr_overlapped_t *restrict const ol);
+WARN_UNUSED_RESULT struct dr_result_size dr_write_ol(dr_handle_t fd, const void *restrict const buf, size_t count, dr_overlapped_t *restrict const ol);
 
 #endif
 
@@ -161,14 +157,12 @@ enum {
   DR_REUSEADDR = 1U<<2,
 };
 
-struct sockaddr; // DR ...
-
 WARN_UNUSED_RESULT struct dr_result_void dr_socket_startup(void);
 WARN_UNUSED_RESULT struct dr_result_handle dr_socket(int domain, int type, int protocol, unsigned int flags);
-WARN_UNUSED_RESULT struct dr_result_handle dr_accept(dr_handle_t sockfd, struct sockaddr *restrict const addr, dr_socklen_t *restrict const addrlen, unsigned int flags);
-WARN_UNUSED_RESULT struct dr_result_void dr_bind(dr_handle_t sockfd, const struct sockaddr *restrict const addr, dr_socklen_t addrlen);
+WARN_UNUSED_RESULT struct dr_result_handle dr_accept(dr_handle_t sockfd, dr_sockaddr_t *restrict const addr, dr_socklen_t *restrict const addrlen, unsigned int flags);
+WARN_UNUSED_RESULT struct dr_result_void dr_bind(dr_handle_t sockfd, const dr_sockaddr_t *restrict const addr, dr_socklen_t addrlen);
 WARN_UNUSED_RESULT struct dr_result_handle dr_sock_listen(const char *restrict const hostname, const char *restrict const port, unsigned int flags);
-WARN_UNUSED_RESULT struct dr_result_void dr_connect(dr_handle_t sockfd, const struct sockaddr *restrict const addr, dr_socklen_t addrlen);
+WARN_UNUSED_RESULT struct dr_result_void dr_connect(dr_handle_t sockfd, const dr_sockaddr_t *restrict const addr, dr_socklen_t addrlen);
 WARN_UNUSED_RESULT struct dr_result_handle dr_sock_connect(const char *restrict const hostname, const char *restrict const port, unsigned int flags);
 WARN_UNUSED_RESULT struct dr_result_void dr_listen(dr_handle_t sockfd, int backlog);
 
@@ -186,14 +180,14 @@ enum {
   DR_EVENT_DEL = 2,
 };
 
-WARN_UNUSED_RESULT void *dr_event_key(struct dr_event *restrict const events, int i);
-WARN_UNUSED_RESULT bool dr_event_is_read(struct dr_event *restrict const events, int i);
-WARN_UNUSED_RESULT bool dr_event_is_write(struct dr_event *restrict const events, int i);
+WARN_UNUSED_RESULT void *dr_event_key(dr_event_t *restrict const events, int i);
+WARN_UNUSED_RESULT bool dr_event_is_read(dr_event_t *restrict const events, int i);
+WARN_UNUSED_RESULT bool dr_event_is_write(dr_event_t *restrict const events, int i);
 
 WARN_UNUSED_RESULT struct dr_result_void dr_equeue_init(struct dr_equeue *restrict const e);
 void dr_equeue_destroy(struct dr_equeue *restrict const e);
 
-WARN_UNUSED_RESULT struct dr_result_uint dr_equeue_dequeue(struct dr_equeue *restrict const e, struct dr_event *restrict const events, size_t bytes);
+WARN_UNUSED_RESULT struct dr_result_uint dr_equeue_dequeue(struct dr_equeue *restrict const e, dr_event_t *restrict const events, size_t bytes);
 
 void dr_equeue_server_init(struct dr_equeue_server *restrict const s, dr_handle_t fd);
 void dr_equeue_server_destroy(struct dr_equeue_server *restrict const s);

@@ -119,7 +119,7 @@ else \
 fi > $@
 
 build/make/deps.mk: force
-	$(E_GEN)find build/obj -type f -name '*.d' | xargs cat > $@
+	$(E_GEN)find build/obj -type f -name '*.d' 2> /dev/null | xargs cat > $@
 
 build/src/dr_source.c: force
 	$(E_GEN) \
@@ -143,12 +143,21 @@ build/include/dr_version.h:
 "#define DR_VERSION_EXTRA \"$(VERSION_EXTRA)\"" \
 "#endif // DR_VERSION_H" > $@
 
-build/include/dr_types.h: build/include/dr_config.h build/include/dr_version.h $(PROJROOT)config/dr_types.c
+build/include/dr_types.h: build/include/dr_config.h build/include/dr_version.h $(PROJROOT)config/dr_util.h $(PROJROOT)src/dr_compiler.h $(PROJROOT)src/dr_types_common.h $(PROJROOT)src/dr_types_impl.h $(PROJROOT)src/list.h $(PROJROOT)config/dr_types.c
 	$(E_GEN) \
 ( \
     cd build/make_obj && \
+    printf "%s\n" \
+"#if !defined(DR_TYPES_H)" \
+"#define DR_TYPES_H" \
+"" && \
     $(CC) $(CSTD) -I../../$(PROJROOT)src -I../../build/include $(CPPFLAGS) $(CFLAGS) ../../$(PROJROOT)config/dr_types.c $(OUTPUT_L)dr_types$(EEXT) > /dev/null 2>&1 && \
-    (egrep -a '^struct ' dr_types$(EEXT) || egrep '^struct ' dr_types$(EEXT)) \
+    (egrep -a '^(struct|typedef) ' dr_types$(EEXT) || egrep '^(struct|typedef) ' dr_types$(EEXT)) && \
+    printf "%s\n" \
+"" \
+"#include \"dr_types_common.h\"" \
+"" \
+"#endif // DR_TYPES_H\n" \
 ) > $@ 2> /dev/null
 
 #	@echo MAKECMDGOALS = $(MAKECMDGOALS)

@@ -790,7 +790,7 @@ int main(int argc, char *argv[]) {
   dr_schedule(true);
   dr_log("Listening for clients");
   while (true) {
-    struct dr_event events[16];
+    dr_event_t events[16];
     unsigned int count;
     {
       const struct dr_result_uint r = dr_equeue_dequeue(&equeue, events, sizeof(events));

@@ -13,6 +13,8 @@
 
 #if defined(__linux__) || defined(HAS_KEVENT) || defined(__sun)
 
+#include <sys/socket.h>
+
 #if defined(__linux__) || defined(HAS_KEVENT)
 
 #if defined(__linux__)
@@ -31,39 +33,15 @@ typedef struct kevent dr_event_impl_t;
 
 #endif
 
-struct dr_equeue_handle {
-  struct list_head changed_clients;
-  dr_handle_t fd;
-  unsigned int actual_events;
-  unsigned int events;
-};
-
 #elif defined(__sun)
 
 #include <port.h>
 
 typedef port_event_t dr_event_impl_t;
 
-struct dr_equeue_handle {
-  struct list_head changed_clients;
-  dr_handle_t fd;
-  unsigned int events;
-};
-
 #endif
 
-struct dr_equeue_impl {
-  struct list_head changed_clients;
-  dr_handle_t fd;
-};
-
-struct dr_equeue_server_impl {
-  struct dr_equeue_handle h;
-};
-
-struct dr_equeue_client_impl {
-  struct dr_equeue_handle h;
-};
+typedef uint8_t dr_overlapped_impl_t;
 
 #elif defined(_WIN32)
 
@@ -73,25 +51,10 @@ struct dr_equeue_client_impl {
 
 typedef OVERLAPPED_ENTRY dr_event_impl_t;
 
-struct dr_equeue_impl {
-  dr_handle_t fd;
-};
-
-struct dr_equeue_server_impl {
-  dr_handle_t sfd;
-  dr_handle_t cfd;
-  OVERLAPPED ol;
-  char buf[2*(sizeof(struct sockaddr_storage) + 16)];
-  bool subscribed;
-};
-
-struct dr_equeue_client_impl {
-  dr_handle_t fd;
-  OVERLAPPED rol;
-  OVERLAPPED wol;
-  bool subscribed;
-};
+typedef OVERLAPPED dr_overlapped_impl_t;
 
 #endif
+
+typedef struct sockaddr_storage dr_sockaddr_impl_t;
 
 #endif // DR_TYPES_IMPL_H

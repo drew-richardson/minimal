@@ -52,6 +52,53 @@ typedef int dr_handle_t;
 typedef unsigned int dr_socklen_t;
 #endif
 
+#if defined(_WIN32)
+
+struct dr_equeue {
+  dr_handle_t fd;
+};
+
+struct dr_equeue_server {
+  dr_handle_t sfd;
+  dr_handle_t cfd;
+  dr_overlapped_t ol;
+  char buf[2*(sizeof(dr_sockaddr_t) + 16)];
+  bool subscribed;
+};
+
+struct dr_equeue_client {
+  dr_handle_t fd;
+  dr_overlapped_t rol;
+  dr_overlapped_t wol;
+  bool subscribed;
+};
+
+#else
+
+struct dr_equeue_handle {
+  struct list_head changed_clients;
+  dr_handle_t fd;
+#if !defined(__sun)
+  unsigned int actual_events;
+#endif
+  unsigned int events;
+};
+
+struct dr_equeue {
+  struct list_head changed_clients;
+  dr_handle_t fd;
+};
+
+struct dr_equeue_server {
+  struct dr_equeue_handle h;
+};
+
+struct dr_equeue_client {
+  struct dr_equeue_handle h;
+};
+
+#endif
+
 struct dr_task {
   struct dr_task_frame *restrict frame;
   void *restrict stack;

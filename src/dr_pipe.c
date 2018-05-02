@@ -32,7 +32,7 @@ struct dr_result_handle dr_pipe_listen(const char *restrict const name, unsigned
     } DR_FI_RESULT;
   }
   {
-    const struct dr_result_void r = dr_bind(fd, (struct sockaddr *)&addr, offsetof(struct sockaddr_un, sun_path) + name_len);
+    const struct dr_result_void r = dr_bind(fd, (dr_sockaddr_t *)&addr, offsetof(struct sockaddr_un, sun_path) + name_len);
     DR_IF_RESULT_ERR(r, err) {
       dr_close(fd);
       return DR_RESULT_ERROR(handle, err);
@@ -67,7 +67,7 @@ struct dr_result_handle dr_pipe_connect(const char *restrict const name, unsigne
     } DR_FI_RESULT;
   }
   {
-    const struct dr_result_void r = dr_connect(fd, (struct sockaddr *)&addr, offsetof(struct sockaddr_un, sun_path) + name_len);
+    const struct dr_result_void r = dr_connect(fd, (dr_sockaddr_t *)&addr, offsetof(struct sockaddr_un, sun_path) + name_len);
     DR_IF_RESULT_ERR(r, err) {
       dr_close(fd);
       return DR_RESULT_ERROR(handle, err);

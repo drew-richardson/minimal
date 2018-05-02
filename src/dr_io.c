@@ -7,12 +7,13 @@
 
 #include <windows.h>
 
-struct dr_result_size dr_read_ol(dr_handle_t fd, void *restrict const buf, size_t count, struct _OVERLAPPED *restrict const ol) {
+struct dr_result_size dr_read_ol(dr_handle_t fd, void *restrict const buf, size_t count, dr_overlapped_t *restrict const ol) {
   if (dr_unlikely(count > 0xffffffff)) {
     count = 0xffffffff;
   }
   DWORD result;
-  if (dr_unlikely(ReadFile((HANDLE)fd, buf, count, &result, ol) == 0)) {
+  dr_assert(sizeof(dr_overlapped_t) == sizeof(OVERLAPPED));
+  if (dr_unlikely(ReadFile((HANDLE)fd, buf, count, &result, (OVERLAPPED *)ol) == 0)) {
     return DR_RESULT_GETLASTERROR(size);
   }
   return DR_RESULT_OK(size, result);
@@ -22,12 +23,13 @@ struct dr_result_size dr_read(dr_handle_t fd, void *restrict const buf, size_t c
   return dr_read_ol(fd, buf, count, NULL);
 }
 
-struct dr_result_size dr_write_ol(dr_handle_t fd, const void *restrict const buf, size_t count, struct _OVERLAPPED *restrict const ol) {
+struct dr_result_size dr_write_ol(dr_handle_t fd, const void *restrict const buf, size_t count, dr_overlapped_t *restrict const ol) {
   if (dr_unlikely(count > 0xffffffff)) {
     count = 0xffffffff;
   }
   DWORD result;
-  if (dr_unlikely(WriteFile((HANDLE)fd, buf, count, &result, ol) == 0)) {
+  dr_assert(sizeof(dr_overlapped_t) == sizeof(OVERLAPPED));
+  if (dr_unlikely(WriteFile((HANDLE)fd, buf, count, &result, (OVERLAPPED *)ol) == 0)) {
     return DR_RESULT_GETLASTERROR(size);
   }
   return DR_RESULT_OK(size, result);
