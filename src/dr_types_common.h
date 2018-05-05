@@ -100,6 +100,7 @@ struct dr_equeue_server {
   struct dr_ioserver_handle ihserver;
   dr_handle_t cfd;
   dr_overlapped_t ol;
+  struct dr_equeue *restrict e;
   char buf[2*(sizeof(dr_sockaddr_t) + 16)];
   bool subscribed;
 };
@@ -132,6 +133,7 @@ struct dr_equeue_server {
   // h must be the first object because it's assumed it's at the same offset as the client
   struct dr_equeue_handle h;
   struct dr_ioserver_handle ihserver;
+  struct dr_equeue *restrict e;
 };
 
 struct dr_equeue_client {
@@ -142,6 +144,11 @@ struct dr_equeue_client {
 };
 
 #endif
+
+struct dr_io_equeue_server_vtbl {
+  struct dr_ioserver_handle_vtbl ihserver;
+  DR_WARN_UNUSED_RESULT struct dr_result_void (*accept_equeue)(struct dr_equeue_server *restrict const s, struct dr_equeue_client *restrict const c, size_t iolen, dr_sockaddr_t *restrict const addr, dr_socklen_t *restrict const addrlen, unsigned int flags);
+};
 
 struct dr_task {
   struct dr_task_frame *restrict frame;

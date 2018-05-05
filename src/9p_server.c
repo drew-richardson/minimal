@@ -586,7 +586,8 @@ static DR_WARN_UNUSED_RESULT struct dr_result_void client_init(void) {
     .fids = LIST_HEAD_INIT(c->fids),
   };
   {
-    const struct dr_result_void r = dr_equeue_accept(&c->c, &equeue, &server);
+    const struct dr_io_equeue_server_vtbl *restrict const vtbl = container_of(server.ihserver.ioserver.vtbl, struct dr_io_equeue_server_vtbl, ihserver.ioserver);
+    const struct dr_result_void r = vtbl->accept_equeue(&server, &c->c, sizeof(c->c), NULL, NULL, DR_CLOEXEC);
     DR_IF_RESULT_ERR(r, err) {
       free(c);
       return DR_RESULT_ERROR_VOID(err);
@@ -681,7 +682,7 @@ static void server_func(void *restrict const arg) {
 	goto fail;
       } DR_FI_RESULT;
     }
-    dr_equeue_server_init(&server, &ihserver);
+    dr_equeue_server_init(&server, &equeue, &ihserver);
   }
   while (true) {
     const struct dr_result_void r = client_init();
@@ -691,7 +692,7 @@ static void server_func(void *restrict const arg) {
     } DR_FI_RESULT;
   }
  fail_equeue_server_destroy:
-  dr_equeue_server_destroy(&server);
+  server.ihserver.ioserver.vtbl->close(&server.ihserver.ioserver);
  fail:
   return;
 }
