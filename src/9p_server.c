@@ -577,7 +577,7 @@ static struct dr_equeue_server server;
 
 static void client_func(void *restrict const arg);
 
-static DR_WARN_UNUSED_RESULT struct dr_result_void client_init(struct dr_io_handle *restrict const ih) {
+static DR_WARN_UNUSED_RESULT struct dr_result_void client_init(void) {
   struct client *restrict const c = (struct client *)malloc(sizeof(*c));
   if (c == NULL) {
     return DR_RESULT_ERRNO_VOID();
@@ -585,11 +585,18 @@ static DR_WARN_UNUSED_RESULT struct dr_result_void client_init(struct dr_io_hand
   *c = (struct client) {
     .fids = LIST_HEAD_INIT(c->fids),
   };
-  dr_equeue_client_init(&c->c, ih);
+  {
+    const struct dr_result_void r = dr_equeue_accept(&c->c, &equeue, &server);
+    DR_IF_RESULT_ERR(r, err) {
+      free(c);
+      return DR_RESULT_ERROR_VOID(err);
+    } DR_FI_RESULT;
+  }
+  dr_log("Accepted client");
   {
     const struct dr_result_void r = dr_task_create(&c->task, STACK_SIZE, client_func, c);
     DR_IF_RESULT_ERR(r, err) {
-      dr_equeue_client_destroy(&c->c);
+      c->c.ih.io.vtbl->close(&c->c.ih.io);
       free(c);
       return DR_RESULT_ERROR_VOID(err);
     } DR_FI_RESULT;
@@ -609,7 +616,7 @@ static void client_destroy(struct client *restrict const c) {
     }
   }
   dr_task_destroy(&c->task);
-  dr_equeue_client_destroy(&c->c);
+  c->c.ih.io.vtbl->close(&c->c.ih.io);
   free(c);
 }
 
@@ -619,7 +626,7 @@ static void client_func(void *restrict const arg) {
     uint8_t tbuf[DR_9P_BUF_SIZE];
     size_t bytes;
     {
-      const struct dr_result_size r = dr_equeue_read(&equeue, &c->c, tbuf, sizeof(tbuf));
+      const struct dr_result_size r = c->c.ih.io.vtbl->read(&c->c.ih.io, tbuf, sizeof(tbuf));
       DR_IF_RESULT_ERR(r, err) {
 	dr_log_error("dr_equeue_read failed", err);
 	break;
@@ -645,7 +652,7 @@ static void client_func(void *restrict const arg) {
       break;
     }
     {
-      const struct dr_result_size r = dr_equeue_write(&equeue, &c->c, rbuf, rpos);
+      const struct dr_result_size r = c->c.ih.io.vtbl->write(&c->c.ih.io, rbuf, rpos);
       DR_IF_RESULT_ERR(r, err) {
 	dr_log_error("dr_equeue_write failed", err);
 	break;
@@ -677,22 +684,11 @@ static void server_func(void *restrict const arg) {
     dr_equeue_server_init(&server, &ihserver);
   }
   while (true) {
-    struct dr_io_handle ih;
-    {
-      const struct dr_result_void r = dr_equeue_accept(&ih, &equeue, &server);
-      DR_IF_RESULT_ERR(r, err) {
-	dr_log_error("dr_equeue_accept failed", err);
-	goto fail_equeue_server_destroy;
-      } DR_FI_RESULT;
-    }
-    dr_log("Accepted client");
-    {
-      const struct dr_result_void r = client_init(&ih);
-      DR_IF_RESULT_ERR(r, err) {
-	dr_log_error("client_init failed", err);
-	goto fail_equeue_server_destroy;
-      } DR_FI_RESULT;
-    }
+    const struct dr_result_void r = client_init();
+    DR_IF_RESULT_ERR(r, err) {
+      dr_log_error("client_init failed", err);
+      goto fail_equeue_server_destroy;
+    } DR_FI_RESULT;
   }
  fail_equeue_server_destroy:
   dr_equeue_server_destroy(&server);

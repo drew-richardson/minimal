@@ -186,12 +186,9 @@ DR_WARN_UNUSED_RESULT struct dr_result_uint dr_equeue_dequeue(struct dr_equeue *
 void dr_equeue_server_init(struct dr_equeue_server *restrict const s, struct dr_ioserver_handle *restrict const ihserver);
 void dr_equeue_server_destroy(struct dr_equeue_server *restrict const s);
 
-void dr_equeue_client_init(struct dr_equeue_client *restrict const c, struct dr_io_handle *restrict const ih);
-void dr_equeue_client_destroy(struct dr_equeue_client *restrict const c);
+void dr_equeue_client_init(struct dr_equeue_client *restrict const c, struct dr_equeue *restrict const e, struct dr_io_handle *restrict const ih);
 
-DR_WARN_UNUSED_RESULT struct dr_result_void dr_equeue_accept(struct dr_io_handle *restrict const ih, struct dr_equeue *restrict const e, struct dr_equeue_server *restrict const s);
-DR_WARN_UNUSED_RESULT struct dr_result_size dr_equeue_read(struct dr_equeue *restrict const e, struct dr_equeue_client *restrict const c, void *restrict const buf, const size_t count);
-DR_WARN_UNUSED_RESULT struct dr_result_size dr_equeue_write(struct dr_equeue *restrict const e, struct dr_equeue_client *restrict const c, const void *restrict const buf, const size_t count);
+DR_WARN_UNUSED_RESULT struct dr_result_void dr_equeue_accept(struct dr_equeue_client *restrict const c, struct dr_equeue *restrict const e, struct dr_equeue_server *restrict const s);
 DR_WARN_UNUSED_RESULT struct dr_result_void dr_equeue_dispatch(struct dr_equeue *restrict const e);
 
 DR_WARN_UNUSED_RESULT struct dr_result_void dr_task_create(struct dr_task *restrict const task, const size_t stack_size, const dr_task_start_t func, void *restrict const arg);

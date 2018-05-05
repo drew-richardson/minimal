@@ -108,6 +108,7 @@ struct dr_equeue_client {
   struct dr_io_handle ih;
   dr_overlapped_t rol;
   dr_overlapped_t wol;
+  struct dr_equeue *restrict e;
   bool subscribed;
 };
 
@@ -128,13 +129,16 @@ struct dr_equeue {
 };
 
 struct dr_equeue_server {
+  // h must be the first object because it's assumed it's at the same offset as the client
   struct dr_equeue_handle h;
   struct dr_ioserver_handle ihserver;
 };
 
 struct dr_equeue_client {
+  // h must be the first object because it's assumed it's at the same offset as the client
   struct dr_equeue_handle h;
   struct dr_io_handle ih;
+  struct dr_equeue *restrict e;
 };
 
 #endif
