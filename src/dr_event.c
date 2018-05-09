@@ -129,7 +129,8 @@ static const struct dr_io_vtbl dr_io_equeue_client_vtbl = {
 
 static void dr_check_alignment(const void *restrict const ptr) {
   const uintptr_t val = (uintptr_t)ptr;
-  dr_assert((val & 0x7) == 0);
+  // How many bits could be used for tagged pointers?
+  dr_assert((val & 0x3) == 0);
 }
 
 #if defined(__linux__) || defined(DR_HAS_KEVENT) || defined(__sun)
