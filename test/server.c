@@ -30,7 +30,7 @@ static struct dr_equeue_server server;
 static void read_func(void *restrict const arg);
 static void write_func(void *restrict const arg);
 
-static WARN_UNUSED_RESULT struct dr_result_void client_init(dr_handle_t fd) {
+static DR_WARN_UNUSED_RESULT struct dr_result_void client_init(dr_handle_t fd) {
   struct client *restrict const c = (struct client *)malloc(sizeof(*c));
   if (c == NULL) {
     return DR_RESULT_ERRNO_VOID();

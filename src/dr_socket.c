@@ -114,7 +114,7 @@ struct dr_result_handle dr_accept(dr_handle_t sockfd, dr_sockaddr_t *restrict co
     return DR_RESULT_ERRNUM(handle, DR_ERR_ISO_C, EINVAL);
   }
 
-#if defined(HAS_ACCEPT4)
+#if defined(DR_HAS_ACCEPT4)
   unsigned int f = 0;
   if ((flags & DR_NONBLOCK) != 0) {
     f |= SOCK_NONBLOCK;

@@ -7,12 +7,12 @@
 #include "dr_config.h"
 #include "dr_version.h"
 
-#if !defined(HAS_RESTRICT)
+#if !defined(DR_HAS_RESTRICT)
 // DR Check for __restrict as well?
 #define restrict
 #endif
 
-#if defined(HAS_BUILTIN_EXPECT)
+#if defined(DR_HAS_BUILTIN_EXPECT)
 
 #define dr_likely(cond) __builtin_expect(!!(cond), 1)
 #define dr_unlikely(cond) __builtin_expect(!!(cond), 0)
@@ -24,18 +24,18 @@
 
 #endif
 
-#if defined(HAS_ATTRIBUTE_WARN_UNUSED_RESULT)
-#define WARN_UNUSED_RESULT __attribute__((warn_unused_result))
+#if defined(DR_HAS_ATTRIBUTE_WARN_UNUSED_RESULT)
+#define DR_WARN_UNUSED_RESULT __attribute__((warn_unused_result))
 #else
-#define WARN_UNUSED_RESULT
+#define DR_WARN_UNUSED_RESULT
 #endif
 
-#if defined(HAS_ATTRIBUTE_NORETURN)
-#define NORETURN __attribute__((noreturn))
-#elif defined(HAS_DECLSPEC_NORETURN)
-#define NORETURN __declspec(noreturn)
+#if defined(DR_HAS_ATTRIBUTE_NORETURN)
+#define DR_NORETURN __attribute__((noreturn))
+#elif defined(DR_HAS_DECLSPEC_NORETURN)
+#define DR_NORETURN __declspec(noreturn)
 #else
-#define NORETURN
+#define DR_NORETURN
 #endif
 
 #endif // DR_COMPILER_H

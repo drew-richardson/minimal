@@ -52,28 +52,28 @@ static void dr_9p_decode_qid(struct dr_9p_qid *restrict const qid, const uint8_t
 
 uint32_t dr_9p_decode_stat(struct dr_9p_stat *restrict const stat, const uint8_t *restrict const buf, const uint32_t size) {
   if (dr_unlikely(size < sizeof(uint16_t))) {
-    return FAIL_UINT32;
+    return DR_FAIL_UINT32;
   }
   const uint16_t stat_size = dr_decode_uint16(buf);
   if (dr_unlikely((size < sizeof(uint16_t) + stat_size) ||
 		  (size < sizeof(uint16_t) + sizeof(uint16_t) + sizeof(uint32_t) + qid_size + sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint64_t) + sizeof(uint16_t)))) {
-    return FAIL_UINT32;
+    return DR_FAIL_UINT32;
   }
   const uint16_t name_len = dr_decode_uint16(buf + sizeof(uint16_t) + sizeof(uint16_t) + sizeof(uint32_t) + qid_size + sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint64_t));
   if (dr_unlikely(size < sizeof(uint16_t) + sizeof(uint16_t) + sizeof(uint32_t) + qid_size + sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint64_t) + sizeof(uint16_t) + name_len + sizeof(uint16_t))) {
-    return FAIL_UINT32;
+    return DR_FAIL_UINT32;
   }
   const uint16_t uid_len = dr_decode_uint16(buf + sizeof(uint16_t) + sizeof(uint16_t) + sizeof(uint32_t) + qid_size + sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint64_t) + sizeof(uint16_t) + name_len);
   if (dr_unlikely(size < sizeof(uint16_t) + sizeof(uint16_t) + sizeof(uint32_t) + qid_size + sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint64_t) + sizeof(uint16_t) + name_len + sizeof(uint16_t) + uid_len + sizeof(uint16_t))) {
-    return FAIL_UINT32;
+    return DR_FAIL_UINT32;
   }
   const uint16_t gid_len = dr_decode_uint16(buf + sizeof(uint16_t) + sizeof(uint16_t) + sizeof(uint32_t) + qid_size + sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint64_t) + sizeof(uint16_t) + name_len + sizeof(uint16_t) + uid_len);
   if (dr_unlikely(size < sizeof(uint16_t) + sizeof(uint16_t) + sizeof(uint32_t) + qid_size + sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint64_t) + sizeof(uint16_t) + name_len + sizeof(uint16_t) + uid_len + sizeof(uint16_t) + gid_len + sizeof(uint16_t))) {
-    return FAIL_UINT32;
+    return DR_FAIL_UINT32;
   }
   const uint16_t muid_len = dr_decode_uint16(buf + sizeof(uint16_t) + sizeof(uint16_t) + sizeof(uint32_t) + qid_size + sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint64_t) + sizeof(uint16_t) + name_len + sizeof(uint16_t) + uid_len + sizeof(uint16_t) + gid_len);
   if (dr_unlikely(size < sizeof(uint16_t) + sizeof(uint16_t) + sizeof(uint32_t) + qid_size + sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint64_t) + sizeof(uint16_t) + name_len + sizeof(uint16_t) + uid_len + sizeof(uint16_t) + gid_len + sizeof(uint16_t) + muid_len)) {
-    return FAIL_UINT32;
+    return DR_FAIL_UINT32;
   }
   uint32_t spos = sizeof(uint16_t);
   stat->type = dr_decode_uint16(buf + spos);
@@ -422,7 +422,7 @@ bool dr_9p_decode_Rstat(struct dr_9p_stat *restrict const stat, const uint8_t *r
     return false;
   }
   const uint32_t read = dr_9p_decode_stat(stat, buf + header_size + sizeof(uint16_t), size - header_size - sizeof(uint16_t));
-  if (dr_unlikely(read == FAIL_UINT32)) {
+  if (dr_unlikely(read == DR_FAIL_UINT32)) {
     return false;
   }
   if (dr_unlikely(header_size + sizeof(uint16_t) + read != size)) {
@@ -444,7 +444,7 @@ bool dr_9p_decode_Twstat(uint32_t *restrict const fid, struct dr_9p_stat *restri
   }
   *fid = dr_decode_uint32(buf + header_size);
   const uint32_t read = dr_9p_decode_stat(stat, buf + header_size + sizeof(uint32_t) + sizeof(uint16_t), size - header_size - sizeof(uint32_t) - sizeof(uint16_t));
-  if (dr_unlikely(read == FAIL_UINT32)) {
+  if (dr_unlikely(read == DR_FAIL_UINT32)) {
     return false;
   }
   if (dr_unlikely(header_size + sizeof(uint32_t) + sizeof(uint16_t) + read != size)) {

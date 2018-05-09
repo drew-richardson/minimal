@@ -9,7 +9,7 @@
 
 #include <sys/epoll.h>
 
-#elif defined(HAS_KEVENT)
+#elif defined(DR_HAS_KEVENT)
 
 #include <sys/types.h>
 
@@ -97,13 +97,13 @@ static void dr_check_alignment(const void *restrict const ptr) {
   dr_assert((val & 0x7) == 0);
 }
 
-#if defined(__linux__) || defined(HAS_KEVENT) || defined(__sun)
+#if defined(__linux__) || defined(DR_HAS_KEVENT) || defined(__sun)
 
-#if defined(__linux__) || defined(HAS_KEVENT)
+#if defined(__linux__) || defined(DR_HAS_KEVENT)
 
 #if defined(__linux__)
 
-WARN_UNUSED_RESULT static struct dr_result_handle dr_event_open(unsigned int flags) {
+DR_WARN_UNUSED_RESULT static struct dr_result_handle dr_event_open(unsigned int flags) {
   if (dr_unlikely((flags & ~(DR_CLOEXEC)) != 0)) {
     return DR_RESULT_ERRNUM(handle, DR_ERR_ISO_C, EINVAL);
   }
@@ -169,9 +169,9 @@ struct dr_result_uint dr_equeue_dequeue(struct dr_equeue *restrict const e, dr_e
   return DR_RESULT_OK(uint, count);
 }
 
-#elif defined(HAS_KEVENT)
+#elif defined(DR_HAS_KEVENT)
 
-WARN_UNUSED_RESULT static struct dr_result_handle dr_event_open(unsigned int flags) {
+DR_WARN_UNUSED_RESULT static struct dr_result_handle dr_event_open(unsigned int flags) {
   if (dr_unlikely((flags & ~(DR_CLOEXEC)) != 0)) {
     return DR_RESULT_ERRNUM(handle, DR_ERR_ISO_C, EINVAL);
   }
@@ -263,7 +263,7 @@ static void dr_event_unsubscribe(struct dr_equeue *restrict const e, struct dr_e
 
 #elif defined(__sun)
 
-WARN_UNUSED_RESULT static struct dr_result_handle dr_event_open(unsigned int flags) {
+DR_WARN_UNUSED_RESULT static struct dr_result_handle dr_event_open(unsigned int flags) {
   if (dr_unlikely((flags & ~(DR_CLOEXEC)) != 0)) {
     return DR_RESULT_ERRNUM(handle, DR_ERR_ISO_C, EINVAL);
   }
@@ -407,7 +407,7 @@ struct dr_result_void dr_equeue_init(struct dr_equeue *restrict const e) {
   } DR_FI_RESULT;
 }
 
-WARN_UNUSED_RESULT static struct dr_equeue_handle dr_equeue_handle_init(dr_handle_t fd) {
+DR_WARN_UNUSED_RESULT static struct dr_equeue_handle dr_equeue_handle_init(dr_handle_t fd) {
   return (struct dr_equeue_handle) {
     .fd = fd,
   };
@@ -442,7 +442,7 @@ void dr_equeue_client_destroy(struct dr_equeue_client *restrict const c) {
 
 #elif defined(_WIN32)
 
-WARN_UNUSED_RESULT static struct dr_result_void dr_event_associate(dr_handle_t efd, dr_handle_t fd, void *restrict const key) {
+DR_WARN_UNUSED_RESULT static struct dr_result_void dr_event_associate(dr_handle_t efd, dr_handle_t fd, void *restrict const key) {
   dr_check_alignment(key);
   if (dr_unlikely(CreateIoCompletionPort((HANDLE)fd, (HANDLE)efd, (ULONG_PTR)key, 0) == NULL)) {
     return DR_RESULT_GETLASTERROR_VOID();
@@ -457,11 +457,11 @@ void *dr_event_key(dr_event_t *restrict const events, int i) {
   return (void *)((OVERLAPPED_ENTRY *)events)[i].lpCompletionKey;
 }
 
-WARN_UNUSED_RESULT static uintptr_t dr_overlapped_err(dr_overlapped_t *restrict const ol) {
+DR_WARN_UNUSED_RESULT static uintptr_t dr_overlapped_err(dr_overlapped_t *restrict const ol) {
   return ((OVERLAPPED *)ol)->Internal;
 }
 
-WARN_UNUSED_RESULT static uintptr_t dr_overlapped_count(dr_overlapped_t *restrict const ol) {
+DR_WARN_UNUSED_RESULT static uintptr_t dr_overlapped_count(dr_overlapped_t *restrict const ol) {
   return ((OVERLAPPED *)ol)->InternalHigh;
 }
 

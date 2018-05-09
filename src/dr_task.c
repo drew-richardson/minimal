@@ -7,7 +7,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#if defined(USE_VALGRIND)
+#if defined(DR_USE_VALGRIND)
 #include <valgrind/valgrind.h>
 #endif
 
@@ -161,20 +161,20 @@ static struct list_head dr_runnable;
 static struct list_head dr_sleeping;
 
 extern void dr_task_switch(struct dr_task *restrict const cur, struct dr_task *restrict const next);
-NORETURN
+DR_NORETURN
 extern void dr_task_destroy_on_do(void *restrict const arg, struct dr_task *restrict const next, void (*func)(void *restrict const));
 
 #if defined(_WIN32)
 
 #include <windows.h>
 
-WARN_UNUSED_RESULT static size_t dr_read_page_size(void) {
+DR_WARN_UNUSED_RESULT static size_t dr_read_page_size(void) {
   SYSTEM_INFO si;
   GetSystemInfo(&si);
   return si.dwPageSize;
 }
 
-WARN_UNUSED_RESULT static struct dr_result_voidp dr_task_alloc_stack(const size_t guard_size, const size_t alloc_size) {
+DR_WARN_UNUSED_RESULT static struct dr_result_voidp dr_task_alloc_stack(const size_t guard_size, const size_t alloc_size) {
   void *restrict const stack = VirtualAlloc(NULL, alloc_size, MEM_COMMIT, PAGE_READWRITE);
   if (dr_unlikely(stack == NULL)) {
     return DR_RESULT_GETLASTERROR(voidp);
@@ -199,11 +199,11 @@ static void dr_task_free_stack(struct dr_task *restrict const task) {
 #include <sys/mman.h>
 #include <unistd.h>
 
-WARN_UNUSED_RESULT static size_t dr_read_page_size(void) {
+DR_WARN_UNUSED_RESULT static size_t dr_read_page_size(void) {
   return sysconf(_SC_PAGESIZE);
 }
 
-WARN_UNUSED_RESULT static struct dr_result_voidp dr_task_alloc_stack(const size_t guard_size, const size_t alloc_size) {
+DR_WARN_UNUSED_RESULT static struct dr_result_voidp dr_task_alloc_stack(const size_t guard_size, const size_t alloc_size) {
   void *restrict const stack = mmap(NULL, alloc_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, -1, 0);
   if (dr_unlikely(stack == MAP_FAILED)) {
     return DR_RESULT_ERRNO(voidp);
@@ -223,7 +223,7 @@ static void dr_task_free_stack(struct dr_task *restrict const task) {
 
 #endif
 
-WARN_UNUSED_RESULT static size_t dr_get_page_size(void) {
+DR_WARN_UNUSED_RESULT static size_t dr_get_page_size(void) {
   static size_t page_size;
   if (dr_unlikely(page_size == 0)) {
     page_size = dr_read_page_size();
@@ -234,7 +234,7 @@ WARN_UNUSED_RESULT static size_t dr_get_page_size(void) {
 void dr_task_destroy(struct dr_task *restrict const task) {
   if (dr_unlikely(task->stack != NULL)) {
     list_del(&task->tasks);
-#if defined(USE_VALGRIND)
+#if defined(DR_USE_VALGRIND)
     VALGRIND_STACK_DEREGISTER(task->valgrind_stack_id);
 #endif
     dr_task_free_stack(task);
@@ -249,7 +249,7 @@ static struct dr_task *dr_get_next_runnable(void) {
   return list_first_entry(&dr_runnable, struct dr_task, tasks);
 }
 
-NORETURN static void dr_task_start_do(void) {
+DR_NORETURN static void dr_task_start_do(void) {
   struct dr_task *restrict const current = dr_task_self();
   const uintptr_t stack_end = (uintptr_t)current->stack + dr_task_guard_size;
   struct dr_task_start_args *restrict const args = (struct dr_task_start_args *)stack_end;
@@ -257,7 +257,7 @@ NORETURN static void dr_task_start_do(void) {
   dr_task_exit(current, (void (*)(void *restrict const))dr_task_destroy);
 }
 
-NORETURN void dr_task_exit(void *restrict const arg, void (*cleanup)(void *restrict const)) {
+DR_NORETURN void dr_task_exit(void *restrict const arg, void (*cleanup)(void *restrict const)) {
   struct dr_task *restrict const current = dr_task_self();
   list_move_tail(&current->tasks, &dr_sleeping);
   struct dr_task *restrict const next = dr_get_next_runnable();
@@ -286,7 +286,7 @@ struct dr_result_void dr_task_create(struct dr_task *restrict const task, const 
   task->frame = frame;
   task->stack = stack;
   task->alloc_size = alloc_size;
-#if defined(USE_VALGRIND)
+#if defined(DR_USE_VALGRIND)
   task->valgrind_stack_id = VALGRIND_STACK_REGISTER(stack, sp);
 #endif
   const uintptr_t stack_end = (uintptr_t)stack + dr_task_guard_size;

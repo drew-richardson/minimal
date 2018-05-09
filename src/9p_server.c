@@ -137,7 +137,7 @@ struct dr_result_uint32 file_write(const struct dr_fd *restrict const fd, const 
   return DR_RESULT_OK(uint32, count);
 }
 
-WARN_UNUSED_RESULT static struct dr_fid *dr_fid_get(const struct list_head *restrict const fids, const uint32_t fid) {
+DR_WARN_UNUSED_RESULT static struct dr_fid *dr_fid_get(const struct list_head *restrict const fids, const uint32_t fid) {
   struct dr_fid *restrict f;
   list_for_each_entry(f, fids, struct dr_fid, fids) {
     if (f->id == fid) {
@@ -147,7 +147,7 @@ WARN_UNUSED_RESULT static struct dr_fid *dr_fid_get(const struct list_head *rest
   return NULL;
 }
 
-WARN_UNUSED_RESULT static struct dr_fid *dr_fid_init(struct list_head *restrict const fids, struct dr_user *restrict const user, struct dr_file *restrict const file, const uint32_t id) {
+DR_WARN_UNUSED_RESULT static struct dr_fid *dr_fid_init(struct list_head *restrict const fids, struct dr_user *restrict const user, struct dr_file *restrict const file, const uint32_t id) {
   struct dr_fid *restrict const f = (struct dr_fid *)malloc(sizeof(*f));
   if (dr_unlikely(f == NULL)) {
     return NULL;
@@ -577,7 +577,7 @@ static struct dr_equeue_server server;
 
 static void client_func(void *restrict const arg);
 
-static WARN_UNUSED_RESULT struct dr_result_void client_init(dr_handle_t fd) {
+static DR_WARN_UNUSED_RESULT struct dr_result_void client_init(dr_handle_t fd) {
   struct client *restrict const c = (struct client *)malloc(sizeof(*c));
   if (c == NULL) {
     return DR_RESULT_ERRNO_VOID();
@@ -704,14 +704,14 @@ static void server_func(void *restrict const arg) {
   return;
 }
 
-WARN_UNUSED_RESULT static int print_version(void) {
+DR_WARN_UNUSED_RESULT static int print_version(void) {
   char buf[256];
   dr_get_version_long(buf, sizeof(buf));
   printf("9p_server %s\n", buf);
   return 0;
 }
 
-WARN_UNUSED_RESULT static int print_usage(void) {
+DR_WARN_UNUSED_RESULT static int print_usage(void) {
   printf("Usage: 9p_server [OPTIONS]...\n"
 	 "\n"
 	 "Options:\n"

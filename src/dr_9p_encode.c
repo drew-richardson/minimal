@@ -37,11 +37,11 @@ static void dr_9p_encode_qid(uint8_t *restrict const buf, const struct dr_file *
   dr_encode_uint64(buf + sizeof(uint8_t) + sizeof(uint32_t), (uintptr_t)f); // DR xor file
 }
 
-WARN_UNUSED_RESULT static uint32_t dr_9p_encode_stat(uint8_t *restrict const buf, const uint32_t size, const struct dr_file *restrict const f) {
+DR_WARN_UNUSED_RESULT static uint32_t dr_9p_encode_stat(uint8_t *restrict const buf, const uint32_t size, const struct dr_file *restrict const f) {
   const uint32_t ssize = sizeof(uint16_t) + sizeof(uint32_t) + qid_size + sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint64_t) + sizeof(uint16_t) + f->name.len + sizeof(uint16_t) + f->uid->name.len + sizeof(uint16_t) + f->gid->name.len + sizeof(uint16_t) + f->muid->name.len;
   uint32_t spos = 0;
   if (dr_unlikely(size < spos + sizeof(uint16_t) + ssize)) {
-    return FAIL_UINT32;
+    return DR_FAIL_UINT32;
   }
   dr_encode_uint16(buf + spos, ssize);
   spos += sizeof(uint16_t);
@@ -91,7 +91,7 @@ static bool dr_9p_encode_finish(uint8_t *restrict const buf, const uint32_t size
 
 // size[4] Tversion tag[2] msize[4] version[s]
 
-WARN_UNUSED_RESULT static bool dr_9p_encode_uint32_str(const uint8_t type, uint8_t *restrict const buf, const uint32_t size, uint32_t *restrict const pos, const uint16_t tag, const uint32_t arg0, const struct dr_str *restrict const arg1) {
+DR_WARN_UNUSED_RESULT static bool dr_9p_encode_uint32_str(const uint8_t type, uint8_t *restrict const buf, const uint32_t size, uint32_t *restrict const pos, const uint16_t tag, const uint32_t arg0, const struct dr_str *restrict const arg1) {
   const uint16_t arg1_len = arg1->len;
   if (dr_unlikely(size < header_size + sizeof(uint32_t) + sizeof(uint16_t) + arg1_len)) {
     return false;
@@ -257,7 +257,7 @@ bool dr_9p_encode_Topen(uint8_t *restrict const buf, const uint32_t size, uint32
 
 // The iounit field returned by open(9P), if non-zero, reports the maximum size that is guaranteed to be transferred atomically.
 
-WARN_UNUSED_RESULT static bool dr_9p_encode_qid_uint32(const uint8_t type, uint8_t *restrict const buf, const uint32_t size, uint32_t *restrict const pos, const uint16_t tag, const struct dr_file *restrict const arg0, const uint32_t arg1) {
+DR_WARN_UNUSED_RESULT static bool dr_9p_encode_qid_uint32(const uint8_t type, uint8_t *restrict const buf, const uint32_t size, uint32_t *restrict const pos, const uint16_t tag, const struct dr_file *restrict const arg0, const uint32_t arg1) {
   if (dr_unlikely(size < header_size + qid_size + sizeof(uint32_t))) {
     return false;
   }
@@ -353,7 +353,7 @@ bool dr_9p_encode_Twrite_finish(uint8_t *restrict const buf, const uint32_t size
 
 // size[4] Rwrite tag[2] count[4]
 
-WARN_UNUSED_RESULT static bool dr_9p_encode_uint32(const uint8_t type, uint8_t *restrict const buf, const uint32_t size, uint32_t *restrict const pos, const uint16_t tag, const uint32_t arg0) {
+DR_WARN_UNUSED_RESULT static bool dr_9p_encode_uint32(const uint8_t type, uint8_t *restrict const buf, const uint32_t size, uint32_t *restrict const pos, const uint16_t tag, const uint32_t arg0) {
   if (dr_unlikely(size < header_size + sizeof(uint32_t))) {
     return false;
   }
@@ -374,7 +374,7 @@ bool dr_9p_encode_Tclunk(uint8_t *restrict const buf, const uint32_t size, uint3
 
 // size[4] Rclunk tag[2]
 
-WARN_UNUSED_RESULT static bool dr_9p_encode_null(const uint8_t type, uint8_t *restrict const buf, const uint32_t size, uint32_t *restrict const pos, const uint16_t tag) {
+DR_WARN_UNUSED_RESULT static bool dr_9p_encode_null(const uint8_t type, uint8_t *restrict const buf, const uint32_t size, uint32_t *restrict const pos, const uint16_t tag) {
   if (dr_unlikely(size < header_size)) {
     return false;
   }
@@ -412,7 +412,7 @@ bool dr_9p_encode_Rstat(uint8_t *restrict const buf, const uint32_t size, uint32
   }
   dr_9p_encode_header(buf, DR_RSTAT, tag);
   const uint32_t written = dr_9p_encode_stat(buf + header_size + sizeof(uint16_t), size - header_size - sizeof(uint16_t), f);
-  if (dr_unlikely(written == FAIL_UINT32)) {
+  if (dr_unlikely(written == DR_FAIL_UINT32)) {
     return false;
   }
   dr_encode_uint16(buf + header_size, written);
@@ -490,7 +490,7 @@ struct dr_result_uint32 dr_dir_read(const struct dr_fd *restrict const fd, const
   for (uint_fast32_t i = 0; i < dir->entry_count; ++i) {
     const struct dr_file *restrict const f = dir->entries[i];
     const uint32_t written = dr_9p_encode_stat(buf + pos, count - pos, f);
-    if (dr_unlikely(written == FAIL_UINT32)) {
+    if (dr_unlikely(written == DR_FAIL_UINT32)) {
       // Buffer is too small
       break;
     }

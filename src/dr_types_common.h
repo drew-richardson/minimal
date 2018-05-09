@@ -104,7 +104,7 @@ struct dr_task {
   void *restrict stack;
   struct list_head tasks;
   size_t alloc_size;
-#if defined(USE_VALGRIND)
+#if defined(DR_USE_VALGRIND)
   unsigned int valgrind_stack_id;
 #endif
   bool runnable;
@@ -164,8 +164,8 @@ struct dr_fd {
 };
 
 struct dr_file_vtbl {
-  WARN_UNUSED_RESULT struct dr_result_uint32 (*read)(const struct dr_fd *restrict const, const uint64_t, const uint32_t, void *restrict const);
-  WARN_UNUSED_RESULT struct dr_result_uint32 (*write)(const struct dr_fd *restrict const, const uint64_t, const uint32_t, const void *restrict const);
+  DR_WARN_UNUSED_RESULT struct dr_result_uint32 (*read)(const struct dr_fd *restrict const, const uint64_t, const uint32_t, void *restrict const);
+  DR_WARN_UNUSED_RESULT struct dr_result_uint32 (*write)(const struct dr_fd *restrict const, const uint64_t, const uint32_t, const void *restrict const);
 };
 
 struct dr_9p_qid {

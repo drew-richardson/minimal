@@ -13,9 +13,9 @@ typedef char dr_sockaddr_t;
 
 #include "dr_types_impl.h"
 
-#if defined(HAS___ALIGNOF)
+#if defined(DR_HAS___ALIGNOF)
 #define ALIGN(TYPE) __alignof(TYPE)
-#elif defined(HAS___ALIGNOF__)
+#elif defined(DR_HAS___ALIGNOF__)
 #define ALIGN(TYPE) __alignof__(TYPE)
 #else
 #error missing alignof

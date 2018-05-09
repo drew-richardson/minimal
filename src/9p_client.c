@@ -13,7 +13,7 @@
 
 static bool debug;
 
-WARN_UNUSED_RESULT static bool dr_9p_call(dr_handle_t fd, const uint8_t *restrict const tbuf, const uint32_t tsize, uint8_t *restrict const rbuf, const uint32_t rmax_size, uint32_t *restrict const rsize, uint32_t *restrict const rpos, const uint8_t expected_type) {
+DR_WARN_UNUSED_RESULT static bool dr_9p_call(dr_handle_t fd, const uint8_t *restrict const tbuf, const uint32_t tsize, uint8_t *restrict const rbuf, const uint32_t rmax_size, uint32_t *restrict const rsize, uint32_t *restrict const rpos, const uint8_t expected_type) {
   size_t bytes;
   {
     const struct dr_result_size r = dr_write(fd, tbuf, tsize);
@@ -76,7 +76,7 @@ WARN_UNUSED_RESULT static bool dr_9p_call(dr_handle_t fd, const uint8_t *restric
   return true;
 }
 
-WARN_UNUSED_RESULT static bool dr_9p_version(dr_handle_t fd, uint8_t *restrict const rbuf, const uint32_t rmax_size, uint32_t *restrict const msize) {
+DR_WARN_UNUSED_RESULT static bool dr_9p_version(dr_handle_t fd, uint8_t *restrict const rbuf, const uint32_t rmax_size, uint32_t *restrict const msize) {
   uint8_t tbuf[DR_9P_BUF_SIZE];
   uint32_t tpos;
   uint32_t rsize;
@@ -116,7 +116,7 @@ WARN_UNUSED_RESULT static bool dr_9p_version(dr_handle_t fd, uint8_t *restrict c
   return true;
 }
 
-WARN_UNUSED_RESULT static bool dr_9p_attach(dr_handle_t fd, uint8_t *restrict const rbuf, const uint32_t rmax_size, const uint32_t fid, const struct dr_str *restrict const uname, const struct dr_str *restrict const aname, struct dr_9p_qid *restrict const qid) {
+DR_WARN_UNUSED_RESULT static bool dr_9p_attach(dr_handle_t fd, uint8_t *restrict const rbuf, const uint32_t rmax_size, const uint32_t fid, const struct dr_str *restrict const uname, const struct dr_str *restrict const aname, struct dr_9p_qid *restrict const qid) {
   uint8_t tbuf[DR_9P_BUF_SIZE];
   uint32_t tpos;
   uint32_t rsize;
@@ -138,7 +138,7 @@ WARN_UNUSED_RESULT static bool dr_9p_attach(dr_handle_t fd, uint8_t *restrict co
   return true;
 }
 
-WARN_UNUSED_RESULT static bool dr_9p_walk(dr_handle_t fd, uint8_t *restrict const rbuf, const uint32_t rmax_size, const uint32_t fid, const uint32_t newfid, char *restrict const name) {
+DR_WARN_UNUSED_RESULT static bool dr_9p_walk(dr_handle_t fd, uint8_t *restrict const rbuf, const uint32_t rmax_size, const uint32_t fid, const uint32_t newfid, char *restrict const name) {
   uint8_t tbuf[DR_9P_BUF_SIZE];
   uint32_t tpos;
   uint32_t rsize;
@@ -214,7 +214,7 @@ WARN_UNUSED_RESULT static bool dr_9p_walk(dr_handle_t fd, uint8_t *restrict cons
   return true;
 }
 
-WARN_UNUSED_RESULT static bool dr_9p_open(dr_handle_t fd, uint8_t *restrict const rbuf, const uint32_t rmax_size, const uint32_t fid, const uint8_t mode, struct dr_9p_qid *restrict const qid, uint32_t *restrict const iounit) {
+DR_WARN_UNUSED_RESULT static bool dr_9p_open(dr_handle_t fd, uint8_t *restrict const rbuf, const uint32_t rmax_size, const uint32_t fid, const uint8_t mode, struct dr_9p_qid *restrict const qid, uint32_t *restrict const iounit) {
   uint8_t tbuf[DR_9P_BUF_SIZE];
   uint32_t tpos;
   uint32_t rsize;
@@ -236,7 +236,7 @@ WARN_UNUSED_RESULT static bool dr_9p_open(dr_handle_t fd, uint8_t *restrict cons
   return true;
 }
 
-WARN_UNUSED_RESULT static bool dr_9p_create(dr_handle_t fd, uint8_t *restrict const rbuf, const uint32_t rmax_size, const uint32_t fid, const struct dr_str *restrict const name, const uint32_t perm, const uint8_t mode, struct dr_9p_qid *restrict const qid, uint32_t *restrict const iounit) {
+DR_WARN_UNUSED_RESULT static bool dr_9p_create(dr_handle_t fd, uint8_t *restrict const rbuf, const uint32_t rmax_size, const uint32_t fid, const struct dr_str *restrict const name, const uint32_t perm, const uint8_t mode, struct dr_9p_qid *restrict const qid, uint32_t *restrict const iounit) {
   uint8_t tbuf[DR_9P_BUF_SIZE];
   uint32_t tpos;
   uint32_t rsize;
@@ -258,7 +258,7 @@ WARN_UNUSED_RESULT static bool dr_9p_create(dr_handle_t fd, uint8_t *restrict co
   return true;
 }
 
-WARN_UNUSED_RESULT static bool dr_9p_read(dr_handle_t fd, uint8_t *restrict const rbuf, const uint32_t rmax_size, const uint32_t fid, const uint64_t offset, const uint32_t count, uint32_t *restrict const bytes, const void *restrict *restrict const data) {
+DR_WARN_UNUSED_RESULT static bool dr_9p_read(dr_handle_t fd, uint8_t *restrict const rbuf, const uint32_t rmax_size, const uint32_t fid, const uint64_t offset, const uint32_t count, uint32_t *restrict const bytes, const void *restrict *restrict const data) {
   uint8_t tbuf[DR_9P_BUF_SIZE];
   uint32_t tpos;
   uint32_t rsize;
@@ -280,7 +280,7 @@ WARN_UNUSED_RESULT static bool dr_9p_read(dr_handle_t fd, uint8_t *restrict cons
   return true;
 }
 
-WARN_UNUSED_RESULT static bool dr_9p_write(dr_handle_t fd, uint8_t *restrict const rbuf, const uint32_t rmax_size, const uint32_t fid, const uint64_t offset, const uint32_t count, uint32_t *restrict const bytes, const void *restrict const data) {
+DR_WARN_UNUSED_RESULT static bool dr_9p_write(dr_handle_t fd, uint8_t *restrict const rbuf, const uint32_t rmax_size, const uint32_t fid, const uint64_t offset, const uint32_t count, uint32_t *restrict const bytes, const void *restrict const data) {
   uint8_t tbuf[DR_9P_BUF_SIZE];
   uint32_t tpos;
   uint32_t rsize;
@@ -308,7 +308,7 @@ WARN_UNUSED_RESULT static bool dr_9p_write(dr_handle_t fd, uint8_t *restrict con
   return true;
 }
 
-WARN_UNUSED_RESULT static bool dr_9p_clunk(dr_handle_t fd, uint8_t *restrict const rbuf, const uint32_t rmax_size, const uint32_t fid) {
+DR_WARN_UNUSED_RESULT static bool dr_9p_clunk(dr_handle_t fd, uint8_t *restrict const rbuf, const uint32_t rmax_size, const uint32_t fid) {
   uint8_t tbuf[DR_9P_BUF_SIZE];
   uint32_t tpos;
   uint32_t rsize;
@@ -330,7 +330,7 @@ WARN_UNUSED_RESULT static bool dr_9p_clunk(dr_handle_t fd, uint8_t *restrict con
   return true;
 }
 
-WARN_UNUSED_RESULT static bool dr_9p_remove(dr_handle_t fd, uint8_t *restrict const rbuf, const uint32_t rmax_size, const uint32_t fid) {
+DR_WARN_UNUSED_RESULT static bool dr_9p_remove(dr_handle_t fd, uint8_t *restrict const rbuf, const uint32_t rmax_size, const uint32_t fid) {
   uint8_t tbuf[DR_9P_BUF_SIZE];
   uint32_t tpos;
   uint32_t rsize;
@@ -352,7 +352,7 @@ WARN_UNUSED_RESULT static bool dr_9p_remove(dr_handle_t fd, uint8_t *restrict co
   return true;
 }
 
-WARN_UNUSED_RESULT static bool dr_9p_stat(dr_handle_t fd, uint8_t *restrict const rbuf, const uint32_t rmax_size, const uint32_t fid, struct dr_9p_stat *restrict const stat) {
+DR_WARN_UNUSED_RESULT static bool dr_9p_stat(dr_handle_t fd, uint8_t *restrict const rbuf, const uint32_t rmax_size, const uint32_t fid, struct dr_9p_stat *restrict const stat) {
   uint8_t tbuf[DR_9P_BUF_SIZE];
   uint32_t tpos;
   uint32_t rsize;
@@ -374,7 +374,7 @@ WARN_UNUSED_RESULT static bool dr_9p_stat(dr_handle_t fd, uint8_t *restrict cons
   return true;
 }
 
-WARN_UNUSED_RESULT static bool dr_9p_wstat(dr_handle_t fd, uint8_t *restrict const rbuf, const uint32_t rmax_size, const uint32_t fid, const struct dr_9p_stat *restrict const stat) {
+DR_WARN_UNUSED_RESULT static bool dr_9p_wstat(dr_handle_t fd, uint8_t *restrict const rbuf, const uint32_t rmax_size, const uint32_t fid, const struct dr_9p_stat *restrict const stat) {
   uint8_t tbuf[DR_9P_BUF_SIZE];
   uint32_t tpos;
   uint32_t rsize;
@@ -397,7 +397,7 @@ WARN_UNUSED_RESULT static bool dr_9p_wstat(dr_handle_t fd, uint8_t *restrict con
 }
 
 struct client_app {
-  WARN_UNUSED_RESULT bool (*const func)(dr_handle_t, const uint32_t, int, char *restrict *restrict);
+  DR_WARN_UNUSED_RESULT bool (*const func)(dr_handle_t, const uint32_t, int, char *restrict *restrict);
   const char *restrict const name;
   const char *restrict const help;
 };
@@ -411,12 +411,12 @@ static void format_time(char *restrict const buf, const size_t buf_len, const ui
   strftime(buf, buf_len, "%c", gmtime(&t));
 }
 
-WARN_UNUSED_RESULT static bool print_files(const uint32_t count, const void *restrict data) {
+DR_WARN_UNUSED_RESULT static bool print_files(const uint32_t count, const void *restrict data) {
   uint32_t pos = 0;
   while (pos < count) {
     struct dr_9p_stat stat;
     const uint32_t read = dr_9p_decode_stat(&stat, (const uint8_t *)data + pos, count - pos);
-    if (dr_unlikely(read == FAIL_UINT32)) {
+    if (dr_unlikely(read == DR_FAIL_UINT32)) {
       dr_log("dr_9p_decode_stat failed");
       return false;
     }
@@ -428,7 +428,7 @@ WARN_UNUSED_RESULT static bool print_files(const uint32_t count, const void *res
   return true;
 }
 
-WARN_UNUSED_RESULT static bool parse(const char *restrict input, int *restrict const pargc, char *restrict *restrict *restrict argv) {
+DR_WARN_UNUSED_RESULT static bool parse(const char *restrict input, int *restrict const pargc, char *restrict *restrict *restrict argv) {
   char *restrict const output = (char *)malloc(strlen(input) + 1);
   if (output == NULL) {
     return false;
@@ -558,7 +558,7 @@ WARN_UNUSED_RESULT static bool parse(const char *restrict input, int *restrict c
   return false;
 }
 
-WARN_UNUSED_RESULT static bool ls(dr_handle_t fd, const uint32_t msize, int argc, char *restrict *restrict argv) {
+DR_WARN_UNUSED_RESULT static bool ls(dr_handle_t fd, const uint32_t msize, int argc, char *restrict *restrict argv) {
   uint8_t rbuf[DR_9P_BUF_SIZE];
   if (argc == 1) {
     ++argc;
@@ -608,7 +608,7 @@ WARN_UNUSED_RESULT static bool ls(dr_handle_t fd, const uint32_t msize, int argc
   return true;
 }
 
-WARN_UNUSED_RESULT static bool cat(dr_handle_t fd, const uint32_t msize, int argc, char *restrict *restrict argv) {
+DR_WARN_UNUSED_RESULT static bool cat(dr_handle_t fd, const uint32_t msize, int argc, char *restrict *restrict argv) {
   bool result = false;
   uint8_t rbuf[DR_9P_BUF_SIZE];
   if (argc != 2) {
@@ -649,7 +649,7 @@ WARN_UNUSED_RESULT static bool cat(dr_handle_t fd, const uint32_t msize, int arg
   return dr_9p_clunk(fd, rbuf, msize, 1) || result;
 }
 
-WARN_UNUSED_RESULT static bool write(dr_handle_t fd, const uint32_t msize, int argc, char *restrict *restrict argv) {
+DR_WARN_UNUSED_RESULT static bool write(dr_handle_t fd, const uint32_t msize, int argc, char *restrict *restrict argv) {
   bool result = false;
   uint8_t rbuf[DR_9P_BUF_SIZE];
   if (argc != 3) {
@@ -689,7 +689,7 @@ WARN_UNUSED_RESULT static bool write(dr_handle_t fd, const uint32_t msize, int a
   return dr_9p_clunk(fd, rbuf, msize, 1) || result;
 }
 
-WARN_UNUSED_RESULT static bool rm(dr_handle_t fd, const uint32_t msize, int argc, char *restrict *restrict argv) {
+DR_WARN_UNUSED_RESULT static bool rm(dr_handle_t fd, const uint32_t msize, int argc, char *restrict *restrict argv) {
   uint8_t rbuf[DR_9P_BUF_SIZE];
   if (argc != 2) {
     printf("Usage: rm <file>\n"); // DR ...
@@ -701,7 +701,7 @@ WARN_UNUSED_RESULT static bool rm(dr_handle_t fd, const uint32_t msize, int argc
   return dr_9p_remove(fd, rbuf, msize, 1);
 }
 
-WARN_UNUSED_RESULT static bool stat(dr_handle_t fd, const uint32_t msize, int argc, char *restrict *restrict argv) {
+DR_WARN_UNUSED_RESULT static bool stat(dr_handle_t fd, const uint32_t msize, int argc, char *restrict *restrict argv) {
   bool result = false;
   uint8_t rbuf[DR_9P_BUF_SIZE];
   if (argc != 2) {
@@ -725,7 +725,7 @@ WARN_UNUSED_RESULT static bool stat(dr_handle_t fd, const uint32_t msize, int ar
   return dr_9p_clunk(fd, rbuf, msize, 1) || result;
 }
 
-WARN_UNUSED_RESULT static bool do_create(dr_handle_t fd, const uint32_t msize, char *restrict const name_buf, const uint32_t mode) {
+DR_WARN_UNUSED_RESULT static bool do_create(dr_handle_t fd, const uint32_t msize, char *restrict const name_buf, const uint32_t mode) {
   bool result = false;
   uint8_t rbuf[DR_9P_BUF_SIZE];
   char *restrict path;
@@ -756,7 +756,7 @@ WARN_UNUSED_RESULT static bool do_create(dr_handle_t fd, const uint32_t msize, c
   return dr_9p_clunk(fd, rbuf, msize, 1) || result;
 }
 
-WARN_UNUSED_RESULT static bool create(dr_handle_t fd, const uint32_t msize, int argc, char *restrict *restrict argv) {
+DR_WARN_UNUSED_RESULT static bool create(dr_handle_t fd, const uint32_t msize, int argc, char *restrict *restrict argv) {
   if (argc != 3) {
     printf("Usage: create <name> <perm>\n"); // DR ...
     return false;
@@ -764,7 +764,7 @@ WARN_UNUSED_RESULT static bool create(dr_handle_t fd, const uint32_t msize, int 
   return do_create(fd, msize, argv[1], strtol(argv[2], NULL, 0));
 }
 
-WARN_UNUSED_RESULT static bool mkdir(dr_handle_t fd, const uint32_t msize, int argc, char *restrict *restrict argv) {
+DR_WARN_UNUSED_RESULT static bool mkdir(dr_handle_t fd, const uint32_t msize, int argc, char *restrict *restrict argv) {
   if (argc != 3) {
     printf("Usage: mkdir <name> <perm>\n"); // DR ...
     return false;
@@ -772,7 +772,7 @@ WARN_UNUSED_RESULT static bool mkdir(dr_handle_t fd, const uint32_t msize, int a
   return do_create(fd, msize, argv[1], DR_DIR | strtol(argv[2], NULL, 0));
 }
 
-WARN_UNUSED_RESULT static bool chmod(dr_handle_t fd, const uint32_t msize, int argc, char *restrict *restrict argv) {
+DR_WARN_UNUSED_RESULT static bool chmod(dr_handle_t fd, const uint32_t msize, int argc, char *restrict *restrict argv) {
   bool result = false;
   uint8_t rbuf[DR_9P_BUF_SIZE];
   if (argc != 3) {
@@ -801,8 +801,8 @@ WARN_UNUSED_RESULT static bool chmod(dr_handle_t fd, const uint32_t msize, int a
   return dr_9p_clunk(fd, rbuf, msize, 1) || result;
 }
 
-WARN_UNUSED_RESULT static bool sh(dr_handle_t fd, const uint32_t msize, int ignored_argc, char *restrict *restrict ignored_argv);
-WARN_UNUSED_RESULT static bool help(dr_handle_t fd, const uint32_t msize, int argc, char *restrict *restrict argv);
+DR_WARN_UNUSED_RESULT static bool sh(dr_handle_t fd, const uint32_t msize, int ignored_argc, char *restrict *restrict ignored_argv);
+DR_WARN_UNUSED_RESULT static bool help(dr_handle_t fd, const uint32_t msize, int argc, char *restrict *restrict argv);
 
 static const struct client_app client_apps[] = {
   { ls, "ls", "<directories>" },
@@ -929,14 +929,14 @@ bool help(dr_handle_t fd, const uint32_t msize, int argc, char *restrict *restri
   return true;
 }
 
-WARN_UNUSED_RESULT static int print_version(void) {
+DR_WARN_UNUSED_RESULT static int print_version(void) {
   char buf[256];
   dr_get_version_long(buf, sizeof(buf));
   printf("9p_client %s\n", buf);
   return 0;
 }
 
-WARN_UNUSED_RESULT static int print_usage(void) {
+DR_WARN_UNUSED_RESULT static int print_usage(void) {
   printf("Usage: 9p_client [OPTIONS]... [COMMAND] [COMMAND OPTIONS]...\n"
 	 "\n"
 	 "Options:\n"

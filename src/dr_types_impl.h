@@ -11,11 +11,11 @@
 #include "dr_version.h"
 #include "dr_types_common.h"
 
-#if defined(__linux__) || defined(HAS_KEVENT) || defined(__sun)
+#if defined(__linux__) || defined(DR_HAS_KEVENT) || defined(__sun)
 
 #include <sys/socket.h>
 
-#if defined(__linux__) || defined(HAS_KEVENT)
+#if defined(__linux__) || defined(DR_HAS_KEVENT)
 
 #if defined(__linux__)
 
@@ -23,7 +23,7 @@
 
 typedef struct epoll_event dr_event_impl_t;
 
-#elif defined(HAS_KEVENT)
+#elif defined(DR_HAS_KEVENT)
 
 #include <sys/types.h>
 

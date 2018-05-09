@@ -6,7 +6,7 @@
 #include <errno.h>
 #include <stdlib.h>
 
-WARN_UNUSED_RESULT static bool dr_is_user_member_of_group(const struct dr_user *restrict const user, const struct dr_group *restrict const group) {
+DR_WARN_UNUSED_RESULT static bool dr_is_user_member_of_group(const struct dr_user *restrict const user, const struct dr_group *restrict const group) {
   for (uint_fast32_t i = 0; i < user->group_count; ++i) {
     if (user->groups[i] == group) {
       return true;
@@ -15,7 +15,7 @@ WARN_UNUSED_RESULT static bool dr_is_user_member_of_group(const struct dr_user *
   return false;
 }
 
-WARN_UNUSED_RESULT static uint32_t dr_get_user_perm(const struct dr_user *restrict const user, const struct dr_file *restrict const file) {
+DR_WARN_UNUSED_RESULT static uint32_t dr_get_user_perm(const struct dr_user *restrict const user, const struct dr_file *restrict const file) {
   if (file->uid == user) {
     return (file->mode >> 6) & 0x7;
   }
@@ -25,19 +25,19 @@ WARN_UNUSED_RESULT static uint32_t dr_get_user_perm(const struct dr_user *restri
   return file->mode & 0x7;
 }
 
-WARN_UNUSED_RESULT static bool dr_user_has_perm_read(const struct dr_user *restrict const user, const struct dr_file *restrict const file) {
+DR_WARN_UNUSED_RESULT static bool dr_user_has_perm_read(const struct dr_user *restrict const user, const struct dr_file *restrict const file) {
   return (dr_get_user_perm(user, file) & DR_AREAD) != 0;
 }
 
-WARN_UNUSED_RESULT static bool dr_user_has_perm_write(const struct dr_user *restrict const user, const struct dr_file *restrict const file) {
+DR_WARN_UNUSED_RESULT static bool dr_user_has_perm_write(const struct dr_user *restrict const user, const struct dr_file *restrict const file) {
   return (dr_get_user_perm(user, file) & DR_AWRITE) != 0;
 }
 
-WARN_UNUSED_RESULT static bool dr_user_has_perm_exec(const struct dr_user *restrict const user, const struct dr_file *restrict const file) {
+DR_WARN_UNUSED_RESULT static bool dr_user_has_perm_exec(const struct dr_user *restrict const user, const struct dr_file *restrict const file) {
   return (dr_get_user_perm(user, file) & DR_AEXEC) != 0;
 }
 
-WARN_UNUSED_RESULT static bool dr_is_dir(const struct dr_file *restrict const file) {
+DR_WARN_UNUSED_RESULT static bool dr_is_dir(const struct dr_file *restrict const file) {
   return (file->mode & DR_DIR) != 0;
 }
 
