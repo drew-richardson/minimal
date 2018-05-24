@@ -406,7 +406,7 @@ struct dr_result_void dr_equeue_accept_equeue(struct dr_equeue_server *restrict 
     } DR_FI_RESULT;
   }
  ok:
-  c->ih.io.vtbl = &dr_io_equeue_client_vtbl,
+  c->ih.io.vtbl = &dr_io_equeue_client_vtbl;
   c->h.fd = c->ih.fd; // DR Avoid this duplication
   return DR_RESULT_OK_VOID();
 }

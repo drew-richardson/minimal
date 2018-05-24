@@ -39,7 +39,7 @@ static DR_WARN_UNUSED_RESULT struct dr_result_void client_init(void) {
     .clients = LIST_HEAD_INIT(c->clients),
   };
   {
-    const struct dr_io_equeue_server_vtbl *restrict const vtbl = container_of(server.ihserver.ioserver.vtbl, struct dr_io_equeue_server_vtbl, ihserver.ioserver);
+    const struct dr_io_equeue_server_vtbl *restrict const vtbl = container_of_const(server.ihserver.ioserver.vtbl, const struct dr_io_equeue_server_vtbl, ihserver.ioserver);
     const struct dr_result_void r = vtbl->accept_equeue(&server, &c->c, sizeof(c->c), NULL, NULL, DR_CLOEXEC);
     DR_IF_RESULT_ERR(r, err) {
       free(c);
@@ -179,7 +179,7 @@ static void server_func(void *restrict const arg) {
 }
 
 /*
-#if defined(WIN32)
+#if defined(_WIN32)
 
 #include <windows.h>
 

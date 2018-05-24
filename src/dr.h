@@ -17,8 +17,8 @@
 extern char *restrict dr_optarg;
 extern int dr_optind, dr_opterr, dr_optopt, dr_optreset;
 
-int dr_getopt(int argc, char * const argv[], const char *optstring);
-int dr_getopt_long(int argc, char **argv, const char *optstring, const struct dr_option *longopts, int *idx);
+DR_WARN_UNUSED_RESULT int dr_getopt(int argc, char * const argv[], const char *optstring);
+DR_WARN_UNUSED_RESULT int dr_getopt_long(int argc, char **argv, const char *optstring, const struct dr_option *longopts, int *idx);
 
 enum {
   DR_ERR_ISO_C = 1,
@@ -54,8 +54,11 @@ enum {
     .private_u.private_error = *(ERROR), \
   }
 
+#define DR_IS_RESULT_ERR(R) ((R).private_is_err)
+#define DR_IS_RESULT_OK(R) (!DR_IS_RESULT_ERR(R))
+
 #define DR_IF_RESULT_ERR(R, ERROR) \
-  if (dr_unlikely((R).private_is_err)) { \
+  if (dr_unlikely(DR_IS_RESULT_ERR(R))) { \
     const struct dr_error *restrict const ERROR = &(R).private_u.private_error; \
 
 #define DR_ELIF_RESULT_OK(TYPE, R, VALUE) \
@@ -63,7 +66,7 @@ enum {
     TYPE const VALUE = (R).private_u.private_value; \
 
 #define DR_IF_RESULT_OK(TYPE, R, VALUE) \
-  if (dr_likely(!(R).private_is_err)) { \
+  if (dr_likely(DR_IS_RESULT_OK(R))) { \
     TYPE const VALUE = (R).private_u.private_value; \
 
 #define DR_ELIF_RESULT_ERR(R, ERROR) \
@@ -101,7 +104,7 @@ enum {
   } else {
 
 #define DR_IF_RESULT_OK_VOID(R) \
-  if (dr_likely(!(R).private_is_err)) {
+  if (dr_likely(DR_IS_RESULT_OK(R))) {
 
 #define dr_log(msg) dr_log_impl(__func__, __FILE__, __LINE__, msg)
 //__attribute__((noinline,cold))
@@ -287,7 +290,7 @@ enum {
   DR_RWSTAT   = 127,
 };
 
-static const uint32_t DR_NOFID = ~0;
+static const uint32_t DR_NOFID = ~0U;
 
 DR_WARN_UNUSED_RESULT uint8_t dr_decode_uint8(const uint8_t *restrict const buf);
 DR_WARN_UNUSED_RESULT uint16_t dr_decode_uint16(const uint8_t *restrict const buf);
@@ -299,7 +302,7 @@ void dr_encode_uint16(uint8_t *restrict const buf, const uint16_t val);
 void dr_encode_uint32(uint8_t *restrict const buf, const uint32_t val);
 void dr_encode_uint64(uint8_t *restrict const buf, const uint64_t val);
 
-static const uint32_t DR_FAIL_UINT32 = ~0;
+static const uint32_t DR_FAIL_UINT32 = ~0U;
 DR_WARN_UNUSED_RESULT uint32_t dr_9p_decode_stat(struct dr_9p_stat *restrict const stat, const uint8_t *restrict const buf, const uint32_t size);
 DR_WARN_UNUSED_RESULT bool dr_9p_decode_header(uint8_t *restrict const type, uint16_t *restrict const tag, const uint8_t *restrict const buf, const uint32_t size, uint32_t *restrict const pos);
 DR_WARN_UNUSED_RESULT bool dr_9p_decode_Tversion(uint32_t *restrict const msize, struct dr_str *restrict const version, const uint8_t *restrict const buf, const uint32_t size, uint32_t *restrict const pos);

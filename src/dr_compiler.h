@@ -7,6 +7,18 @@
 #include "dr_config.h"
 #include "dr_version.h"
 
+#if !defined(DR_HAS_COMPOUND_LITERALS)
+#error Compiler does not support compound literals
+#endif
+
+#if !defined(DR_HAS_DESIGNATED_INITIALIZERS)
+#error Compiler does not support designated initializers
+#endif
+
+#if !defined(DR_HAS_MIXED_DECLARATIONS)
+#error Compiler does not support mixed declarations
+#endif
+
 #if !defined(DR_HAS_RESTRICT)
 // DR Check for __restrict as well?
 #define restrict
@@ -30,7 +42,9 @@
 #define DR_WARN_UNUSED_RESULT
 #endif
 
-#if defined(DR_HAS_ATTRIBUTE_NORETURN)
+#if defined(DR_HAS_NORETURN)
+#define DR_NORETURN _Noreturn
+#elif defined(DR_HAS_ATTRIBUTE_NORETURN)
 #define DR_NORETURN __attribute__((noreturn))
 #elif defined(DR_HAS_DECLSPEC_NORETURN)
 #define DR_NORETURN __declspec(noreturn)
