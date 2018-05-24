@@ -6,6 +6,10 @@
 
 #include "dr.h"
 
+DR_WARN_UNUSED_RESULT struct dr_result_size dr_io_enosys_read(struct dr_io *restrict const io, void *restrict const buf, size_t count);
+DR_WARN_UNUSED_RESULT struct dr_result_size dr_io_enosys_write(struct dr_io *restrict const io, const void *restrict const buf, size_t count);
+void dr_io_noop_close(struct dr_io *restrict const io);
+
 void dr_ioserver_handle_close(struct dr_ioserver *restrict const ioserver);
 
 DR_WARN_UNUSED_RESULT struct dr_result_void dr_ioserver_sock_accept_handle(struct dr_ioserver_handle *restrict const ihserver, struct dr_io_handle *restrict const ih, size_t iolen, dr_sockaddr_t *restrict const addr, dr_socklen_t *restrict const addrlen, unsigned int flags);

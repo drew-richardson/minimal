@@ -20,6 +20,37 @@ extern int dr_optind, dr_opterr, dr_optopt, dr_optreset;
 DR_WARN_UNUSED_RESULT int dr_getopt(int argc, char * const argv[], const char *optstring);
 DR_WARN_UNUSED_RESULT int dr_getopt_long(int argc, char **argv, const char *optstring, const struct dr_option *longopts, int *idx);
 
+DR_WARN_UNUSED_RESULT struct dr_result_size dr_write_all_fn(struct dr_io *restrict const io, dr_io_write_fn_t write, const void *restrict const buf, size_t count);
+DR_WARN_UNUSED_RESULT struct dr_result_size dr_write_all(struct dr_io *restrict const io, const void *restrict const buf, size_t count);
+
+#define dr_max_tname_impl(TYPE, TNAME) \
+  DR_WARN_UNUSED_RESULT static inline TYPE dr_max_##TNAME##_impl(TYPE lhs, TYPE rhs) { return lhs > rhs ? lhs : rhs; }
+
+dr_max_tname_impl(size_t, size);
+
+#define dr_min_tname_impl(TYPE, TNAME) \
+  DR_WARN_UNUSED_RESULT static inline TYPE dr_min_##TNAME##_impl(TYPE lhs, TYPE rhs) { return lhs < rhs ? lhs : rhs; }
+
+dr_min_tname_impl(size_t, size);
+
+#if defined(DR_HAS_GENERIC)
+
+void dr_max_mismatch(int lhs, int rhs);
+
+#define dr_max_size(lhs, rhs) _Generic((lhs), size_t: _Generic((rhs), size_t: dr_max_size_impl, const size_t: dr_max_size_impl, default: dr_max_mismatch), const size_t: _Generic((rhs), size_t: dr_max_size_impl, const size_t: dr_max_size_impl, default: dr_max_mismatch), default: dr_max_mismatch)(lhs, rhs)
+
+void dr_min_mismatch(int lhs, int rhs);
+
+#define dr_min_size(lhs, rhs) _Generic((lhs), size_t: _Generic((rhs), size_t: dr_min_size_impl, const size_t: dr_min_size_impl, default: dr_min_mismatch), const size_t: _Generic((rhs), size_t: dr_min_size_impl, const size_t: dr_min_size_impl, default: dr_min_mismatch), default: dr_min_mismatch)(lhs, rhs)
+
+#else
+
+#define dr_max_size(lhs, rhs) dr_max_size_impl(lhs, rhs)
+
+#define dr_min_size(lhs, rhs) dr_min_size_impl(lhs, rhs)
+
+#endif
+
 enum {
   DR_ERR_ISO_C = 1,
 #if defined(_WIN32)
@@ -132,6 +163,13 @@ DR_WARN_UNUSED_RESULT struct dr_result_void dr_system_sleep_ns(const int64_t tim
 void dr_close(dr_handle_t fd);
 
 void dr_io_handle_init(struct dr_io_handle *restrict const ih, dr_handle_t fd);
+void dr_io_handle_wo_fixed_init(struct dr_io_handle_wo_buf *restrict const ih_wo, dr_handle_t fd, void *restrict const buf, size_t count);
+
+void dr_io_ro_fixed_init(struct dr_io_ro_fixed *restrict const ro_fixed, const void *restrict const buf, size_t count);
+void dr_io_wo_fixed_init(struct dr_io_wo *restrict const wo_fixed, void *restrict const buf, size_t count);
+DR_WARN_UNUSED_RESULT struct dr_result_void dr_io_wo_resize_init(struct dr_io_wo *restrict const wo_resize, size_t count);
+void dr_io_rw_fixed_init(struct dr_io_rw *restrict const rw_fixed, void *restrict const buf, size_t count);
+DR_WARN_UNUSED_RESULT struct dr_result_void dr_io_rw_resize_init(struct dr_io_rw *restrict const rw_resize, size_t count);
 
 #define DR_QUEUE_READABLE(c) ((c)->write_pos >= (c)->read_pos ? (c)->write_pos - (c)->read_pos : sizeof((c)->buf) - (c)->read_pos)
 #define DR_QUEUE_WRITABLE(c) ((c)->write_pos < (c)->read_pos ? (c)->read_pos - 1 - (c)->write_pos : (c)->read_pos == 0 ? sizeof((c)->buf) - 1 - (c)->write_pos : sizeof((c)->buf) - (c)->write_pos)

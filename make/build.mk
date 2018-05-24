@@ -81,6 +81,9 @@ build/obj/dr_event$(OEXT): build/make/dr_config.mk $(PROJROOT)src/dr_event.c
 build/obj/dr_io$(OEXT): build/make/dr_config.mk $(PROJROOT)src/dr_io.c
 	$(E_CC)$(CC) $(FLAGS_C) $(PROJROOT)src/dr_io.c $(OUTPUT_C)$@
 
+build/obj/dr_io_buf$(OEXT): build/make/dr_config.mk $(PROJROOT)src/dr_io_buf.c
+	$(E_CC)$(CC) $(FLAGS_C) $(PROJROOT)src/dr_io_buf.c $(OUTPUT_C)$@
+
 build/obj/dr_log$(OEXT): build/make/dr_config.mk $(PROJROOT)src/dr_log.c
 	$(E_CC)$(CC) $(FLAGS_C) $(PROJROOT)src/dr_log.c $(OUTPUT_C)$@
 
@@ -218,6 +221,8 @@ build/dist/perms$(EEXT): build/make/dr_config.mk $(perms_deps)
 
 queue_deps = \
 	build/obj/dr_clock$(OEXT) \
+	build/obj/dr_io$(OEXT) \
+	build/obj/dr_io_buf$(OEXT) \
 	build/obj/dr_log$(OEXT) \
 	build/obj/queue$(OEXT)
 build/dist/queue$(EEXT): build/make/dr_config.mk $(queue_deps)

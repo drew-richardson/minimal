@@ -58,9 +58,11 @@ struct dr_io {
   const struct dr_io_vtbl *restrict vtbl;
 };
 
+typedef DR_WARN_UNUSED_RESULT struct dr_result_size (*dr_io_write_fn_t)(struct dr_io *restrict const io, const void *restrict const buf, size_t count);
+
 struct dr_io_vtbl {
   DR_WARN_UNUSED_RESULT struct dr_result_size (*read)(struct dr_io *restrict const io, void *restrict const buf, size_t count);
-  DR_WARN_UNUSED_RESULT struct dr_result_size (*write)(struct dr_io *restrict const io, const void *restrict const buf, size_t count);
+  dr_io_write_fn_t write;
   void (*close)(struct dr_io *restrict const io);
 };
 
@@ -75,9 +77,43 @@ struct dr_ioserver_vtbl {
   void (*close)(struct dr_ioserver *restrict const ioserver);
 };
 
+struct dr_io_ro_fixed {
+  struct dr_io io;
+  size_t count;
+  size_t pos;
+  const uint8_t *restrict buf;
+};
+
+struct dr_io_wo {
+  struct dr_io io;
+  size_t count;
+  size_t pos;
+  uint8_t *restrict buf;
+};
+
+struct dr_io_rw {
+  struct dr_io io;
+  size_t count;
+  size_t read_pos;
+  size_t write_pos;
+  uint8_t *restrict buf;
+};
+
 struct dr_io_handle {
   struct dr_io io;
   dr_handle_t fd;
+};
+
+struct dr_io_handle_wo_buf {
+  struct dr_io_handle ih;
+  size_t count;
+  size_t pos;
+  uint8_t *restrict buf;
+};
+
+struct dr_io_handle_wo_buf_vtbl {
+  struct dr_io_vtbl io;
+  DR_WARN_UNUSED_RESULT struct dr_result_void (*flush)(struct dr_io_handle_wo_buf *restrict const ih_wo);
 };
 
 struct dr_ioserver_handle {
