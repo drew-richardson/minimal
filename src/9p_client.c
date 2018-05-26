@@ -68,7 +68,7 @@ DR_WARN_UNUSED_RESULT static bool dr_9p_call(struct dr_io_handle *restrict const
       if (dr_unlikely(!dr_9p_decode_Rerror(&ename, rbuf, *rsize, rpos))) {
 	dr_log("dr_9p_decode_Rerror failed");
       } else {
-	printf("Rerror '%.*s'\n", ename.len, ename.buf);
+	dr_logf("Rerror '%.*s'", ename.len, ename.buf);
       }
     }
     return false;
@@ -102,7 +102,7 @@ DR_WARN_UNUSED_RESULT static bool dr_9p_version(struct dr_io_handle *restrict co
       return false;
     }
     if (debug) {
-      printf("Rversion %" PRIu32 " '%.*s'\n", *msize, version.len, version.buf);
+      dr_logf("Rversion %" PRIu32 " '%.*s'", *msize, version.len, version.buf);
     }
     if (*msize > sizeof(tbuf)) {
       dr_log("Invalid msize");
@@ -133,7 +133,7 @@ DR_WARN_UNUSED_RESULT static bool dr_9p_attach(struct dr_io_handle *restrict con
     return false;
   }
   if (debug) {
-    printf("Rattach %" PRIu8 " %" PRIu32 " %" PRIu64 "\n", qid->type, qid->vers, qid->path);
+    dr_logf("Rattach %" PRIu8 " %" PRIu32 " %" PRIu64, qid->type, qid->vers, qid->path);
   }
   return true;
 }
@@ -188,7 +188,7 @@ DR_WARN_UNUSED_RESULT static bool dr_9p_walk(struct dr_io_handle *restrict const
     return false;
   }
   if (debug) {
-    printf("Rwalk %" PRIu16, nwqid);
+    dr_logf("Rwalk %" PRIu16, nwqid);
   }
   for (size_t i = 0; i < nwqid; ++i) {
     struct dr_9p_qid qid;
@@ -197,15 +197,12 @@ DR_WARN_UNUSED_RESULT static bool dr_9p_walk(struct dr_io_handle *restrict const
       return false;
     }
     if (debug) {
-      printf(" %" PRIu8 " %" PRIu32 " %" PRIu64, qid.type, qid.vers, qid.path);
+      dr_logf("%" PRIu8 " %" PRIu32 " %" PRIu64, qid.type, qid.vers, qid.path);
     }
   }
   if (dr_unlikely(!dr_9p_decode_Rwalk_finish(rsize, rpos))) {
     dr_log("dr_9p_decode_Rwalk_finish failed");
     return false;
-  }
-  if (debug) {
-    printf("\n");
   }
   if (dr_unlikely(nwqid != nwname)) {
     dr_log("file not found");
@@ -231,7 +228,7 @@ DR_WARN_UNUSED_RESULT static bool dr_9p_open(struct dr_io_handle *restrict const
     return false;
   }
   if (debug) {
-    printf("Ropen %" PRIu8 " %" PRIu32 " %" PRIu64 " %" PRIu32 "\n", qid->type, qid->vers, qid->path, *iounit);
+    dr_logf("Ropen %" PRIu8 " %" PRIu32 " %" PRIu64 " %" PRIu32, qid->type, qid->vers, qid->path, *iounit);
   }
   return true;
 }
@@ -253,7 +250,7 @@ DR_WARN_UNUSED_RESULT static bool dr_9p_create(struct dr_io_handle *restrict con
     return false;
   }
   if (debug) {
-    printf("Rcreate %" PRIu8 " %" PRIu32 " %" PRIu64 " %" PRIu32 "\n", qid->type, qid->vers, qid->path, *iounit);
+    dr_logf("Rcreate %" PRIu8 " %" PRIu32 " %" PRIu64 " %" PRIu32, qid->type, qid->vers, qid->path, *iounit);
   }
   return true;
 }
@@ -275,7 +272,7 @@ DR_WARN_UNUSED_RESULT static bool dr_9p_read(struct dr_io_handle *restrict const
     return false;
   }
   if (debug) {
-    printf("Rread %" PRIu32 "\n", *bytes);
+    dr_logf("Rread %" PRIu32, *bytes);
   }
   return true;
 }
@@ -303,7 +300,7 @@ DR_WARN_UNUSED_RESULT static bool dr_9p_write(struct dr_io_handle *restrict cons
     return false;
   }
   if (debug) {
-    printf("Rwrite %" PRIu32 "\n", *bytes);
+    dr_logf("Rwrite %" PRIu32, *bytes);
   }
   return true;
 }
@@ -325,7 +322,7 @@ DR_WARN_UNUSED_RESULT static bool dr_9p_clunk(struct dr_io_handle *restrict cons
     return false;
   }
   if (debug) {
-    printf("Rclunk\n");
+    dr_log("Rclunk");
   }
   return true;
 }
@@ -347,7 +344,7 @@ DR_WARN_UNUSED_RESULT static bool dr_9p_remove(struct dr_io_handle *restrict con
     return false;
   }
   if (debug) {
-    printf("Rremove\n");
+    dr_log("Rremove");
   }
   return true;
 }
@@ -369,7 +366,7 @@ DR_WARN_UNUSED_RESULT static bool dr_9p_stat(struct dr_io_handle *restrict const
     return false;
   }
   if (debug) {
-    printf("Rstat\n");
+    dr_log("Rstat");
   }
   return true;
 }
@@ -391,7 +388,7 @@ DR_WARN_UNUSED_RESULT static bool dr_9p_wstat(struct dr_io_handle *restrict cons
     return false;
   }
   if (debug) {
-    printf("Rwstat\n");
+    dr_log("Rwstat");
   }
   return true;
 }
@@ -403,7 +400,7 @@ struct client_app {
 };
 
 static void print_app_usage(const struct client_app *restrict const a) {
-  printf("%s %s\n", a->name, a->help);
+  dr_logf("%s %s", a->name, a->help);
 }
 
 static void format_time(char *restrict const buf, const size_t buf_len, const uint32_t time) {
@@ -423,7 +420,7 @@ DR_WARN_UNUSED_RESULT static bool print_files(const uint32_t count, const void *
     pos += read;
     char buf[64];
     format_time(buf, sizeof(buf), stat.atime);
-    printf("%11" PRIo32 " %.*s %.*s %s %20" PRIu64 " %.*s\n", stat.mode, stat.uid.len, stat.uid.buf, stat.gid.len, stat.gid.buf, buf, stat.length, stat.name.len, stat.name.buf);
+    dr_logf("%11" PRIo32 " %.*s %.*s %s %20" PRIu64 " %.*s", stat.mode, stat.uid.len, stat.uid.buf, stat.gid.len, stat.gid.buf, buf, stat.length, stat.name.len, stat.name.buf);
   }
   return true;
 }
@@ -553,7 +550,7 @@ DR_WARN_UNUSED_RESULT static bool parse(const char *restrict input, int *restric
   return true;
 
  fail:
-  printf("Syntax error: Unexpected EOF\n");
+  dr_log("Syntax error: Unexpected EOF");
   free(output);
   return false;
 }
@@ -566,9 +563,9 @@ DR_WARN_UNUSED_RESULT static bool ls(struct dr_io_handle *restrict const ih, con
   for (int i = 1; i < argc; ++i) {
     if (argc > 2) {
       if (i > 1) {
-	printf("\n");
+	dr_log("");
       }
-      printf("%s:\n", argv[i]);
+      dr_logf("%s:", argv[i]);
     }
     if (dr_unlikely(!dr_9p_walk(ih, rbuf, msize, 0, 1, argv[i]))) {
       continue;
@@ -612,7 +609,7 @@ DR_WARN_UNUSED_RESULT static bool cat(struct dr_io_handle *restrict const ih, co
   bool result = false;
   uint8_t rbuf[DR_9P_BUF_SIZE];
   if (argc != 2) {
-    printf("Usage: cat <file>\n"); // DR ...
+    dr_log("Usage: cat <file>"); // DR ...
     return false;
   }
   if (dr_unlikely(!dr_9p_walk(ih, rbuf, msize, 0, 1, argv[1]))) {
@@ -640,7 +637,7 @@ DR_WARN_UNUSED_RESULT static bool cat(struct dr_io_handle *restrict const ih, co
       if (count == 0) {
 	break;
       }
-      printf("%.*s", count, (const char *)data);
+      dr_logf("%.*s", count, (const char *)data);
       offset += count;
     }
   }
@@ -653,7 +650,7 @@ DR_WARN_UNUSED_RESULT static bool write(struct dr_io_handle *restrict const ih, 
   bool result = false;
   uint8_t rbuf[DR_9P_BUF_SIZE];
   if (argc != 3) {
-    printf("Usage: write <data> <dest>\n"); // DR ...
+    dr_log("Usage: write <data> <dest>"); // DR ...
     return false;
   }
   if (dr_unlikely(!dr_9p_walk(ih, rbuf, msize, 0, 1, argv[2]))) {
@@ -692,7 +689,7 @@ DR_WARN_UNUSED_RESULT static bool write(struct dr_io_handle *restrict const ih, 
 DR_WARN_UNUSED_RESULT static bool rm(struct dr_io_handle *restrict const ih, const uint32_t msize, int argc, char *restrict *restrict argv) {
   uint8_t rbuf[DR_9P_BUF_SIZE];
   if (argc != 2) {
-    printf("Usage: rm <file>\n"); // DR ...
+    dr_log("Usage: rm <file>"); // DR ...
     return false;
   }
   if (dr_unlikely(!dr_9p_walk(ih, rbuf, msize, 0, 1, argv[1]))) {
@@ -705,7 +702,7 @@ DR_WARN_UNUSED_RESULT static bool stat(struct dr_io_handle *restrict const ih, c
   bool result = false;
   uint8_t rbuf[DR_9P_BUF_SIZE];
   if (argc != 2) {
-    printf("Usage: stat <file>\n"); // DR ...
+    dr_log("Usage: stat <file>"); // DR ...
     return false;
   }
   if (dr_unlikely(!dr_9p_walk(ih, rbuf, msize, 0, 1, argv[1]))) {
@@ -717,9 +714,9 @@ DR_WARN_UNUSED_RESULT static bool stat(struct dr_io_handle *restrict const ih, c
   }
   char buf[64];
   format_time(buf, sizeof(buf), stat.atime);
-  printf("%4" PRIx16 " %8" PRIx32 " %2" PRIx8 " %8" PRIx32 " %16" PRIx64 " %11" PRIo32 " %s", stat.type, stat.dev, stat.qid.type, stat.qid.vers, stat.qid.path, stat.mode, buf);
+  dr_logf("%4" PRIx16 " %8" PRIx32 " %2" PRIx8 " %8" PRIx32 " %16" PRIx64 " %11" PRIo32 " %s", stat.type, stat.dev, stat.qid.type, stat.qid.vers, stat.qid.path, stat.mode, buf);
   format_time(buf, sizeof(buf), stat.mtime);
-  printf(" %s %20" PRIu64 " %.*s %.*s %.*s %.*s\n", buf, stat.length, stat.name.len, stat.name.buf, stat.uid.len, stat.uid.buf, stat.gid.len, stat.gid.buf, stat.muid.len, stat.muid.buf);
+  dr_logf(" %s %20" PRIu64 " %.*s %.*s %.*s %.*s", buf, stat.length, stat.name.len, stat.name.buf, stat.uid.len, stat.uid.buf, stat.gid.len, stat.gid.buf, stat.muid.len, stat.muid.buf);
   result = false;
  fail_clunk:
   return dr_9p_clunk(ih, rbuf, msize, 1) || result;
@@ -758,7 +755,7 @@ DR_WARN_UNUSED_RESULT static bool do_create(struct dr_io_handle *restrict const 
 
 DR_WARN_UNUSED_RESULT static bool create(struct dr_io_handle *restrict const ih, const uint32_t msize, int argc, char *restrict *restrict argv) {
   if (argc != 3) {
-    printf("Usage: create <name> <perm>\n"); // DR ...
+    dr_log("Usage: create <name> <perm>"); // DR ...
     return false;
   }
   return do_create(ih, msize, argv[1], strtol(argv[2], NULL, 0));
@@ -766,7 +763,7 @@ DR_WARN_UNUSED_RESULT static bool create(struct dr_io_handle *restrict const ih,
 
 DR_WARN_UNUSED_RESULT static bool mkdir(struct dr_io_handle *restrict const ih, const uint32_t msize, int argc, char *restrict *restrict argv) {
   if (argc != 3) {
-    printf("Usage: mkdir <name> <perm>\n"); // DR ...
+    dr_log("Usage: mkdir <name> <perm>"); // DR ...
     return false;
   }
   return do_create(ih, msize, argv[1], DR_DIR | strtol(argv[2], NULL, 0));
@@ -776,7 +773,7 @@ DR_WARN_UNUSED_RESULT static bool chmod(struct dr_io_handle *restrict const ih, 
   bool result = false;
   uint8_t rbuf[DR_9P_BUF_SIZE];
   if (argc != 3) {
-    printf("Usage: chmod <perm> <file>\n"); // DR ...
+    dr_log("Usage: chmod <perm> <file>"); // DR ...
     return false;
   }
   if (dr_unlikely(!dr_9p_walk(ih, rbuf, msize, 0, 1, argv[2]))) {
@@ -828,10 +825,28 @@ bool sh(struct dr_io_handle *restrict const ih, const uint32_t msize, int ignore
   cwd[1] = '\0';
   bool accept_next = true;
   while (accept_next) {
-    printf("%s $ ", cwd);
-    fflush(stdout);
+    {
+      const struct dr_result_size r = dr_printf("%s $ ", cwd);
+      DR_IF_RESULT_ERR(r, err) {
+	dr_log_error("dr_printf failed", err);
+	break;
+      } DR_FI_RESULT;
+    }
+    {
+      const struct dr_io_handle_wo_buf_vtbl *restrict const vtbl = container_of_const(dr_stdout.ih.io.vtbl, const struct dr_io_handle_wo_buf_vtbl, io);
+      const struct dr_result_void r = vtbl->flush(&dr_stdout);
+      DR_IF_RESULT_ERR(r, err) {
+	dr_log_error("dr_stdout flush failed", err);
+	break;
+      } DR_FI_RESULT;
+    }
     if (fgets(buf, sizeof(buf), stdin) == NULL) {
-      printf("\n");
+      {
+	const struct dr_result_size r = dr_puts("\n");
+	DR_IF_RESULT_ERR(r, err) {
+	  dr_log_error("dr_puts failed", err);
+	} DR_FI_RESULT;
+      }
       break;
     }
     const size_t len = strlen(buf);
@@ -839,7 +854,7 @@ bool sh(struct dr_io_handle *restrict const ih, const uint32_t msize, int ignore
       break;
     }
     if (buf[len - 1] != '\n') {
-      printf("Line too long\n");
+      dr_log("Line too long");
       return false;
     }
     buf[len - 1] = '\0';
@@ -852,11 +867,11 @@ bool sh(struct dr_io_handle *restrict const ih, const uint32_t msize, int ignore
     } else if (strcmp("cd", argv[0]) == 0) {
       uint8_t rbuf[DR_9P_BUF_SIZE];
       if (argc < 2) {
-	printf("Not enough arguments\n");
+	dr_log("Not enough arguments");
       } else if (argc > 2) {
-	printf("Too many arguments\n");
+	dr_log("Too many arguments");
       } else if (argv[1][0] == '/') {
-	printf("Only relative paths are permited\n");
+	dr_log("Only relative paths are permited");
       } else if (dr_9p_walk(ih, rbuf, msize, 0, 0, argv[1])) {
 	char *restrict pos = argv[1];
 	char *restrict end = pos;
@@ -897,7 +912,7 @@ bool sh(struct dr_io_handle *restrict const ih, const uint32_t msize, int ignore
     } else if (strcmp("exit", argv[0]) == 0) {
       accept_next = false;
     } else if (strcmp("sh", argv[0]) == 0) {
-      printf("Nice try buster\n");
+      dr_log("Nice try buster");
     } else {
       size_t app;
       for (app = 0; app < sizeof(client_apps)/sizeof(client_apps[0]); ++app) {
@@ -909,7 +924,7 @@ bool sh(struct dr_io_handle *restrict const ih, const uint32_t msize, int ignore
 	}
       }
       if (app == sizeof(client_apps)/sizeof(client_apps[0])) {
-	printf("%s: command not found\n", argv[0]);
+	dr_logf("%s: command not found", argv[0]);
       }
     }
     free(argv[0]);
@@ -930,14 +945,15 @@ bool help(struct dr_io_handle *restrict const ih, const uint32_t msize, int argc
 }
 
 DR_WARN_UNUSED_RESULT static int print_version(void) {
-  char buf[256];
+  char buf[128];
   dr_get_version_long(buf, sizeof(buf));
-  printf("9p_client %s\n", buf);
+  dr_logf("9p_client %s", buf);
   return 0;
 }
 
 DR_WARN_UNUSED_RESULT static int print_usage(void) {
-  printf("Usage: 9p_client [OPTIONS]... [COMMAND] [COMMAND OPTIONS]...\n"
+  dr_log("\n"
+	 "Usage: 9p_client [OPTIONS]... [COMMAND] [COMMAND OPTIONS]...\n"
 	 "\n"
 	 "Options:\n"
 	 "  -a, --address  TCP/IP address name to connect to\n"
@@ -948,8 +964,7 @@ DR_WARN_UNUSED_RESULT static int print_usage(void) {
 	 "  -v, --version  Print version information\n"
 	 "  -h, --help     Print this help\n"
 	 "\n"
-	 "Commands:\n"
-	 "\n");
+	 "Commands:");
   if (help(0, 0, 0, NULL)) {
   }
   return -1;
@@ -958,6 +973,20 @@ DR_WARN_UNUSED_RESULT static int print_usage(void) {
 static char none[] = "none";
 
 int main(int argc, char *argv[]) {
+  {
+    const struct dr_result_void r = dr_console_startup();
+    DR_IF_RESULT_ERR(r, err) {
+      dr_log_error("dr_console_startup failed", err);
+      return -1;
+    } DR_FI_RESULT;
+  }
+  {
+    const struct dr_result_void r = dr_socket_startup();
+    DR_IF_RESULT_ERR(r, err) {
+      dr_log_error("dr_socket_startup failed", err);
+      return -1;
+    } DR_FI_RESULT;
+  }
   const char *restrict address = 0;
   const char *restrict port = 0;
   const char *restrict named = 0;
@@ -1019,13 +1048,6 @@ int main(int argc, char *argv[]) {
   struct dr_io_handle io;
   if (address != NULL && port != NULL) {
     {
-      const struct dr_result_void r = dr_socket_startup();
-      DR_IF_RESULT_ERR(r, err) {
-	dr_log_error("dr_socket_startup failed", err);
-	goto fail;
-      } DR_FI_RESULT;
-    }
-    {
       const struct dr_result_void r = dr_sock_connect(&io, address, port, DR_CLOEXEC);
       DR_IF_RESULT_ERR(r, err) {
 	dr_log_error("dr_sock_connect failed", err);
@@ -1039,7 +1061,7 @@ int main(int argc, char *argv[]) {
       goto fail;
     } DR_FI_RESULT;
   } else {
-    printf("Incomplete connection information provided\n");
+    dr_log("Incomplete connection information provided");
     return -1;
   }
   uint32_t msize;

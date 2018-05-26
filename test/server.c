@@ -234,6 +234,20 @@ static struct dr_result_void foo(void) {
 // DR struct dr_result_void dr_equeue_dispatch(struct dr_equeue *restrict const e)
 
 int main(int argc, char *argv[]) {
+  {
+    const struct dr_result_void r = dr_console_startup();
+    DR_IF_RESULT_ERR(r, err) {
+      dr_log_error("dr_console_startup failed", err);
+      return -1;
+    } DR_FI_RESULT;
+  }
+  {
+    const struct dr_result_void r = dr_socket_startup();
+    DR_IF_RESULT_ERR(r, err) {
+      dr_log_error("dr_socket_startup failed", err);
+      return -1;
+    } DR_FI_RESULT;
+  }
   int result = -1;
   char *restrict port = NULL;
   {
@@ -262,13 +276,6 @@ int main(int argc, char *argv[]) {
     goto fail;
   }
   INIT_LIST_HEAD(&clients);
-  {
-    const struct dr_result_void r = dr_socket_startup();
-    DR_IF_RESULT_ERR(r, err) {
-      dr_log_error("dr_socket_startup failed", err);
-      goto fail;
-    } DR_FI_RESULT;
-  }
   //foo();
   {
     const struct dr_result_void r = dr_equeue_init(&equeue);

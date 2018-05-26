@@ -4,8 +4,23 @@
 #include "dr.h"
 
 int main(int argc, char *argv[]) {
-  int result = -1;
+  {
+    const struct dr_result_void r = dr_console_startup();
+    DR_IF_RESULT_ERR(r, err) {
+      dr_log_error("dr_console_startup failed", err);
+      return -1;
+    } DR_FI_RESULT;
+  }
 
+  {
+    const struct dr_result_void r = dr_socket_startup();
+    DR_IF_RESULT_ERR(r, err) {
+      dr_log_error("dr_socket_startup failed", err);
+      return -1;
+    } DR_FI_RESULT;
+  }
+
+  int result = -1;
   char *restrict port = NULL;
   {
     static struct dr_option longopts[] = {
@@ -31,22 +46,6 @@ int main(int argc, char *argv[]) {
   if (port == NULL) {
     // DR ...
     goto fail;
-  }
-
-  {
-    const struct dr_result_void r = dr_socket_startup();
-    DR_IF_RESULT_ERR(r, err) {
-      dr_log_error("dr_socket_startup failed", err);
-      goto fail;
-    } DR_FI_RESULT;
-  }
-
-  {
-    const struct dr_result_void r = dr_console_startup();
-    DR_IF_RESULT_ERR(r, err) {
-      dr_log_error("dr_console_startup failed", err);
-      goto fail;
-    } DR_FI_RESULT;
   }
 
   struct dr_io_handle ih;
@@ -112,7 +111,15 @@ int main(int argc, char *argv[]) {
       }
 
       {
-	const struct dr_result_size r = dr_stdout.io.vtbl->write(&dr_stdout.io, buf, bytes);
+	const struct dr_result_size r = dr_stdout.ih.io.vtbl->write(&dr_stdout.ih.io, buf, bytes);
+	DR_IF_RESULT_ERR(r, err) {
+	  dr_log_error("dr_write failed", err);
+	  goto fail_close_cfd;
+	} DR_FI_RESULT;
+      }
+      {
+	const struct dr_io_handle_wo_buf_vtbl *restrict const vtbl = container_of_const(dr_stdout.ih.io.vtbl, const struct dr_io_handle_wo_buf_vtbl, io);
+	const struct dr_result_void r = vtbl->flush(&dr_stdout);
 	DR_IF_RESULT_ERR(r, err) {
 	  dr_log_error("dr_write failed", err);
 	  goto fail_close_cfd;

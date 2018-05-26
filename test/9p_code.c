@@ -31,6 +31,13 @@ static struct dr_user u1 = {
 };
 
 int main(void) {
+  {
+    const struct dr_result_void r = dr_console_startup();
+    DR_IF_RESULT_ERR(r, err) {
+      dr_log_error("dr_console_startup failed", err);
+      return -1;
+    } DR_FI_RESULT;
+  }
   dr_assert(0xdeadbeef == dr_decode_uint32((const uint8_t[]) { 0xef, 0xbe, 0xad, 0xde }));
   // DR dr_9p_decode_stat
   {
@@ -1041,6 +1048,6 @@ int main(void) {
       free(b);
     }
   }
-  printf("OK\n");
+  dr_log("OK");
   return 0;
 }

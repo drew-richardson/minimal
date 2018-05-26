@@ -10,7 +10,7 @@ struct dr_result_size dr_fputs(const char *restrict const s, struct dr_io *restr
 }
 
 struct dr_result_size dr_puts(const char *restrict const s) {
-  return dr_fputs(s, &dr_stdout.io);
+  return dr_fputs(s, &dr_stdout.ih.io);
 }
 
 struct dr_result_size dr_fprintf(struct dr_io *restrict const io, const char *restrict const fmt, ...) {
@@ -24,7 +24,7 @@ struct dr_result_size dr_fprintf(struct dr_io *restrict const io, const char *re
 struct dr_result_size dr_printf(const char *restrict const fmt, ...) {
   va_list ap;
   va_start(ap, fmt);
-  const struct dr_result_size r = dr_vfprintf(&dr_stdout.io, fmt, ap);
+  const struct dr_result_size r = dr_vfprintf(&dr_stdout.ih.io, fmt, ap);
   va_end(ap);
   return r;
 }

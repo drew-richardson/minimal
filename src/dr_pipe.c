@@ -89,7 +89,14 @@ struct dr_result_void dr_pipe_listen(struct dr_ioserver_handle *restrict const i
     return DR_RESULT_ERRNUM_VOID(DR_ERR_ISO_C, EINVAL);
   }
   char buf[108 + 9]; // sizeof(sun_path) + strlen("\\\\.\\pipe\\")
-  const int buf_len = snprintf(buf, sizeof(buf), "\\\\.\\pipe\\%s", name);
+  struct dr_print p;
+  const int buf_len = dr_print_finalize(
+    dr_print_s(
+      dr_print_s(
+        dr_print_init(&p, buf, sizeof(buf)),
+      "\\\\.\\pipe\\"),
+    name)
+  );
   if (dr_unlikely(buf_len + 1 > (int)sizeof(buf))) { // + 1 for '\0'
     return DR_RESULT_ERRNUM_VOID(DR_ERR_ISO_C, EINVAL);
   }

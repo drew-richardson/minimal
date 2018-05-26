@@ -30,14 +30,9 @@ int optind=1, opterr=1, optopt, __optpos, __optreset=0;
 
 static void __getopt_msg(const char *a, const char *b, const char *c, size_t l)
 {
-	FILE *f = stderr;
 	b = __lctrans_cur(b);
-	flockfile(f);
-	(void)(fputs(a, f)>=0
-	       && fwrite(b, strlen(b), 1, f)
-	       && fwrite(c, 1, l, f)==l
-	       && putc('\n', f));
-	funlockfile(f);
+	const struct dr_result_size r = dr_fprintf(&dr_stderr.ih.io, "%s%*s%c\n", a, (int)l, b, *c);
+	(void)r;
 }
 
 int getopt(int argc, char * const argv[], const char *optstring)

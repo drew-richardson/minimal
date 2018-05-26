@@ -154,19 +154,27 @@ build/obj/task$(OEXT): build/make/dr_config.mk $(PROJROOT)test/task.c
 	$(E_CC)$(CC) $(FLAGS_C) $(PROJROOT)test/task.c $(OUTPUT_C)$@
 
 9p_code_deps = \
+	build/obj/vfprintf$(OEXT) \
 	build/obj/dr_9p_decode$(OEXT) \
 	build/obj/dr_9p_encode$(OEXT) \
 	build/obj/dr_clock$(OEXT) \
+	build/obj/dr_console$(OEXT) \
+	build/obj/dr_io$(OEXT) \
+	build/obj/dr_io_buf$(OEXT) \
+	build/obj/dr_io_print$(OEXT) \
 	build/obj/dr_log$(OEXT) \
 	build/obj/9p_code$(OEXT)
 build/dist/9p_code$(EEXT): build/make/dr_config.mk $(9p_code_deps)
 	$(E_CCLD)$(CC) $(FLAGS_L) $(9p_code_deps) $(ACCEPT_LDLIBS) $(LDLIBS) $(OUTPUT_L)$@
 
 9p_fuzz_deps = \
+	build/obj/vfprintf$(OEXT) \
 	build/obj/dr_9p_decode$(OEXT) \
 	build/obj/dr_clock$(OEXT) \
 	build/obj/dr_console$(OEXT) \
 	build/obj/dr_io$(OEXT) \
+	build/obj/dr_io_buf$(OEXT) \
+	build/obj/dr_io_print$(OEXT) \
 	build/obj/dr_log$(OEXT) \
 	build/obj/9p_fuzz$(OEXT)
 build/dist/9p_fuzz$(EEXT): build/make/dr_config.mk $(9p_fuzz_deps)
@@ -174,10 +182,14 @@ build/dist/9p_fuzz$(EEXT): build/make/dr_config.mk $(9p_fuzz_deps)
 
 9p_client_deps = \
 	build/obj/getopt$(OEXT) \
+	build/obj/vfprintf$(OEXT) \
 	build/obj/dr_9p_decode$(OEXT) \
 	build/obj/dr_9p_encode$(OEXT) \
 	build/obj/dr_clock$(OEXT) \
+	build/obj/dr_console$(OEXT) \
 	build/obj/dr_io$(OEXT) \
+	build/obj/dr_io_buf$(OEXT) \
+	build/obj/dr_io_print$(OEXT) \
 	build/obj/dr_log$(OEXT) \
 	build/obj/dr_pipe$(OEXT) \
 	build/obj/dr_socket$(OEXT) \
@@ -189,11 +201,15 @@ build/dist/9p_client$(EEXT): build/make/dr_config.mk  $(9p_client_deps)
 
 9p_server_deps = \
 	build/obj/getopt$(OEXT) \
+	build/obj/vfprintf$(OEXT) \
 	build/obj/dr_9p_decode$(OEXT) \
 	build/obj/dr_9p_encode$(OEXT) \
 	build/obj/dr_clock$(OEXT) \
+	build/obj/dr_console$(OEXT) \
 	build/obj/dr_event$(OEXT) \
 	build/obj/dr_io$(OEXT) \
+	build/obj/dr_io_buf$(OEXT) \
+	build/obj/dr_io_print$(OEXT) \
 	build/obj/dr_log$(OEXT) \
 	build/obj/dr_pipe$(OEXT) \
 	build/obj/dr_socket$(OEXT) \
@@ -210,9 +226,12 @@ build/dist/9p_server$(EEXT): build/make/dr_config.mk $(9p_server_deps)
 
 client_deps = \
 	build/obj/getopt$(OEXT) \
+	build/obj/vfprintf$(OEXT) \
 	build/obj/dr_clock$(OEXT) \
 	build/obj/dr_console$(OEXT) \
 	build/obj/dr_io$(OEXT) \
+	build/obj/dr_io_buf$(OEXT) \
+	build/obj/dr_io_print$(OEXT) \
 	build/obj/dr_log$(OEXT) \
 	build/obj/dr_socket$(OEXT) \
 	build/obj/client$(OEXT)
@@ -220,7 +239,12 @@ build/dist/client$(EEXT): build/make/dr_config.mk $(client_deps)
 	$(E_CCLD)$(CC) $(FLAGS_L) $(client_deps) $(ACCEPT_LDLIBS) $(LDLIBS) $(OUTPUT_L)$@
 
 perms_deps = \
+	build/obj/vfprintf$(OEXT) \
 	build/obj/dr_clock$(OEXT) \
+	build/obj/dr_console$(OEXT) \
+	build/obj/dr_io$(OEXT) \
+	build/obj/dr_io_buf$(OEXT) \
+	build/obj/dr_io_print$(OEXT) \
 	build/obj/dr_log$(OEXT) \
 	build/obj/dr_str$(OEXT) \
 	build/obj/dr_vfs$(OEXT) \
@@ -236,14 +260,19 @@ printf_deps = \
 	build/obj/dr_io_buf$(OEXT) \
 	build/obj/dr_io_print$(OEXT) \
 	build/obj/dr_log$(OEXT) \
+	build/obj/dr_source$(OEXT) \
+	build/obj/dr_version$(OEXT) \
 	build/obj/printf$(OEXT)
 build/dist/printf$(EEXT): build/make/dr_config.mk $(printf_deps)
 	$(E_CCLD)$(CC) $(FLAGS_L) $(printf_deps) $(ACCEPT_LDLIBS) $(LDLIBS) $(OUTPUT_L)$@
 
 queue_deps = \
+	build/obj/vfprintf$(OEXT) \
 	build/obj/dr_clock$(OEXT) \
+	build/obj/dr_console$(OEXT) \
 	build/obj/dr_io$(OEXT) \
 	build/obj/dr_io_buf$(OEXT) \
+	build/obj/dr_io_print$(OEXT) \
 	build/obj/dr_log$(OEXT) \
 	build/obj/queue$(OEXT)
 build/dist/queue$(EEXT): build/make/dr_config.mk $(queue_deps)
@@ -251,9 +280,13 @@ build/dist/queue$(EEXT): build/make/dr_config.mk $(queue_deps)
 
 server_deps = \
 	build/obj/getopt$(OEXT) \
+	build/obj/vfprintf$(OEXT) \
 	build/obj/dr_clock$(OEXT) \
+	build/obj/dr_console$(OEXT) \
 	build/obj/dr_event$(OEXT) \
 	build/obj/dr_io$(OEXT) \
+	build/obj/dr_io_buf$(OEXT) \
+	build/obj/dr_io_print$(OEXT) \
 	build/obj/dr_log$(OEXT) \
 	build/obj/dr_sem$(OEXT) \
 	build/obj/dr_socket$(OEXT) \
@@ -265,7 +298,12 @@ build/dist/server$(EEXT): build/make/dr_config.mk $(server_deps)
 	$(E_CCLD)$(CC) $(FLAGS_L) $(server_deps) $(ACCEPT_LDLIBS) $(ACCEPTEX_LDLIBS) $(LDLIBS) $(OUTPUT_L)$@
 
 task_deps = \
+	build/obj/vfprintf$(OEXT) \
 	build/obj/dr_clock$(OEXT) \
+	build/obj/dr_console$(OEXT) \
+	build/obj/dr_io$(OEXT) \
+	build/obj/dr_io_buf$(OEXT) \
+	build/obj/dr_io_print$(OEXT) \
 	build/obj/dr_log$(OEXT) \
 	build/obj/dr_task$(OEXT) \
 	build/obj/$(dr_task_destroy_on_do$(AEXT))dr_task_destroy_on_do$(OEXT) \

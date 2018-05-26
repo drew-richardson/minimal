@@ -23,7 +23,7 @@ static void prepare_random(void) {
       seed = value/100;
     } DR_FI_RESULT;
   }
-  printf("seed: %u\n", seed);
+  dr_logf("seed: %u", seed);
   srand(seed);
   rand_buf = (unsigned char *)malloc(RAND_BUF_LEN);
   if (rand_buf == NULL) {
@@ -528,6 +528,13 @@ static void test_rw_resize(void) {
 }
 
 int main(void) {
+  {
+    const struct dr_result_void r = dr_console_startup();
+    DR_IF_RESULT_ERR(r, err) {
+      dr_log_error("dr_console_startup failed", err);
+      return -1;
+    } DR_FI_RESULT;
+  }
   prepare_random();
   test_queue();
   test_ro_fixed();
@@ -535,6 +542,6 @@ int main(void) {
   test_wo_resize();
   test_rw_fixed();
   test_rw_resize();
-  printf("OK\n");
+  dr_log("OK");
   return 0;
 }

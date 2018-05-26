@@ -118,7 +118,7 @@ struct dr_fid {
   uint32_t open;
 };
 
-static const char HELLO_WORLD[] = { 'H', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '\n' };
+static const char HELLO_WORLD[] = { 'H', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', };
 
 struct dr_result_uint32 file_read(const struct dr_fd *restrict const fd, const uint64_t offset, const uint32_t count, void *restrict const buf) {
   (void)fd;
@@ -133,7 +133,7 @@ struct dr_result_uint32 file_read(const struct dr_fd *restrict const fd, const u
 struct dr_result_uint32 file_write(const struct dr_fd *restrict const fd, const uint64_t offset, const uint32_t count, const void *restrict const buf) {
   (void)fd;
   (void)offset;
-  printf("'%.*s'\n", count, (const char *)buf);
+  dr_logf("'%.*s'", count, (const char *)buf);
   return DR_RESULT_OK(uint32, count);
 }
 
@@ -189,7 +189,7 @@ static bool dr_handle_request(struct list_head *restrict const fids, const uint8
       return false;
     }
     if (debug) {
-      printf("Tversion %" PRIu16 " %" PRIu32 " '%.*s'\n", tag, msize, version.len, version.buf);
+      dr_logf("Tversion %" PRIu16 " %" PRIu32 " '%.*s'", tag, msize, version.len, version.buf);
     }
     if (msize > DR_9P_BUF_SIZE) {
       msize = DR_9P_BUF_SIZE;
@@ -215,7 +215,7 @@ static bool dr_handle_request(struct list_head *restrict const fids, const uint8
       return false;
     }
     if (debug) {
-      printf("Tauth %" PRIu16 " %" PRIu32 " '%.*s' '%.*s'\n", tag, afid, uname.len, uname.buf, aname.len, aname.buf);
+      dr_logf("Tauth %" PRIu16 " %" PRIu32 " '%.*s' '%.*s'", tag, afid, uname.len, uname.buf, aname.len, aname.buf);
     }
     struct dr_str ename = {
       .len = 0,
@@ -234,7 +234,7 @@ static bool dr_handle_request(struct list_head *restrict const fids, const uint8
       return false;
     }
     if (debug) {
-      printf("Tattach %" PRIu16 " %" PRIu32 " %" PRIu32 " '%.*s' '%.*s'\n", tag, fid, afid, uname.len, uname.buf, aname.len, aname.buf);
+      dr_logf("Tattach %" PRIu16 " %" PRIu32 " %" PRIu32 " '%.*s' '%.*s'", tag, fid, afid, uname.len, uname.buf, aname.len, aname.buf);
     }
     if (dr_unlikely(afid != DR_NOFID)) {
       dr_log("Afid is invalid");
@@ -264,7 +264,7 @@ static bool dr_handle_request(struct list_head *restrict const fids, const uint8
       return false;
     }
     if (debug) {
-      printf("Twalk %" PRIu16 " %" PRIu32 " %" PRIu32 " %" PRIu16, tag, fid, newfid, nwname);
+      dr_logf("Twalk %" PRIu16 " %" PRIu32 " %" PRIu32 " %" PRIu16, tag, fid, newfid, nwname);
     }
     uint16_t nwqid;
     if (dr_unlikely(!dr_9p_encode_Rwalk_iterator(rbuf, rsize, rpos, tag, &nwqid))) {
@@ -288,7 +288,7 @@ static bool dr_handle_request(struct list_head *restrict const fids, const uint8
 	return false;
       }
       if (debug) {
-	printf(" '%.*s'", wname.len, wname.buf);
+	dr_logf("'%.*s'", wname.len, wname.buf);
       }
       {
 	const struct dr_result_file r = dr_vfs_walk(fidp->user, f, &wname);
@@ -307,9 +307,6 @@ static bool dr_handle_request(struct list_head *restrict const fids, const uint8
 	dr_log("dr_9p_encode_Rwalk_add failed");
 	return false;
       }
-    }
-    if (debug) {
-      printf("\n");
     }
     if (nwname == nwqid) {
       if (fid == newfid) {
@@ -337,7 +334,7 @@ static bool dr_handle_request(struct list_head *restrict const fids, const uint8
       return false;
     }
     if (debug) {
-      printf("Topen %" PRIu16 " %" PRIu32 " %" PRIu8 "\n", tag, fid, mode);
+      dr_logf("Topen %" PRIu16 " %" PRIu32 " %" PRIu8, tag, fid, mode);
     }
     struct dr_fid *restrict const fidp = dr_fid_get(fids, fid);
     if (dr_unlikely(fidp == NULL)) {
@@ -377,7 +374,7 @@ static bool dr_handle_request(struct list_head *restrict const fids, const uint8
       return false;
     }
     if (debug) {
-      printf("Tcreate %" PRIu16 " %" PRIu32 " '%.*s' %" PRIu32 " %" PRIu8 "\n", tag, fid, name.len, name.buf, perm, mode);
+      dr_logf("Tcreate %" PRIu16 " %" PRIu32 " '%.*s' %" PRIu32 " %" PRIu8, tag, fid, name.len, name.buf, perm, mode);
     }
     const struct dr_error err = {
       .domain = DR_ERR_ISO_C,
@@ -395,7 +392,7 @@ static bool dr_handle_request(struct list_head *restrict const fids, const uint8
       return false;
     }
     if (debug) {
-      printf("Tread %" PRIu16 " %" PRIu32 " %" PRIu64 " %" PRIu32 "\n", tag, fid, offset, count);
+      dr_logf("Tread %" PRIu16 " %" PRIu32 " %" PRIu64 " %" PRIu32, tag, fid, offset, count);
     }
     struct dr_fid *restrict const fidp = dr_fid_get(fids, fid);
     if (dr_unlikely(fidp == NULL)) {
@@ -442,7 +439,7 @@ static bool dr_handle_request(struct list_head *restrict const fids, const uint8
       return false;
     }
     if (debug) {
-      printf("Twrite %" PRIu16 " %" PRIu32 " %" PRIu64 " %" PRIu32 "\n", tag, fid, offset, count);
+      dr_logf("Twrite %" PRIu16 " %" PRIu32 " %" PRIu64 " %" PRIu32, tag, fid, offset, count);
     }
     struct dr_fid *restrict const fidp = dr_fid_get(fids, fid);
     if (dr_unlikely(fidp == NULL)) {
@@ -477,7 +474,7 @@ static bool dr_handle_request(struct list_head *restrict const fids, const uint8
       return false;
     }
     if (debug) {
-      printf("Tclunk %" PRIu16 " %" PRIu32 "\n", tag, fid);
+      dr_logf("Tclunk %" PRIu16 " %" PRIu32, tag, fid);
     }
     struct dr_fid *restrict const f = dr_fid_get(fids, fid);
     if (dr_unlikely(f == NULL)) {
@@ -498,7 +495,7 @@ static bool dr_handle_request(struct list_head *restrict const fids, const uint8
       return false;
     }
     if (debug) {
-      printf("Tremove %" PRIu16 " %" PRIu32 "\n", tag, fid);
+      dr_logf("Tremove %" PRIu16 " %" PRIu32, tag, fid);
     }
     struct dr_fid *restrict const f = dr_fid_get(fids, fid);
     if (dr_unlikely(f == NULL)) {
@@ -520,7 +517,7 @@ static bool dr_handle_request(struct list_head *restrict const fids, const uint8
       return false;
     }
     if (debug) {
-      printf("Tstat %" PRIu16 " %" PRIu32 "\n", tag, fid);
+      dr_logf("Tstat %" PRIu16 " %" PRIu32, tag, fid);
     }
     struct dr_fid *restrict const fidp = dr_fid_get(fids, fid);
     if (dr_unlikely(fidp == NULL)) {
@@ -541,7 +538,7 @@ static bool dr_handle_request(struct list_head *restrict const fids, const uint8
       return false;
     }
     if (debug) {
-      printf("Twstat %" PRIu16 " %" PRIu32 " %" PRIu16 " %" PRIu32 " %" PRIu8 " %" PRIu32 " %" PRIu64 " %" PRIu32 " %" PRIu32 " %" PRIu32 " %" PRIu64 " '%.*s' '%.*s' '%.*s' '%.*s'\n", tag, fid, stat.type, stat.dev, stat.qid.type, stat.qid.vers, stat.qid.path, stat.mode, stat.atime, stat.mtime, stat.length, stat.name.len, stat.name.buf, stat.uid.len, stat.uid.buf, stat.gid.len, stat.gid.buf, stat.muid.len, stat.muid.buf);
+      dr_logf("Twstat %" PRIu16 " %" PRIu32 " %" PRIu16 " %" PRIu32 " %" PRIu8 " %" PRIu32 " %" PRIu64 " %" PRIu32 " %" PRIu32 " %" PRIu32 " %" PRIu64 " '%.*s' '%.*s' '%.*s' '%.*s'", tag, fid, stat.type, stat.dev, stat.qid.type, stat.qid.vers, stat.qid.path, stat.mode, stat.atime, stat.mtime, stat.length, stat.name.len, stat.name.buf, stat.uid.len, stat.uid.buf, stat.gid.len, stat.gid.buf, stat.muid.len, stat.muid.buf);
     }
     const struct dr_error err = {
       .domain = DR_ERR_ISO_C,
@@ -697,25 +694,39 @@ static void server_func(void *restrict const arg) {
   return;
 }
 
-DR_WARN_UNUSED_RESULT static int print_version(void) {
-  char buf[256];
+static void print_version(void) {
+  char buf[128];
   dr_get_version_long(buf, sizeof(buf));
-  printf("9p_server %s\n", buf);
-  return 0;
+  dr_logf("9p_server %s", buf);
 }
 
 DR_WARN_UNUSED_RESULT static int print_usage(void) {
-  printf("Usage: 9p_server [OPTIONS]...\n"
+  dr_log("\n"
+	 "Usage: 9p_server [OPTIONS]...\n"
 	 "\n"
 	 "Options:\n"
 	 "  -p, --port     TCP/IP port name to connect to\n"
 	 "  -d, --debug    Print received messages\n"
 	 "  -v, --version  Print version information\n"
-	 "  -h, --help     Print this help\n");
+	 "  -h, --help     Print this help");
   return -1;
 }
 
 int main(int argc, char *argv[]) {
+  {
+    const struct dr_result_void r = dr_console_startup();
+    DR_IF_RESULT_ERR(r, err) {
+      dr_log_error("dr_console_startup failed", err);
+      return -1;
+    } DR_FI_RESULT;
+  }
+  {
+    const struct dr_result_void r = dr_socket_startup();
+    DR_IF_RESULT_ERR(r, err) {
+      dr_log_error("dr_socket_startup failed", err);
+      return -1;
+    } DR_FI_RESULT;
+  }
   int result = -1;
   char *restrict port = 0;
   {
@@ -740,7 +751,8 @@ int main(int argc, char *argv[]) {
 	debug = true;
 	break;
       case 'v':
-	return print_version();
+	print_version();
+	return 0;
       default:
       case 'h':
 	return print_usage();
@@ -750,20 +762,8 @@ int main(int argc, char *argv[]) {
   if (port == NULL) {
     return print_usage();
   }
-  {
-    char buf[256];
-    int written = snprintf(buf, sizeof(buf), "9p_server ");
-    dr_get_version_long(buf + written, sizeof(buf) - written);
-    dr_log(buf);
-  }
+  print_version();
   INIT_LIST_HEAD(&clients);
-  {
-    const struct dr_result_void r = dr_socket_startup();
-    DR_IF_RESULT_ERR(r, err) {
-      dr_log_error("dr_socket_startup failed", err);
-      goto fail;
-    } DR_FI_RESULT;
-  }
   {
     const struct dr_result_void r = dr_equeue_init(&equeue);
     DR_IF_RESULT_ERR(r, err) {

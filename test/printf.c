@@ -742,6 +742,17 @@ static void test_print(void) {
   }
 }
 
+static void test_version(void) {
+  for (size_t i = 1; ; ++i) {
+    char *restrict const buf = (char *)malloc(i);
+    const int result = dr_get_version_long(buf, i);
+    free(buf);
+    if ((size_t)result + 1 == i) {
+      break;
+    }
+  }
+}
+
 int main(void) {
   {
     const struct dr_result_void r = dr_console_startup();
@@ -753,6 +764,7 @@ int main(void) {
   }
   test_snprintf();
   test_print();
+  test_version();
   dr_log("OK");
   return 0;
 }

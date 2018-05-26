@@ -19,6 +19,10 @@
 #error Compiler does not support mixed declarations
 #endif
 
+#if !defined(DR_HAS_VARIADIC_MACROS)
+#error Compiler does not support variadic macros
+#endif
+
 #if !defined(DR_HAS_RESTRICT)
 // DR Check for __restrict as well?
 #define restrict

@@ -151,6 +151,10 @@ enum {
 //__attribute__((noinline,cold))
 void dr_log_impl(const char *restrict const func, const char *restrict const file, const int line, const char *restrict const msg);
 
+#define dr_logf(fmt, ...) dr_logf_impl(__func__, __FILE__, __LINE__, fmt, __VA_ARGS__)
+//__attribute__((noinline,cold))
+void dr_logf_impl(const char *restrict const func, const char *restrict const file, const int line, const char *restrict const fmt, ...);
+
 #define dr_log_error(msg, error) dr_log_error_impl(__func__, __FILE__, __LINE__, msg, error)
 //__attribute__((noinline,cold))
 void dr_log_error_impl(const char *restrict const func, const char *restrict const file, const int line, const char *restrict const msg, const struct dr_error *restrict const error);
@@ -186,8 +190,8 @@ DR_WARN_UNUSED_RESULT struct dr_result_void dr_io_rw_resize_init(struct dr_io_rw
 
 DR_WARN_UNUSED_RESULT struct dr_result_void dr_console_startup(void);
 extern struct dr_io_handle dr_stdin;
-extern struct dr_io_handle dr_stdout;
-extern struct dr_io_handle dr_stderr;
+extern struct dr_io_handle_wo_buf dr_stdout;
+extern struct dr_io_handle_wo_buf dr_stderr;
 
 const char *dr_source_revision(void);
 const char *dr_source_status(void);

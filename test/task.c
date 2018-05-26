@@ -44,25 +44,43 @@ static const size_t STACK_SIZE = 1<<16;
 static void client_func(void *restrict const arg) {
   const int *restrict const argc = (const int *)arg;
   char buf[32];
-  snprintf(buf, sizeof(buf), "one%itwo%ithree%ifour%ifive%isix%isev", *argc + 1, *argc + 2, *argc + 3, *argc + 4, *argc + 5, *argc + 6);
+  {
+    struct dr_result_size r = dr_snprintf(buf, sizeof(buf), "one%itwo%ithree%ifour%ifive%isix%isev", *argc + 1, *argc + 2, *argc + 3, *argc + 4, *argc + 5, *argc + 6);
+    (void)r;
+  }
   DEFS;
   INCx20;
-  printf("b%s%i%i", buf, *argc, v00 + 444858010);
+  {
+    struct dr_result_size r = dr_printf("b%s%i%i", buf, *argc, v00 + 444858010);
+    (void)r;
+  }
   dr_schedule(false);
   INCx20;
-  printf("e%s%i%i", buf, *argc, v00 + 80230891);
+  {
+    struct dr_result_size r = dr_printf("e%s%i%i", buf, *argc, v00 + 80230891);
+    (void)r;
+  }
 }
 
 static void exit_func(void *restrict const arg) {
   char *restrict const s = (char *)arg;
-  printf("hCleanup%s", s);
+  {
+    struct dr_result_size r = dr_printf("hCleanup%s", s);
+    (void)r;
+  }
 }
 
 static void sleep_func(void *restrict const arg) {
   char *restrict const s = (char *)arg;
-  printf("cSleeping%s", s);
+  {
+    struct dr_result_size r = dr_printf("cSleeping%s", s);
+    (void)r;
+  }
   dr_schedule(true);
-  printf("gExiting%s", s);
+  {
+    struct dr_result_size r = dr_printf("gExiting%s", s);
+    (void)r;
+  }
   dr_task_exit(arg, exit_func);
 }
 
@@ -73,6 +91,13 @@ static char foo[] = "foo";
 
 int main(int argc, char *argv[]) {
   (void)argv;
+  {
+    const struct dr_result_void r = dr_console_startup();
+    DR_IF_RESULT_ERR(r, err) {
+      dr_log_error("dr_console_startup failed", err);
+      return -1;
+    } DR_FI_RESULT;
+  }
 
   {
     const struct dr_result_void r = dr_task_create(&t0, STACK_SIZE, client_func, &argc);
@@ -90,19 +115,34 @@ int main(int argc, char *argv[]) {
   }
 
   char buf[32];
-  snprintf(buf, sizeof(buf), "one%itwo%ithree%ifour%ifive%isix%isev", argc + 1, argc + 2, argc + 3, argc + 4, argc + 5, argc + 6);
+  {
+    struct dr_result_size r = dr_snprintf(buf, sizeof(buf), "one%itwo%ithree%ifour%ifive%isix%isev", argc + 1, argc + 2, argc + 3, argc + 4, argc + 5, argc + 6);
+    (void)r;
+  }
   DEFS;
   INCx20;
-  printf("a%s%i%i", buf, argc, v00 + 444858010);
+  {
+    struct dr_result_size r = dr_printf("a%s%i%i", buf, argc, v00 + 444858010);
+    (void)r;
+  }
   dr_schedule(false);
   INCx20;
-  printf("d%s%i%i", buf, argc, v00 + 80230891);
+  {
+    struct dr_result_size r = dr_printf("d%s%i%i", buf, argc, v00 + 80230891);
+    (void)r;
+  }
   dr_schedule(false);
   INCx20;
-  printf("f%s%i%i", buf, argc, v00 - 1026488990);
+  {
+    struct dr_result_size r = dr_printf("f%s%i%i", buf, argc, v00 - 1026488990);
+    (void)r;
+  }
   dr_task_runnable(&t1);
   dr_schedule(false);
-  printf("iBack");
+  {
+    struct dr_result_size r = dr_printf("iBack");
+    (void)r;
+  }
 
   dr_task_destroy(&t1);
   dr_task_destroy(&t0);

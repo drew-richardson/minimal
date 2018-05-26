@@ -27,7 +27,7 @@ check_queue: all
 	$(Q)build/dist/queue$(EEXT)
 
 check_task: all
-	$(Q)if [ $$(build/dist/task$(EEXT))"x" = "aone2two3three4four5five6six7sev10bone2two3three4four5five6six7sev10cSleepingfoodone2two3three4four5five6six7sev10eone2two3three4four5five6six7sev10fone2two3three4four5five6six7sev10gExitingfoohCleanupfooiBackx" ]; then echo OK; true; else echo FAIL; false; fi
+	$(Q)if [ $$(build/dist/task$(EEXT))"x" = "aone2two3three4four5five6six7sev10bone2two3three4four5five6six7sev10cSleepingfoodone2two3three4four5five6six7sev10eone2two3three4four5five6six7sev10fone2two3three4four5five6six7sev10gExitingfoohCleanupfooiBackx" ]; then echo "$$(date -u +%s)           check_task(make/make.mk)                : OK"; true; else echo "$$(date -u +%s)           check_task(make/make.mk)                : FAIL"; false; fi
 
 check_server_client: all
 	$(Q)if [ $$(build/dist/server$(EEXT) -p 6000 > /dev/null 2>&1 & \
@@ -38,7 +38,7 @@ check_server_client: all
 	    i=$$((i+1)); \
 	done; \
 	sleep 2; \
-	kill $${SERVER_PID})"x" = "HelloHelloHelloworldworldworldx" ]; then echo OK; true; else echo FAIL; false; fi
+	kill $${SERVER_PID})"x" = "HelloHelloHelloworldworldworldx" ]; then echo "$$(date -u +%s)           check_server_client(make/make.mk)       : OK"; true; else echo "$$(date -u +%s)           check_server_client(make/make.mk)       : FAIL"; false; fi
 
 build/dist/9p_client$(EEXT): deps
 	$(Q)$(MAKE) -f $(PROJROOT)make/build.mk $@
@@ -146,6 +146,9 @@ build/include/dr_version.h:
 "#define DR_VERSION_MAJOR $(VERSION_MAJOR)" \
 "#define DR_VERSION_MINOR $(VERSION_MINOR)" \
 "#define DR_VERSION_PATCH $(VERSION_PATCH)" \
+"#define DR_VERSION_MAJOR_STR \"$(VERSION_MAJOR)\"" \
+"#define DR_VERSION_MINOR_STR \"$(VERSION_MINOR)\"" \
+"#define DR_VERSION_PATCH_STR \"$(VERSION_PATCH)\"" \
 "#define DR_VERSION_EXTRA \"$(VERSION_EXTRA)\"" \
 "#endif // DR_VERSION_H" > $@
 

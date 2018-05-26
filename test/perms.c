@@ -63,6 +63,13 @@ static void test_open(struct dr_user *restrict const user, struct dr_group *rest
 }
 
 int main(void) {
+  {
+    const struct dr_result_void r = dr_console_startup();
+    DR_IF_RESULT_ERR(r, err) {
+      dr_log_error("dr_console_startup failed", err);
+      return -1;
+    } DR_FI_RESULT;
+  }
   test_open(&u_drewrichardson, &g_root, 'd', 0000, DR_OEXEC, EACCES);
   test_open(&u_drewrichardson, &g_root, 'd', 0000, DR_OREAD, EACCES);
   test_open(&u_drewrichardson, &g_root, 'd', 0000, DR_ORDWR, EISDIR);
@@ -16447,6 +16454,6 @@ int main(void) {
   test_open(&u_root, &g_users, 'f', 0777, DR_OREAD, 0);
   test_open(&u_root, &g_users, 'f', 0777, DR_ORDWR, 0);
   test_open(&u_root, &g_users, 'f', 0777, DR_OWRITE, 0);
-  printf("OK\n");
+  dr_log("OK");
   return 0;
 }
