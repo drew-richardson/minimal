@@ -11,8 +11,9 @@ build/make/dr_config.mk: build/make/env.mk build/make/compiler.mk build/make/eex
 
 build/make/compiler.mk: build/make/env.mk $(PROJROOT)config/checks/DR_ALWAYS_SUCCEEDS.c
 	$(E_GEN) \
+rm -f build/make_obj/compiler.mk.out && \
 if rm -f build/make_obj/cl.test.obj && \
-        $(CC) $(CPPFLAGS) $(CFLAGS) $(PROJROOT)config/checks/DR_ALWAYS_SUCCEEDS.c /c /Fo: build/make_obj/cl.test.obj > /dev/null 2>&1 && \
+        $(CC) $(CPPFLAGS) $(CFLAGS) $(PROJROOT)config/checks/DR_ALWAYS_SUCCEEDS.c /c /Fo: build/make_obj/cl.test.obj >> build/make_obj/compiler.mk.out 2>&1 && \
         [ -f build/make_obj/cl.test.obj ]; then \
     printf "%s\n" \
         "OUTPUT_C=/c /Fo" \
@@ -22,7 +23,7 @@ if rm -f build/make_obj/cl.test.obj && \
         "LEXT=.lib"; \
 else \
     if rm -f build/make_obj/cc.test.o && \
-            $(CC) $(CPPFLAGS) $(CFLAGS) $(PROJROOT)config/checks/DR_ALWAYS_SUCCEEDS.c -c -o build/make_obj/cc.test.o > /dev/null 2>&1 && \
+            $(CC) $(CPPFLAGS) $(CFLAGS) $(PROJROOT)config/checks/DR_ALWAYS_SUCCEEDS.c -c -o build/make_obj/cc.test.o >> build/make_obj/compiler.mk.out 2>&1 && \
             [ -f build/make_obj/cc.test.o ]; then \
         printf "%s\n" \
            "OUTPUT_C=-c -o " \
@@ -33,14 +34,20 @@ else \
     else \
         false; \
     fi \
-fi > $@
+fi > $@ || \
+( \
+    rm -f $@; \
+    cat build/make_obj/compiler.mk.out; \
+    false; \
+)
 
 build/make/eext.mk: build/make/env.mk $(PROJROOT)config/checks/DR_ALWAYS_SUCCEEDS.c
 	$(E_GEN) \
+rm -f build/make_obj/eext.mk.out && \
 if cd build/make_obj && \
         rm -f a.out a.exe DR_ALWAYS_SUCCEEDS.eext.exe && \
         cp ../../$(PROJROOT)config/checks/DR_ALWAYS_SUCCEEDS.c DR_ALWAYS_SUCCEEDS.eext.c && \
-        $(CC) $(CPPFLAGS) $(CFLAGS) DR_ALWAYS_SUCCEEDS.eext.c > /dev/null 2>&1 && \
+        $(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) DR_ALWAYS_SUCCEEDS.eext.c >> eext.mk.out 2>&1 && \
         [ -f a.out ]; then \
     echo EEXT=; \
 else \
@@ -49,15 +56,21 @@ else \
     else \
         false; \
     fi \
-fi > $@
+fi > $@ || \
+( \
+    rm -f $@; \
+    cat eext.mk.out; \
+    false; \
+)
 
 build/make/oext.mk: build/make/env.mk $(PROJROOT)config/checks/DR_ALWAYS_SUCCEEDS.c
 	$(E_GEN) \
+rm -f build/make_obj/oext.mk.out && \
 if \
         cd build/make_obj && \
         rm -f DR_ALWAYS_SUCCEEDS.oext.o DR_ALWAYS_SUCCEEDS.oext.obj && \
         cp ../../$(PROJROOT)config/checks/DR_ALWAYS_SUCCEEDS.c DR_ALWAYS_SUCCEEDS.oext.c && \
-        $(CC) $(CPPFLAGS) $(CFLAGS) DR_ALWAYS_SUCCEEDS.oext.c -c > /dev/null 2>&1 && \
+        $(CC) $(CPPFLAGS) $(CFLAGS) DR_ALWAYS_SUCCEEDS.oext.c -c >> oext.mk.out 2>&1 && \
         [ -f DR_ALWAYS_SUCCEEDS.oext.o ]; then \
     echo OEXT=.o; \
 else \
@@ -66,25 +79,30 @@ else \
     else \
         false; \
     fi \
-fi > $@
+fi > $@ || \
+( \
+    rm -f $@; \
+    cat oext.mk.out; \
+    false; \
+)
 
 build/make/cstd.mk: build/make/env.mk $(PROJROOT)config/checks/DR_ALWAYS_SUCCEEDS.c
 	$(E_GEN) \
 if cd build/make_obj && \
         cp ../../$(PROJROOT)config/checks/DR_ALWAYS_SUCCEEDS.c DR_ALWAYS_SUCCEEDS.cstd.c && \
-        ! ($(CC) -std=gnu11 $(CPPFLAGS) $(CFLAGS) DR_ALWAYS_SUCCEEDS.cstd.c -o stdgnu11 2>&1 || \
+        ! ($(CC) -std=gnu11 $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) DR_ALWAYS_SUCCEEDS.cstd.c -o stdgnu11 2>&1 || \
         echo error) | egrep -i 'error|warn' > /dev/null; then \
     echo CSTD=-std=gnu11; \
 else \
-    if ! ($(CC) -std=gnu99 $(CPPFLAGS) $(CFLAGS) DR_ALWAYS_SUCCEEDS.cstd.c -o stdgnu99 2>&1 || \
+    if ! ($(CC) -std=gnu99 $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) DR_ALWAYS_SUCCEEDS.cstd.c -o stdgnu99 2>&1 || \
             echo error) | egrep -i 'error|warn' > /dev/null; then \
         echo CSTD=-std=gnu99; \
     else \
-        if ! ($(CC) -xc11 $(CPPFLAGS) $(CFLAGS) DR_ALWAYS_SUCCEEDS.cstd.c -o xc11 2>&1 || \
+        if ! ($(CC) -xc11 $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) DR_ALWAYS_SUCCEEDS.cstd.c -o xc11 2>&1 || \
                 echo error) | egrep -i 'error|warn' > /dev/null; then \
             echo CSTD=-xc11; \
         else \
-            if ! ($(CC) -xc99 $(CPPFLAGS) $(CFLAGS) DR_ALWAYS_SUCCEEDS.cstd.c -o xc99 2>&1 || \
+            if ! ($(CC) -xc99 $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) DR_ALWAYS_SUCCEEDS.cstd.c -o xc99 2>&1 || \
                     echo error) | egrep -i 'error|warn' > /dev/null; then \
                 echo CSTD=-xc99; \
             else \
@@ -92,10 +110,14 @@ else \
             fi \
         fi \
     fi \
-fi > $@
+fi > $@ || \
+( \
+    rm -f $@; \
+    false; \
+)
 
 build/make/flags.mk:
-	$(E_GEN). $(PROJROOT)make/flags.sh > $@
+	$(E_GEN). $(PROJROOT)make/flags.sh > $@ || ( rm -f $@; false )
 
 build/make/dr_config_h.mk:
-	$(E_GEN). $(PROJROOT)make/dr_config_h.sh > $@
+	$(E_GEN). $(PROJROOT)make/dr_config_h.sh > $@ || ( rm -f $@; false )
