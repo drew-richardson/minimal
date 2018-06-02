@@ -143,12 +143,7 @@ build/make/deps.mk: force
 
 build/src/dr_source.c: force
 	$(E_GEN) \
-. make/dr_source.sh; \
-printf "%s\n" \
-"#include \"dr.h\"" \
-"const char *dr_source_revision(void) { return \"$${SOURCE_REVISION}\"; }" \
-"const char *dr_source_status(void) { return \"$${SOURCE_STATUS}\"; }" \
-"const char *dr_source_date(void) { return \"$${SOURCE_DATE}\"; }" > $@.new; \
+. make/dr_source.sh > $@.new; \
 if ! diff $@.new $@ > /dev/null 2>&1; then \
     mv $@.new $@; \
 fi
@@ -212,7 +207,7 @@ dist: minimal.tar.gz
 
 minimal.tar.gz: force
 	$(E_GEN) \
-. make/dr_source.sh; \
+. make/dr_source.sh > /dev/null; \
 if [ "${VERSION_PATCH}" = "0" ]; then \
     VERSION=${VERSION_MAJOR}.${VERSION_MINOR}${VERSION_EXTRA}; \
 else \

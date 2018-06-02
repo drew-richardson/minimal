@@ -435,7 +435,9 @@ DR_WARN_UNUSED_RESULT static inline struct dr_print *dr_print_init_pos(struct dr
 }
 
 DR_WARN_UNUSED_RESULT static inline int dr_print_finalize(struct dr_print *restrict const r) {
-  r->s[dr_min_size(r->pos, r->n - 1)] = '\0';
+  if (dr_likely(r->n > 0)) {
+    r->s[dr_min_size(r->pos, r->n - 1)] = '\0';
+  }
   return r->pos;
 }
 
