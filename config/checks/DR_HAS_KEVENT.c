@@ -11,7 +11,7 @@ int main(void) {
   int nchanges = 0;
   struct kevent eventlist[2];
   int nevents = 0;
-  const struct timespec timeout;
+  struct timespec timeout;
   int result = kevent(kq, changelist, nchanges, eventlist, nevents, &timeout);
   return result;
 }

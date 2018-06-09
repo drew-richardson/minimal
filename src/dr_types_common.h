@@ -16,8 +16,8 @@
 
 struct dr_option {
   const char *restrict name;
-  int has_arg;
   int *restrict flag;
+  int has_arg;
   int val;
 };
 

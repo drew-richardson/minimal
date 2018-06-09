@@ -2,10 +2,10 @@
 // Copyright (c) 2018 Drew Richardson <drewrichardson@gmail.com>
 
 __attribute__((__format__(__printf__, 1, 2)))
-int foo(const char *restrict const fmt, ...) {
+int foo(const char *fmt, ...) {
   return 0;
 }
 
 int main(void) {
-  foo("%s\n", "Hello world");
+  return foo("%s\n", "Hello world");
 }

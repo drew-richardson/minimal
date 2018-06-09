@@ -62,4 +62,10 @@
 #define DR_FORMAT_PRINTF(FORMAT_IND, ARG_IND)
 #endif
 
+#if defined(DR_HAS_ATTRIBUTE_ALIGNED)
+#define DR_ALIGNED(ALIGNMENT) __attribute__((aligned(ALIGNMENT)))
+#else
+#define DR_ALIGNED(ALIGNMENT)
+#endif
+
 #endif // DR_COMPILER_H

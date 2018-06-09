@@ -731,11 +731,11 @@ int main(int argc, char *argv[]) {
   char *restrict port = 0;
   {
     static struct dr_option longopts[] = {
-      {"port", 1, 0, 'p'},
-      {"debug", 0, 0, 'd'},
-      {"version", 0, 0, 'v'},
-      {"help", 0, 0, 'h'},
-      {0, 0, 0, 0},
+      {.name = "port", .has_arg = 1, .flag = 0, .val = 'p'},
+      {.name = "debug", .has_arg = 0, .flag = 0, .val = 'd'},
+      {.name = "version", .has_arg = 0, .flag = 0, .val = 'v'},
+      {.name = "help", .has_arg = 0, .flag = 0, .val = 'h'},
+      {.name = 0},
     };
     dr_optind = 0;
     while (true) {

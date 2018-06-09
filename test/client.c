@@ -24,8 +24,8 @@ int main(int argc, char *argv[]) {
   char *restrict port = NULL;
   {
     static struct dr_option longopts[] = {
-      {"port", 1, 0, 'p'},
-      {0, 0, 0, 0},
+      {.name = "port", .has_arg = 1, .flag = 0, .val = 'p'},
+      {.name = 0},
     };
     dr_optind = 0;
     while (true) {

@@ -993,14 +993,14 @@ int main(int argc, char *argv[]) {
   char *restrict uname_buf = none;
   {
     static struct dr_option longopts[] = {
-      {"address", 1, 0, 'a'},
-      {"port", 1, 0, 'p'},
-      {"named", 1, 0, 'n'},
-      {"uname", 1, 0, 'u'},
-      {"debug", 0, 0, 'd'},
-      {"version", 0, 0, 'v'},
-      {"help", 0, 0, 'h'},
-      {0, 0, 0, 0},
+      {.name = "address", .has_arg = 1, .flag = 0, .val = 'a'},
+      {.name = "port", .has_arg = 1, .flag = 0, .val = 'p'},
+      {.name = "named", .has_arg = 1, .flag = 0, .val = 'n'},
+      {.name = "uname", .has_arg = 1, .flag = 0, .val = 'u'},
+      {.name = "debug", .has_arg = 0, .flag = 0, .val = 'd'},
+      {.name = "version", .has_arg = 0, .flag = 0, .val = 'v'},
+      {.name = "help", .has_arg = 0, .flag = 0, .val = 'h'},
+      {.name = 0},
     };
     dr_optind = 0;
     while (true) {
