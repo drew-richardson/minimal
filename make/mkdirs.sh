@@ -5,7 +5,7 @@ set -e
 
 makedir() {
     if [ ! -d $1 ]; then
-	mkdir $1
+	mkdir $1 2> /dev/null || true
     fi
 }
 

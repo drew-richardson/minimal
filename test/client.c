@@ -70,7 +70,7 @@ int main(int argc, char *argv[]) {
       {
 	const struct dr_result_size r = dr_stdin.io.vtbl->read(&dr_stdin.io, buf, sizeof(buf));
 	DR_IF_RESULT_ERR(r, err) {
-#if defined(_WIN32)
+#if defined(DR_OS_WINDOWS)
 	  if (err->domain == DR_ERR_WIN && err->num == 109/*ERROR_BROKEN_PIPE*/) {
 	    bytes = 0;
 	  } else

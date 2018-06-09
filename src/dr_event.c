@@ -6,7 +6,7 @@
 
 #include <errno.h>
 
-#if defined(__linux__)
+#if defined(DR_OS_LINUX)
 
 #include <sys/epoll.h>
 
@@ -18,7 +18,7 @@
 #include <sys/event.h>
 #include <sys/time.h>
 
-#elif defined(__sun)
+#elif defined(DR_OS_SOLARIS)
 
 #include <fcntl.h>
 #include <poll.h>
@@ -26,7 +26,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#elif defined(_WIN32)
+#elif defined(DR_OS_WINDOWS)
 
 #include <winsock2.h>
 
@@ -133,11 +133,11 @@ static void dr_check_alignment(const void *restrict const ptr) {
   dr_assert((val & 0x3) == 0);
 }
 
-#if defined(__linux__) || defined(DR_HAS_KEVENT) || defined(__sun)
+#if defined(DR_OS_LINUX) || defined(DR_HAS_KEVENT) || defined(DR_OS_SOLARIS)
 
-#if defined(__linux__) || defined(DR_HAS_KEVENT)
+#if defined(DR_OS_LINUX) || defined(DR_HAS_KEVENT)
 
-#if defined(__linux__)
+#if defined(DR_OS_LINUX)
 
 DR_WARN_UNUSED_RESULT static struct dr_result_handle dr_event_open(unsigned int flags) {
   if (dr_unlikely((flags & ~(DR_CLOEXEC)) != 0)) {
@@ -297,7 +297,7 @@ static void dr_event_unsubscribe(struct dr_equeue *restrict const e, struct dr_e
   }
 }
 
-#elif defined(__sun)
+#elif defined(DR_OS_SOLARIS)
 
 DR_WARN_UNUSED_RESULT static struct dr_result_handle dr_event_open(unsigned int flags) {
   if (dr_unlikely((flags & ~(DR_CLOEXEC)) != 0)) {
@@ -496,7 +496,7 @@ void dr_equeue_client_destroy(struct dr_io *restrict const io) {
   dr_io_handle_close(&c->ih.io);
 }
 
-#elif defined(_WIN32)
+#elif defined(DR_OS_WINDOWS)
 
 DR_WARN_UNUSED_RESULT static struct dr_result_void dr_event_associate(dr_handle_t efd, dr_handle_t fd, void *restrict const key) {
   dr_check_alignment(key);

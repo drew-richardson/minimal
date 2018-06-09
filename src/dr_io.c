@@ -47,7 +47,7 @@ struct dr_result_size dr_write_all(struct dr_io *restrict const io, const void *
   return dr_write_all_fn(io, io->vtbl->write, buf, count);
 }
 
-#if defined(_WIN32)
+#if defined(DR_OS_WINDOWS)
 
 #include <windows.h>
 

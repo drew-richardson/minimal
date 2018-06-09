@@ -3,7 +3,7 @@
 
 #include "dr.h"
 
-#if defined(_WIN32)
+#if defined(DR_OS_WINDOWS)
 #include <ws2tcpip.h>
 
 #include <windows.h>
@@ -89,7 +89,7 @@ void dr_log_error_impl(const char *restrict const func, const char *restrict con
   case DR_ERR_ISO_C:
     bufp = strerror(error->num);
     break;
-#if defined(_WIN32)
+#if defined(DR_OS_WINDOWS)
   case DR_ERR_WIN:
     // DR What happens on truncation? Is the trailing \0 added?
     if (dr_unlikely(FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM, NULL, error->num, 0, buf, sizeof(buf) - 1, NULL) == 0)) {
@@ -135,7 +135,7 @@ int dr_log_format(char *restrict const buf, size_t size, const struct dr_error *
   case DR_ERR_ISO_C:
     str = strerror(error->num);
     goto print;
-#if defined(_WIN32)
+#if defined(DR_OS_WINDOWS)
   case DR_ERR_WIN: {
     // DR What happens on truncation? Is the trailing \0 added?
     if (dr_unlikely(FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM, NULL, error->num, 0, buf, size - 1, NULL) == 0)) {

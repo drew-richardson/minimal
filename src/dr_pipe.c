@@ -5,7 +5,7 @@
 
 #include <errno.h>
 
-#if !defined(_WIN32)
+#if !defined(DR_OS_WINDOWS)
 
 #include <string.h>
 #include <sys/socket.h>

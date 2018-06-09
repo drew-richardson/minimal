@@ -6,7 +6,7 @@
 
 #include <errno.h>
 
-#if defined(_WIN32)
+#if defined(DR_OS_WINDOWS)
 
 #include <winsock2.h>
 
@@ -26,7 +26,7 @@
 #endif
 
 struct dr_result_void dr_socket_startup(void) {
-#if defined(_WIN32)
+#if defined(DR_OS_WINDOWS)
   WSADATA wsaData;
   if (dr_unlikely(WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)) {
     return DR_RESULT_WSAGETLASTERROR_VOID();
@@ -40,7 +40,7 @@ struct dr_result_handle dr_socket(int domain, int type, int protocol, unsigned i
     return DR_RESULT_ERRNUM(handle, DR_ERR_ISO_C, EINVAL);
   }
 
-#if defined(_WIN32)
+#if defined(DR_OS_WINDOWS)
   DWORD wsa_flags = 0;
   if ((flags & DR_NONBLOCK) != 0) {
     wsa_flags |= WSA_FLAG_OVERLAPPED;
@@ -66,7 +66,7 @@ struct dr_result_handle dr_socket(int domain, int type, int protocol, unsigned i
   }
 #endif
 
-#if !defined(_WIN32)
+#if !defined(DR_OS_WINDOWS)
 #if !defined(SOCK_NONBLOCK)
   if ((flags & DR_NONBLOCK) != 0) {
     const int sf = fcntl(result, F_GETFL); // DR Merge duplicate fcntl code?
@@ -92,7 +92,7 @@ struct dr_result_handle dr_socket(int domain, int type, int protocol, unsigned i
 
   if ((flags & DR_REUSEADDR) != 0) {
     const int on = 1;
-#if defined(_WIN32)
+#if defined(DR_OS_WINDOWS)
     if (dr_unlikely(setsockopt((SOCKET)result, SOL_SOCKET, SO_REUSEADDR, (const char *)&on, sizeof(on)) != 0)) {
       const int errnum = WSAGetLastError();
       dr_close(result);
@@ -135,7 +135,7 @@ struct dr_result_void dr_ioserver_sock_accept_handle(struct dr_ioserver_handle *
 
 #else
   const dr_handle_t result = accept(ihserver->fd, (struct sockaddr *)addr, addrlen);
-#if defined(_WIN32)
+#if defined(DR_OS_WINDOWS)
   if (dr_unlikely(result == INVALID_SOCKET)) {
     return DR_RESULT_WSAGETLASTERROR_VOID();
   }
@@ -145,7 +145,7 @@ struct dr_result_void dr_ioserver_sock_accept_handle(struct dr_ioserver_handle *
   }
 #endif
 
-#if !defined(_WIN32)
+#if !defined(DR_OS_WINDOWS)
   // DR How to set DR_NONBLOCK on windows?
   if ((flags & DR_NONBLOCK) != 0) {
     const int sf = fcntl(result, F_GETFL); // DR Merge duplicate fcntl code?
@@ -193,7 +193,7 @@ void dr_ioserver_sock_init(struct dr_ioserver_handle *restrict const ihserver, d
 
 struct dr_result_void dr_bind(dr_handle_t sockfd, const dr_sockaddr_t *restrict const addr, dr_socklen_t addrlen) {
   if (dr_unlikely(bind(sockfd, (const struct sockaddr *)addr, addrlen) != 0)) {
-#if defined(_WIN32)
+#if defined(DR_OS_WINDOWS)
     return DR_RESULT_WSAGETLASTERROR_VOID();
 #else
     return DR_RESULT_ERRNO_VOID();
@@ -204,7 +204,7 @@ struct dr_result_void dr_bind(dr_handle_t sockfd, const dr_sockaddr_t *restrict 
 
 struct dr_result_void dr_connect(dr_handle_t sockfd, const dr_sockaddr_t *restrict const addr, dr_socklen_t addrlen) {
   if (dr_unlikely(connect(sockfd, (const struct sockaddr *)addr, addrlen) != 0)) {
-#if defined(_WIN32)
+#if defined(DR_OS_WINDOWS)
     return DR_RESULT_WSAGETLASTERROR_VOID();
 #else
     return DR_RESULT_ERRNO_VOID();
@@ -215,7 +215,7 @@ struct dr_result_void dr_connect(dr_handle_t sockfd, const dr_sockaddr_t *restri
 
 struct dr_result_void dr_listen(dr_handle_t sockfd, int backlog) {
   if (dr_unlikely(listen(sockfd, backlog) != 0)) {
-#if defined(_WIN32)
+#if defined(DR_OS_WINDOWS)
     return DR_RESULT_WSAGETLASTERROR_VOID();
 #else
     return DR_RESULT_ERRNO_VOID();

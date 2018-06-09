@@ -16,7 +16,7 @@
 // 1MB
 static const uintptr_t dr_task_guard_size = 1U<<20;
 
-#if !defined(_WIN32) && defined(__x86_64__)
+#if !defined(DR_OS_WINDOWS) && defined(DR_MACHINE_X86_64)
 
 // Linux/BSD/macOS x86_64
 struct dr_task_frame {
@@ -35,7 +35,7 @@ static uintptr_t align_sp(const uintptr_t sp) {
   return ((sp - 8) & -64) + 8;
 }
 
-#elif defined(_WIN32) && (defined(__x86_64__) || defined(_M_X64))
+#elif defined(DR_OS_WINDOWS) && defined(DR_MACHINE_X86_64)
 
 // Windows x86_64
 struct dr_task_frame {
@@ -61,7 +61,7 @@ static uintptr_t align_sp(const uintptr_t sp) {
   return ((sp - 8) & -64) + 8;
 }
 
-#elif !defined(_WIN32) && defined(__i386)
+#elif !defined(DR_OS_WINDOWS) && defined(DR_MACHINE_I686)
 
 // Linux/BSD i686
 struct dr_task_frame {
@@ -78,7 +78,7 @@ static uintptr_t align_sp(const uintptr_t sp) {
   return ((sp - 4) & -64) + 4;
 }
 
-#elif defined(_WIN32) && (defined(__i386) || defined(_M_IX86))
+#elif defined(DR_OS_WINDOWS) && defined(DR_MACHINE_I686)
 
 // Windows i686
 struct dr_task_frame {
@@ -100,7 +100,7 @@ static uintptr_t align_sp(const uintptr_t sp) {
   return ((sp - 4) & -64) + 4;
 }
 
-#elif !defined(_WIN32) && defined(__aarch64__)
+#elif !defined(DR_OS_WINDOWS) && defined(DR_MACHINE_ARM64)
 
 // Linux arm64
 struct dr_task_frame {
@@ -124,7 +124,7 @@ static uintptr_t align_sp(const uintptr_t sp) {
   return sp & -64;
 }
 
-#elif !defined(_WIN32) && defined(__arm__)
+#elif !defined(DR_OS_WINDOWS) && defined(DR_MACHINE_ARM)
 
 // Linux arm
 struct dr_task_frame {
@@ -164,7 +164,7 @@ extern void dr_task_switch(struct dr_task *restrict const cur, struct dr_task *r
 DR_NORETURN
 extern void dr_task_destroy_on_do(void *restrict const arg, struct dr_task *restrict const next, void (*func)(void *restrict const));
 
-#if defined(_WIN32)
+#if defined(DR_OS_WINDOWS)
 
 #include <windows.h>
 
@@ -295,7 +295,7 @@ struct dr_result_void dr_task_create(struct dr_task *restrict const task, const 
     .arg = arg,
   };
   frame->PC = (uintptr_t)dr_task_start_do;
-#if defined(_WIN32)
+#if defined(DR_OS_WINDOWS)
   frame->exception_list = -1;
   frame->stack_base = sp;
   frame->stack_limit = stack_end;

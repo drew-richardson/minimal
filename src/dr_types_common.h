@@ -10,6 +10,7 @@
 
 #include "list.h"
 
+#include "dr_identify.h"
 #include "dr_version.h"
 #include "dr_compiler.h"
 
@@ -44,7 +45,7 @@ struct dr_result_void {
   bool private_is_err;
 };
 
-#if defined(_WIN32)
+#if defined(DR_OS_WINDOWS)
 typedef uintptr_t dr_handle_t;
 typedef int dr_socklen_t;
 #else
@@ -126,7 +127,7 @@ struct dr_ioserver_handle_vtbl {
   DR_WARN_UNUSED_RESULT struct dr_result_void (*accept_handle)(struct dr_ioserver_handle *restrict const ihserver, struct dr_io_handle *restrict const ih, size_t iolen, dr_sockaddr_t *restrict const addr, dr_socklen_t *restrict const addrlen, unsigned int flags);
 };
 
-#if defined(_WIN32)
+#if defined(DR_OS_WINDOWS)
 
 struct dr_equeue {
   dr_handle_t fd;
@@ -154,7 +155,7 @@ struct dr_equeue_client {
 struct dr_equeue_handle {
   struct list_head changed_clients;
   dr_handle_t fd;
-#if !defined(__sun)
+#if !defined(DR_OS_SOLARIS)
   unsigned int actual_events;
 #endif
   unsigned int events;

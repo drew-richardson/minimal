@@ -3,7 +3,7 @@
 
 #include "dr.h"
 
-#if defined(_WIN32)
+#if defined(DR_OS_WINDOWS)
 
 #include <windows.h>
 

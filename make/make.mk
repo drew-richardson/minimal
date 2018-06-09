@@ -77,6 +77,7 @@ include build/make/dr_config_h.mk
 
 build/make/target.mk: build/make/dr_config.mk $(PROJROOT)config/identify.c
 	$(E_GEN) \
+. $(PROJROOT)make/mkdirs.sh; \
 rm -f build/make_obj/target.mk.out && \
 ( \
     cd build/make_obj && \
@@ -92,8 +93,12 @@ rm -f build/make_obj/target.mk.out && \
 build/make/overrides.mk: build/make/compiler.mk build/make/target.mk
 	$(E_GEN). $(PROJROOT)make/overrides.sh > $@ 2> /dev/null || ( rm -f $@; false )
 
+build/include/dr_identify.h: build/make/target.mk
+	$(E_GEN). $(PROJROOT)make/dr_identify_h.sh > $@ 2> /dev/null || ( rm -f $@; false )
+
 build/make/ACCEPT_LDLIBS.mk: build/make/dr_config.mk $(PROJROOT)config/libs/accept.c
 	$(E_GEN) \
+. $(PROJROOT)make/mkdirs.sh; \
 if ! (cd build/make_obj && \
         $(CC) $(CSTD) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) ../../$(PROJROOT)config/libs/accept.c $(OUTPUT_L)ACCEPT_LDLIBS$(EEXT) || \
         echo error) 2>&1 | egrep -i 'error|warn' > /dev/null; then \
@@ -120,6 +125,7 @@ fi > $@ || \
 
 build/make/ACCEPTEX_LDLIBS.mk: build/make/dr_config.mk $(PROJROOT)config/libs/acceptex.c
 	$(E_GEN) \
+. $(PROJROOT)make/mkdirs.sh; \
 if ! (cd build/make_obj && \
         $(CC) $(CSTD) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) ../../$(PROJROOT)config/libs/acceptex.c $(OUTPUT_L)ACCEPTEX_LDLIBS$(EEXT) || \
         echo error) 2>&1 | egrep -i 'error|warn' > /dev/null; then \
@@ -143,7 +149,7 @@ build/make/deps.mk: force
 
 build/src/dr_source.c: force
 	$(E_GEN) \
-. make/dr_source.sh > $@.new; \
+. $(PROJROOT)make/dr_source.sh > $@.new; \
 if ! diff $@.new $@ > /dev/null 2>&1; then \
     mv $@.new $@; \
 fi
@@ -163,6 +169,7 @@ build/include/dr_version.h:
 
 build/include/dr_types.h: build/include/dr_config.h build/include/dr_version.h $(PROJROOT)config/dr_util.h $(PROJROOT)src/dr_compiler.h $(PROJROOT)src/dr_types_common.h $(PROJROOT)src/dr_types_impl.h $(PROJROOT)src/list.h $(PROJROOT)config/dr_types.c
 	$(E_GEN) \
+. $(PROJROOT)make/mkdirs.sh; \
 rm -f build/make_obj/dr_types.h.out && \
 ( \
     cd build/make_obj && \
@@ -186,7 +193,7 @@ rm -f build/make_obj/dr_types.h.out && \
 
 #	@echo MAKECMDGOALS = $(MAKECMDGOALS)
 #	@echo .TARGETS = $(.TARGETS)
-deps: build/make/target.mk build/make/overrides.mk build/make/cppflags.mk build/make/cflags.mk build/make/ACCEPT_LDLIBS.mk build/make/ACCEPTEX_LDLIBS.mk build/make/deps.mk build/include/dr_config.h build/include/dr_version.h build/include/dr_types.h build/src/dr_source.c
+deps: build/make/target.mk build/make/overrides.mk build/include/dr_identify.h build/make/cppflags.mk build/make/cflags.mk build/make/ACCEPT_LDLIBS.mk build/make/ACCEPTEX_LDLIBS.mk build/make/deps.mk build/include/dr_config.h build/include/dr_version.h build/include/dr_types.h build/src/dr_source.c
 	$(Q)$(SHELL) $(PROJROOT)make/mkdirs.sh
 
 clean:
@@ -207,7 +214,7 @@ dist: minimal.tar.gz
 
 minimal.tar.gz: force
 	$(E_GEN) \
-. make/dr_source.sh > /dev/null; \
+. $(PROJROOT)make/dr_source.sh > /dev/null; \
 if [ "${VERSION_PATCH}" = "0" ]; then \
     VERSION=${VERSION_MAJOR}.${VERSION_MINOR}${VERSION_EXTRA}; \
 else \

@@ -16,7 +16,7 @@ DR_WARN_UNUSED_RESULT struct dr_result_void dr_ioserver_sock_accept_handle(struc
 
 void dr_io_handle_close(struct dr_io *restrict const io);
 
-#if defined(_WIN32)
+#if defined(DR_OS_WINDOWS)
 
 DR_WARN_UNUSED_RESULT struct dr_result_size dr_io_handle_read_ol(struct dr_io_handle *restrict const ih, void *restrict const buf, size_t count, dr_overlapped_t *restrict const ol);
 DR_WARN_UNUSED_RESULT struct dr_result_size dr_io_handle_write_ol(struct dr_io_handle *restrict const ih, const void *restrict const buf, size_t count, dr_overlapped_t *restrict const ol);

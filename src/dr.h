@@ -63,7 +63,7 @@ void dr_min_mismatch(int lhs, int rhs);
 
 enum {
   DR_ERR_ISO_C = 1,
-#if defined(_WIN32)
+#if defined(DR_OS_WINDOWS)
   DR_ERR_WIN   = 2,
 #endif
   DR_ERR_GAI   = 3,

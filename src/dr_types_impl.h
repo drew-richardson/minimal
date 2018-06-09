@@ -11,13 +11,13 @@
 #include "dr_version.h"
 #include "dr_types_common.h"
 
-#if defined(__linux__) || defined(DR_HAS_KEVENT) || defined(__sun)
+#if defined(DR_OS_LINUX) || defined(DR_HAS_KEVENT) || defined(DR_OS_SOLARIS)
 
 #include <sys/socket.h>
 
-#if defined(__linux__) || defined(DR_HAS_KEVENT)
+#if defined(DR_OS_LINUX) || defined(DR_HAS_KEVENT)
 
-#if defined(__linux__)
+#if defined(DR_OS_LINUX)
 
 #include <sys/epoll.h>
 
@@ -33,7 +33,7 @@ typedef struct kevent dr_event_impl_t;
 
 #endif
 
-#elif defined(__sun)
+#elif defined(DR_OS_SOLARIS)
 
 #include <port.h>
 
@@ -43,7 +43,7 @@ typedef port_event_t dr_event_impl_t;
 
 typedef uint8_t dr_overlapped_impl_t;
 
-#elif defined(_WIN32)
+#elif defined(DR_OS_WINDOWS)
 
 #include <winsock2.h>
 

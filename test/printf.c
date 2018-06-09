@@ -112,11 +112,11 @@
 #error Unrecognized UCHAR_MAX
 #endif
 
-#if CHAR_MAX == DR_INT8_MAX
-#define DR_CHAR_MIN_DEC DR_INT8_MIN_DEC
-#define DR_CHAR_MAX_DEC DR_INT8_MAX_DEC
+#if SCHAR_MAX == DR_INT8_MAX
+#define DR_SCHAR_MIN_DEC DR_INT8_MIN_DEC
+#define DR_SCHAR_MAX_DEC DR_INT8_MAX_DEC
 #else
-#error Unrecognized CHAR_MAX
+#error Unrecognized SCHAR_MAX
 #endif
 
 #if SIZE_MAX == DR_UINT64_MAX
@@ -474,25 +474,25 @@ static void test_snprintf(void) {
   }
 
   {
-    const struct dr_result_size r = dr_snprintf(buf, sizeof(buf), "%hhd", (signed char)CHAR_MIN);
+    const struct dr_result_size r = dr_snprintf(buf, sizeof(buf), "%hhd", (signed char)SCHAR_MIN);
     dr_assert(DR_IS_RESULT_OK(r));
-    dr_assert(strcmp(buf, DR_CHAR_MIN_DEC) == 0);
+    dr_assert(strcmp(buf, DR_SCHAR_MIN_DEC) == 0);
   }
   {
-    const struct dr_result_size r = dr_snprintf(buf, sizeof(buf), "%hhd", (signed char)CHAR_MAX);
+    const struct dr_result_size r = dr_snprintf(buf, sizeof(buf), "%hhd", (signed char)SCHAR_MAX);
     dr_assert(DR_IS_RESULT_OK(r));
-    dr_assert(strcmp(buf, DR_CHAR_MAX_DEC) == 0);
+    dr_assert(strcmp(buf, DR_SCHAR_MAX_DEC) == 0);
   }
 
   {
-    const struct dr_result_size r = dr_snprintf(buf, sizeof(buf), "%hhi", (signed char)CHAR_MIN);
+    const struct dr_result_size r = dr_snprintf(buf, sizeof(buf), "%hhi", (signed char)SCHAR_MIN);
     dr_assert(DR_IS_RESULT_OK(r));
-    dr_assert(strcmp(buf, DR_CHAR_MIN_DEC) == 0);
+    dr_assert(strcmp(buf, DR_SCHAR_MIN_DEC) == 0);
   }
   {
-    const struct dr_result_size r = dr_snprintf(buf, sizeof(buf), "%hhi", (signed char)CHAR_MAX);
+    const struct dr_result_size r = dr_snprintf(buf, sizeof(buf), "%hhi", (signed char)SCHAR_MAX);
     dr_assert(DR_IS_RESULT_OK(r));
-    dr_assert(strcmp(buf, DR_CHAR_MAX_DEC) == 0);
+    dr_assert(strcmp(buf, DR_SCHAR_MAX_DEC) == 0);
   }
 
   {

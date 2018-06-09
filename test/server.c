@@ -179,7 +179,7 @@ static void server_func(void *restrict const arg) {
 }
 
 /*
-#if defined(_WIN32)
+#if defined(DR_OS_WINDOWS)
 
 #include <windows.h>
 

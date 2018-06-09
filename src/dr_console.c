@@ -25,7 +25,7 @@ static void dr_flush_console(void) {
   }
 }
 
-#if defined(_WIN32)
+#if defined(DR_OS_WINDOWS)
 
 #include <windows.h>
 
