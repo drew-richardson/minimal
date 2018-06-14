@@ -3,19 +3,20 @@
 
 flag_rule() {
     # DR This is crummy
-    CLEAN=$(echo $2 | tr '[:lower:]' '[:upper:]' | tr -d ',-/=')
-    FILES="${FILES} build/make/$1_${CLEAN}.mk"
+    UPPER=$(echo $2 | tr '[:lower:]' '[:upper:]' | sed 's/[&,/=-]//g')
+    SPLIT=$(echo $2 | sed 's/&/ /g')
+    FILES="${FILES} build/make/$1_${UPPER}.mk"
     printf "%s\n" \
-	   "build/make/$1_${CLEAN}.mk: build/make/dr_config.mk \$(PROJROOT)config/checks/DR_ALWAYS_SUCCEEDS.c \$(PROJROOT)config/checks/DR_ALWAYS_SUCCEEDS\$(AEXT)" \
+	   "build/make/$1_${UPPER}.mk: build/make/dr_config.mk \$(PROJROOT)config/checks/DR_ALWAYS_SUCCEEDS.c \$(PROJROOT)config/checks/DR_ALWAYS_SUCCEEDS\$(AEXT)" \
 	   "	\$(E_GEN) \\" \
-	   "if ! (cp \$(PROJROOT)config/checks/DR_ALWAYS_SUCCEEDS.c build/make_obj/DR_ALWAYS_SUCCEEDS.${CLEAN}.c && \\" \
+	   "if ! (cp \$(PROJROOT)config/checks/DR_ALWAYS_SUCCEEDS.c build/make_obj/DR_ALWAYS_SUCCEEDS.${UPPER}.c && \\" \
 	   "        cd build/make_obj && \\" \
-	   "        \$(CC) \$(CSTD) $2 \$(CPPFLAGS) \$(CFLAGS) \$(LDFLAGS) DR_ALWAYS_SUCCEEDS.${CLEAN}.c \$(OUTPUT_L)$1_${CLEAN}\$(EEXT) && \\" \
-	   "        \$(CCAS) $2 \$(CPPFLAGS) \$(OUTPUT_C)$1_${CLEAN}\$(OEXT) ../../\$(PROJROOT)config/checks/DR_ALWAYS_SUCCEEDS\$(AEXT) || \\" \
+	   "        \$(CC) \$(CSTD) ${SPLIT} \$(CPPFLAGS) \$(CFLAGS) \$(LDFLAGS) DR_ALWAYS_SUCCEEDS.${UPPER}.c \$(OUTPUT_L)$1_${UPPER}\$(EEXT) && \\" \
+	   "        \$(CCAS) ${SPLIT} \$(CPPFLAGS) \$(OUTPUT_C)$1_${UPPER}\$(OEXT) ../../\$(PROJROOT)config/checks/DR_ALWAYS_SUCCEEDS\$(AEXT) || \\" \
 	   "        echo error) 2>&1 | egrep -i 'error|warn' > /dev/null; then \\" \
-	   "    echo $1_${CLEAN}=$2; \\" \
+	   "    echo $1_${UPPER}=${SPLIT}; \\" \
 	   "else \\" \
-	   "    echo $1_${CLEAN}=; \\" \
+	   "    echo $1_${UPPER}=; \\" \
 	   "fi > \$@" \
 	   ""
 }
@@ -33,7 +34,7 @@ printf "%s\n" \
        "# Copyright (c) 2018 Drew Richardson <drewrichardson@gmail.com>" \
        ""
 
-CPPRULES="-Wundef -MD"
+CPPRULES="-Wundef -MD&-MP"
 FILES=
 for i in ${CPPRULES}; do
     cppflag_rule $i
