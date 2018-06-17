@@ -25,10 +25,13 @@ static struct dr_group dr_group = {
   .name.buf = dr_group_name,
 };
 
-static struct dr_user dr_user = {
-  .name.len = sizeof(dr_user_name),
-  .name.buf = dr_user_name,
-  .group_count = 1,
+static struct {
+  struct dr_user user;
+  struct dr_group *restrict groups[1];
+} dr_user = {
+  .user.name.len = sizeof(dr_user_name),
+  .user.name.buf = dr_user_name,
+  .user.group_count = 1,
   .groups = { &dr_group },
 };
 
@@ -56,21 +59,29 @@ static struct dr_file dr_file = {
   .length = 0,
   .name.len = sizeof(dr_file_name),
   .name.buf = dr_file_name,
-  .uid = &dr_user,
+  .uid = &dr_user.user,
   .gid = &dr_group,
-  .muid = &dr_user,
+  .muid = &dr_user.user,
   .vtbl = &dr_file_vtbl,
 };
 
-static struct dr_dir dr_root;
+struct dr_root {
+  struct dr_dir dir;
+  struct dr_file *restrict files[1];
+};
+
+static struct dr_root dr_root;
 
 static const struct dr_file_vtbl dr_dir_vtbl = {
   .read = dr_dir_read,
   .write = dr_9p_write_enosys,
 };
 
-static struct dr_dir dr_dir = {
-  .file = {
+static struct {
+  struct dr_dir dir;
+  struct dr_file *restrict files[1];
+} dr_dir = {
+  .dir.file = {
     .vers = 0,
     .mode = DR_DIR | 0777,
     .atime = DR_TIME,
@@ -78,18 +89,18 @@ static struct dr_dir dr_dir = {
     .length = 0,
     .name.len = sizeof(dr_dir_name),
     .name.buf = dr_dir_name,
-    .uid = &dr_user,
+    .uid = &dr_user.user,
     .gid = &dr_group,
-    .muid = &dr_user,
+    .muid = &dr_user.user,
     .vtbl = &dr_dir_vtbl,
   },
-  .parent = &dr_root,
-  .entry_count = 1,
-  .entries = { &dr_file },
+  .dir.parent = &dr_root.dir,
+  .dir.entry_count = 1,
+  .files = { &dr_file },
 };
 
-static struct dr_dir dr_root = {
-  .file = {
+static struct dr_root dr_root = {
+  .dir.file = {
     .vers = 0,
     .mode = DR_DIR | 0777,
     .atime = DR_TIME,
@@ -97,14 +108,14 @@ static struct dr_dir dr_root = {
     .length = 0,
     .name.len = sizeof(dr_root_name),
     .name.buf = dr_root_name,
-    .uid = &dr_user,
+    .uid = &dr_user.user,
     .gid = &dr_group,
-    .muid = &dr_user,
+    .muid = &dr_user.user,
     .vtbl = &dr_dir_vtbl,
   },
-  .parent = &dr_root,
-  .entry_count = 1,
-  .entries = { &dr_dir.file },
+  .dir.parent = &dr_root.dir,
+  .dir.entry_count = 1,
+  .files = { &dr_dir.dir.file },
 };
 
 struct dr_fid {
@@ -244,7 +255,7 @@ static bool dr_handle_request(struct list_head *restrict const fids, const uint8
       dr_log("Fid already in use");
       return false;
     }
-    const struct dr_fid *restrict const f = dr_fid_init(fids, dr_str_eq(&uname, &dr_user.name) ? &dr_user : &dr_nobody, &dr_root.file, fid);
+    const struct dr_fid *restrict const f = dr_fid_init(fids, dr_str_eq(&uname, &dr_user.user.name) ? &dr_user.user : &dr_nobody, &dr_root.dir.file, fid);
     if (dr_unlikely(f == NULL)) {
       dr_log("dr_fid_init failed");
       return false;

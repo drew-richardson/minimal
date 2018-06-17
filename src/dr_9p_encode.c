@@ -487,8 +487,9 @@ struct dr_result_uint32 dr_dir_read(const struct dr_fd *restrict const fd, const
   const struct dr_dir *restrict const dir = container_of_const(fd->file, const struct dr_dir, file);
   uint32_t pos = 0;
   // DR Specific to this dr_dir impl
+  struct dr_file *restrict const *restrict const files = dr_dir_get_files(dir);
   for (uint_fast32_t i = 0; i < dir->entry_count; ++i) {
-    const struct dr_file *restrict const f = dir->entries[i];
+    const struct dr_file *restrict const f = files[i];
     const uint32_t written = dr_9p_encode_stat(buf + pos, count - pos, f);
     if (dr_unlikely(written == DR_FAIL_UINT32)) {
       // Buffer is too small

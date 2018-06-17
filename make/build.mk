@@ -24,6 +24,7 @@ CFLAGS_ALL = \
   $(CFLAG_WDOUBLEPROMOTION) \
   $(CFLAG_WDUPLICATEDBRANCHES) \
   $(CFLAG_WDUPLICATEDCOND) \
+  $(CFLAG_WFAM) \
   $(CFLAG_WIMPLICITFUNCTIONDECLARATION) \
   $(CFLAG_WJUMPMISSESINIT) \
   $(CFLAG_WLOGICALOP) \
@@ -163,6 +164,8 @@ build/obj/task$(OEXT): build/make/dr_config.mk $(PROJROOT)test/task.c
 	build/obj/dr_io_buf$(OEXT) \
 	build/obj/dr_io_print$(OEXT) \
 	build/obj/dr_log$(OEXT) \
+	build/obj/dr_str$(OEXT) \
+	build/obj/dr_vfs$(OEXT) \
 	build/obj/9p_code$(OEXT)
 build/dist/9p_code$(EEXT): build/make/dr_config.mk $(9p_code_deps)
 	$(E_CCLD)$(CC) $(FLAGS_L) $(9p_code_deps) $(ACCEPT_LDLIBS) $(LDLIBS) $(OUTPUT_L)$@
@@ -194,7 +197,9 @@ build/dist/9p_fuzz$(EEXT): build/make/dr_config.mk $(9p_fuzz_deps)
 	build/obj/dr_pipe$(OEXT) \
 	build/obj/dr_socket$(OEXT) \
 	build/obj/dr_source$(OEXT) \
+	build/obj/dr_str$(OEXT) \
 	build/obj/dr_version$(OEXT) \
+	build/obj/dr_vfs$(OEXT) \
 	build/obj/9p_client$(OEXT)
 build/dist/9p_client$(EEXT): build/make/dr_config.mk  $(9p_client_deps)
 	$(E_CCLD)$(CC) $(FLAGS_L)  $(9p_client_deps) $(ACCEPT_LDLIBS) $(LDLIBS) $(OUTPUT_L)$@

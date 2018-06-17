@@ -302,6 +302,8 @@ enum {
   DR_OTRUNC = 0x10,
 };
 
+DR_WARN_UNUSED_RESULT const struct dr_group *restrict const *dr_user_get_groups(const struct dr_user *restrict const user);
+DR_WARN_UNUSED_RESULT struct dr_file *restrict const *dr_dir_get_files(const struct dr_dir *restrict const dir);
 DR_WARN_UNUSED_RESULT struct dr_result_file dr_vfs_walk(const struct dr_user *restrict const user, const struct dr_file *restrict const file, const struct dr_str *restrict const name);
 DR_WARN_UNUSED_RESULT struct dr_result_fd dr_vfs_open(const struct dr_user *restrict const user, struct dr_file *restrict const file, const uint8_t mode);
 DR_WARN_UNUSED_RESULT struct dr_result_uint32 dr_vfs_read(const struct dr_fd *restrict const fd, const uint64_t offset, const uint32_t count, void *restrict const buf);

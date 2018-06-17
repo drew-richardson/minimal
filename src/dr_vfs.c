@@ -6,9 +6,18 @@
 #include <errno.h>
 #include <stdlib.h>
 
+DR_WARN_UNUSED_RESULT const struct dr_group *restrict const *dr_user_get_groups(const struct dr_user *restrict const user) {
+  return (const struct dr_group **)((char *)user + sizeof(*user));
+}
+
+DR_WARN_UNUSED_RESULT struct dr_file *restrict const *dr_dir_get_files(const struct dr_dir *restrict const dir) {
+  return (struct dr_file **)((char *)dir + sizeof(*dir));
+}
+
 DR_WARN_UNUSED_RESULT static bool dr_is_user_member_of_group(const struct dr_user *restrict const user, const struct dr_group *restrict const group) {
+  const struct dr_group *restrict const *restrict const groups = dr_user_get_groups(user);
   for (uint_fast32_t i = 0; i < user->group_count; ++i) {
-    if (user->groups[i] == group) {
+    if (groups[i] == group) {
       return true;
     }
   }
@@ -50,9 +59,10 @@ struct dr_result_file dr_vfs_walk(const struct dr_user *restrict const user, con
     return DR_RESULT_ERRNUM(file, DR_ERR_ISO_C, EACCES);
   }
   // DR add to vtbl to allow different impls
+  struct dr_file *restrict const *restrict const files = dr_dir_get_files(dir);
   for (uint_fast32_t i = 0; i < dir->entry_count; ++i) {
-    if (dr_str_eq(&dir->entries[i]->name, name)) {
-      return DR_RESULT_OK(file, dir->entries[i]);
+    if (dr_str_eq(&files[i]->name, name)) {
+      return DR_RESULT_OK(file, files[i]);
     }
   }
   if (name->len == 2 && name->buf[0] == '.' && name->buf[1] == '.') {

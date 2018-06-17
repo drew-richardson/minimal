@@ -221,7 +221,6 @@ struct dr_group {
 struct dr_user {
   struct dr_str name;
   uint16_t group_count;
-  struct dr_group *restrict groups[];
 };
 
 struct dr_file_vtbl;
@@ -243,7 +242,6 @@ struct dr_dir {
   struct dr_file file;
   struct dr_dir *restrict parent;
   uint16_t entry_count;
-  struct dr_file *restrict entries[];
 };
 
 struct dr_fd {
