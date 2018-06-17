@@ -410,3 +410,5 @@ struct dr_result_size dr_vfprintf(struct dr_io *restrict const io, const char *r
 	}
 	return DR_RESULT_OK(size, ret);
 }
+
+#undef FILE

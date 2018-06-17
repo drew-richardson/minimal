@@ -555,7 +555,7 @@ DR_WARN_UNUSED_RESULT static bool parse(const char *restrict input, int *restric
   return false;
 }
 
-DR_WARN_UNUSED_RESULT static bool ls(struct dr_io_handle *restrict const ih, const uint32_t msize, int argc, char *restrict *restrict argv) {
+DR_WARN_UNUSED_RESULT static bool cmd_ls(struct dr_io_handle *restrict const ih, const uint32_t msize, int argc, char *restrict *restrict argv) {
   uint8_t rbuf[DR_9P_BUF_SIZE];
   if (argc == 1) {
     ++argc;
@@ -605,7 +605,7 @@ DR_WARN_UNUSED_RESULT static bool ls(struct dr_io_handle *restrict const ih, con
   return true;
 }
 
-DR_WARN_UNUSED_RESULT static bool cat(struct dr_io_handle *restrict const ih, const uint32_t msize, int argc, char *restrict *restrict argv) {
+DR_WARN_UNUSED_RESULT static bool cmd_cat(struct dr_io_handle *restrict const ih, const uint32_t msize, int argc, char *restrict *restrict argv) {
   bool result = false;
   uint8_t rbuf[DR_9P_BUF_SIZE];
   if (argc != 2) {
@@ -646,7 +646,7 @@ DR_WARN_UNUSED_RESULT static bool cat(struct dr_io_handle *restrict const ih, co
   return dr_9p_clunk(ih, rbuf, msize, 1) || result;
 }
 
-DR_WARN_UNUSED_RESULT static bool write(struct dr_io_handle *restrict const ih, const uint32_t msize, int argc, char *restrict *restrict argv) {
+DR_WARN_UNUSED_RESULT static bool cmd_write(struct dr_io_handle *restrict const ih, const uint32_t msize, int argc, char *restrict *restrict argv) {
   bool result = false;
   uint8_t rbuf[DR_9P_BUF_SIZE];
   if (argc != 3) {
@@ -686,7 +686,7 @@ DR_WARN_UNUSED_RESULT static bool write(struct dr_io_handle *restrict const ih, 
   return dr_9p_clunk(ih, rbuf, msize, 1) || result;
 }
 
-DR_WARN_UNUSED_RESULT static bool rm(struct dr_io_handle *restrict const ih, const uint32_t msize, int argc, char *restrict *restrict argv) {
+DR_WARN_UNUSED_RESULT static bool cmd_rm(struct dr_io_handle *restrict const ih, const uint32_t msize, int argc, char *restrict *restrict argv) {
   uint8_t rbuf[DR_9P_BUF_SIZE];
   if (argc != 2) {
     dr_log("Usage: rm <file>"); // DR ...
@@ -698,7 +698,7 @@ DR_WARN_UNUSED_RESULT static bool rm(struct dr_io_handle *restrict const ih, con
   return dr_9p_remove(ih, rbuf, msize, 1);
 }
 
-DR_WARN_UNUSED_RESULT static bool stat(struct dr_io_handle *restrict const ih, const uint32_t msize, int argc, char *restrict *restrict argv) {
+DR_WARN_UNUSED_RESULT static bool cmd_stat(struct dr_io_handle *restrict const ih, const uint32_t msize, int argc, char *restrict *restrict argv) {
   bool result = false;
   uint8_t rbuf[DR_9P_BUF_SIZE];
   if (argc != 2) {
@@ -753,7 +753,7 @@ DR_WARN_UNUSED_RESULT static bool do_create(struct dr_io_handle *restrict const 
   return dr_9p_clunk(ih, rbuf, msize, 1) || result;
 }
 
-DR_WARN_UNUSED_RESULT static bool create(struct dr_io_handle *restrict const ih, const uint32_t msize, int argc, char *restrict *restrict argv) {
+DR_WARN_UNUSED_RESULT static bool cmd_create(struct dr_io_handle *restrict const ih, const uint32_t msize, int argc, char *restrict *restrict argv) {
   if (argc != 3) {
     dr_log("Usage: create <name> <perm>"); // DR ...
     return false;
@@ -761,7 +761,7 @@ DR_WARN_UNUSED_RESULT static bool create(struct dr_io_handle *restrict const ih,
   return do_create(ih, msize, argv[1], strtol(argv[2], NULL, 0));
 }
 
-DR_WARN_UNUSED_RESULT static bool mkdir(struct dr_io_handle *restrict const ih, const uint32_t msize, int argc, char *restrict *restrict argv) {
+DR_WARN_UNUSED_RESULT static bool cmd_mkdir(struct dr_io_handle *restrict const ih, const uint32_t msize, int argc, char *restrict *restrict argv) {
   if (argc != 3) {
     dr_log("Usage: mkdir <name> <perm>"); // DR ...
     return false;
@@ -769,7 +769,7 @@ DR_WARN_UNUSED_RESULT static bool mkdir(struct dr_io_handle *restrict const ih, 
   return do_create(ih, msize, argv[1], DR_DIR | strtol(argv[2], NULL, 0));
 }
 
-DR_WARN_UNUSED_RESULT static bool chmod(struct dr_io_handle *restrict const ih, const uint32_t msize, int argc, char *restrict *restrict argv) {
+DR_WARN_UNUSED_RESULT static bool cmd_chmod(struct dr_io_handle *restrict const ih, const uint32_t msize, int argc, char *restrict *restrict argv) {
   bool result = false;
   uint8_t rbuf[DR_9P_BUF_SIZE];
   if (argc != 3) {
@@ -798,25 +798,25 @@ DR_WARN_UNUSED_RESULT static bool chmod(struct dr_io_handle *restrict const ih, 
   return dr_9p_clunk(ih, rbuf, msize, 1) || result;
 }
 
-DR_WARN_UNUSED_RESULT static bool sh(struct dr_io_handle *restrict const ih, const uint32_t msize, int ignored_argc, char *restrict *restrict ignored_argv);
-DR_WARN_UNUSED_RESULT static bool help(struct dr_io_handle *restrict const ih, const uint32_t msize, int argc, char *restrict *restrict argv);
+DR_WARN_UNUSED_RESULT static bool cmd_sh(struct dr_io_handle *restrict const ih, const uint32_t msize, int ignored_argc, char *restrict *restrict ignored_argv);
+DR_WARN_UNUSED_RESULT static bool cmd_help(struct dr_io_handle *restrict const ih, const uint32_t msize, int argc, char *restrict *restrict argv);
 
 static const struct client_app client_apps[] = {
-  { ls, "ls", "<directories>" },
-  { cat, "cat", "<file>" },
-  { write, "write", "<data> <file>" },
-  { rm, "rm", "<name>" },
-  { rm, "rmdir", "<name>" },
-  { stat, "stat", "<name>" },
-  { create, "create", "<name> <perm>" },
-  { mkdir, "mkdir", "<name> <perm>" },
-  { chmod, "chmod", "<perm> <name>" },
-  { sh, "sh", "" },
-  { help, "help", ""},
+  { cmd_ls, "ls", "<directories>" },
+  { cmd_cat, "cat", "<file>" },
+  { cmd_write, "write", "<data> <file>" },
+  { cmd_rm, "rm", "<name>" },
+  { cmd_rm, "rmdir", "<name>" },
+  { cmd_stat, "stat", "<name>" },
+  { cmd_create, "create", "<name> <perm>" },
+  { cmd_mkdir, "mkdir", "<name> <perm>" },
+  { cmd_chmod, "chmod", "<perm> <name>" },
+  { cmd_sh, "sh", "" },
+  { cmd_help, "help", ""},
   // DR wstat
 };
 
-bool sh(struct dr_io_handle *restrict const ih, const uint32_t msize, int ignored_argc, char *restrict *restrict ignored_argv) {
+bool cmd_sh(struct dr_io_handle *restrict const ih, const uint32_t msize, int ignored_argc, char *restrict *restrict ignored_argv) {
   (void)ignored_argc;
   (void)ignored_argv;
   char buf[1<<8];
@@ -933,7 +933,7 @@ bool sh(struct dr_io_handle *restrict const ih, const uint32_t msize, int ignore
   return true;
 }
 
-bool help(struct dr_io_handle *restrict const ih, const uint32_t msize, int argc, char *restrict *restrict argv) {
+bool cmd_help(struct dr_io_handle *restrict const ih, const uint32_t msize, int argc, char *restrict *restrict argv) {
   (void)ih;
   (void)msize;
   (void)argc;
@@ -965,7 +965,7 @@ DR_WARN_UNUSED_RESULT static int print_usage(void) {
 	 "  -h, --help     Print this help\n"
 	 "\n"
 	 "Commands:");
-  if (help(0, 0, 0, NULL)) {
+  if (cmd_help(0, 0, 0, NULL)) {
   }
   return -1;
 }

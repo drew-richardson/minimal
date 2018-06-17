@@ -236,3 +236,18 @@ int getopt_long(int argc, char **argv, const char *optstring, const struct optio
 {
 	return __getopt_long(argc, argv, optstring, longopts, idx, 0);
 }
+
+#undef flockfile
+#undef funlockfile
+#undef required_argument
+#undef optarg
+#undef optind
+#undef opterr
+#undef optopt
+#undef __optpos
+#undef optpos
+#undef __optreset
+#undef option
+#undef getopt
+#undef getopt_long
+#undef __lctrans_cur

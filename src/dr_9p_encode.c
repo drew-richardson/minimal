@@ -5,8 +5,8 @@
 
 #include <string.h>
 
-static const uint32_t header_size = sizeof(uint32_t) + sizeof(uint8_t) + sizeof(uint16_t);
-static const uint32_t qid_size = sizeof(uint8_t) + sizeof(uint32_t) + sizeof(uint64_t);
+static const uint32_t encode_header_size = sizeof(uint32_t) + sizeof(uint8_t) + sizeof(uint16_t);
+static const uint32_t encode_qid_size = sizeof(uint8_t) + sizeof(uint32_t) + sizeof(uint64_t);
 
 #define dr_encode_uintn(buf, val) \
   do { \
@@ -38,7 +38,7 @@ static void dr_9p_encode_qid(uint8_t *restrict const buf, const struct dr_file *
 }
 
 DR_WARN_UNUSED_RESULT static uint32_t dr_9p_encode_stat(uint8_t *restrict const buf, const uint32_t size, const struct dr_file *restrict const f) {
-  const uint32_t ssize = sizeof(uint16_t) + sizeof(uint32_t) + qid_size + sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint64_t) + sizeof(uint16_t) + f->name.len + sizeof(uint16_t) + f->uid->name.len + sizeof(uint16_t) + f->gid->name.len + sizeof(uint16_t) + f->muid->name.len;
+  const uint32_t ssize = sizeof(uint16_t) + sizeof(uint32_t) + encode_qid_size + sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint64_t) + sizeof(uint16_t) + f->name.len + sizeof(uint16_t) + f->uid->name.len + sizeof(uint16_t) + f->gid->name.len + sizeof(uint16_t) + f->muid->name.len;
   uint32_t spos = 0;
   if (dr_unlikely(size < spos + sizeof(uint16_t) + ssize)) {
     return DR_FAIL_UINT32;
@@ -50,7 +50,7 @@ DR_WARN_UNUSED_RESULT static uint32_t dr_9p_encode_stat(uint8_t *restrict const 
   dr_encode_uint32(buf + spos, 0);
   spos += sizeof(uint32_t);
   dr_9p_encode_qid(buf + spos, f);
-  spos += qid_size;
+  spos += encode_qid_size;
   dr_encode_uint32(buf + spos, f->mode);
   spos += sizeof(uint32_t);
   dr_encode_uint32(buf + spos, f->atime/DR_NS_PER_S);
@@ -93,14 +93,14 @@ static bool dr_9p_encode_finish(uint8_t *restrict const buf, const uint32_t size
 
 DR_WARN_UNUSED_RESULT static bool dr_9p_encode_uint32_str(const uint8_t type, uint8_t *restrict const buf, const uint32_t size, uint32_t *restrict const pos, const uint16_t tag, const uint32_t arg0, const struct dr_str *restrict const arg1) {
   const uint16_t arg1_len = arg1->len;
-  if (dr_unlikely(size < header_size + sizeof(uint32_t) + sizeof(uint16_t) + arg1_len)) {
+  if (dr_unlikely(size < encode_header_size + sizeof(uint32_t) + sizeof(uint16_t) + arg1_len)) {
     return false;
   }
   dr_9p_encode_header(buf, type, tag);
-  dr_encode_uint32(buf + header_size, arg0);
-  dr_encode_uint16(buf + header_size + sizeof(uint32_t), arg1_len);
-  memcpy(buf + header_size + sizeof(uint32_t) + sizeof(uint16_t), arg1->buf, arg1_len);
-  return dr_9p_encode_finish(buf, header_size + sizeof(uint32_t) + sizeof(uint16_t) + arg1_len, pos);
+  dr_encode_uint32(buf + encode_header_size, arg0);
+  dr_encode_uint16(buf + encode_header_size + sizeof(uint32_t), arg1_len);
+  memcpy(buf + encode_header_size + sizeof(uint32_t) + sizeof(uint16_t), arg1->buf, arg1_len);
+  return dr_9p_encode_finish(buf, encode_header_size + sizeof(uint32_t) + sizeof(uint16_t) + arg1_len, pos);
 }
 
 bool dr_9p_encode_Tversion(uint8_t *restrict const buf, const uint32_t size, uint32_t *restrict const pos, const uint16_t tag, const uint32_t msize, const struct dr_str *restrict const version) {
@@ -119,7 +119,7 @@ bool dr_9p_encode_Rversion(uint8_t *restrict const buf, const uint32_t size, uin
 // size[4] Rerror tag[2] ename[s]
 
 void dr_9p_encode_Rerror(uint8_t *restrict const buf, const uint32_t size, uint32_t *restrict const pos, const uint16_t tag, const struct dr_str *restrict const ename) {
-  const uint32_t ename_pos = header_size + sizeof(uint16_t);
+  const uint32_t ename_pos = encode_header_size + sizeof(uint16_t);
   dr_assert(size >= ename_pos);
   dr_9p_encode_header(buf, DR_RERROR, tag);
   const uint16_t available = size - ename_pos;
@@ -128,18 +128,18 @@ void dr_9p_encode_Rerror(uint8_t *restrict const buf, const uint32_t size, uint3
   if (dr_likely(written > 0)) {
     memcpy(buf + ename_pos, ename->buf, written);
   }
-  dr_encode_uint16(buf + header_size, written);
+  dr_encode_uint16(buf + encode_header_size, written);
   dr_9p_encode_finish(buf, ename_pos + written, pos);
 }
 
 void dr_9p_encode_Rerror_err(uint8_t *restrict const buf, const uint32_t size, uint32_t *restrict const pos, const uint16_t tag, const struct dr_error *restrict const error) {
-  const uint32_t ename_pos = header_size + sizeof(uint16_t);
+  const uint32_t ename_pos = encode_header_size + sizeof(uint16_t);
   dr_assert(size >= ename_pos);
   dr_9p_encode_header(buf, DR_RERROR, tag);
   const uint16_t available = size - ename_pos;
   const uint16_t writable = dr_log_format((char *)(buf + ename_pos), available, error);
   const uint16_t written = writable > available ? available == 0 ? 0 : available - 1 /* '\0' */ : writable;
-  dr_encode_uint16(buf + header_size, written);
+  dr_encode_uint16(buf + encode_header_size, written);
   dr_9p_encode_finish(buf, ename_pos + written, pos);
 }
 
@@ -151,41 +151,41 @@ void dr_9p_encode_Rerror_err(uint8_t *restrict const buf, const uint32_t size, u
 bool dr_9p_encode_Tattach(uint8_t *restrict const buf, const uint32_t size, uint32_t *restrict const pos, const uint16_t tag, const uint32_t fid, const uint32_t afid, const struct dr_str *restrict const uname, const struct dr_str *restrict const aname) {
   const uint16_t uname_len = uname->len;
   const uint16_t aname_len = aname->len;
-  if (dr_unlikely(size < header_size + sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint16_t) + uname_len + sizeof(uint16_t) + aname_len)) {
+  if (dr_unlikely(size < encode_header_size + sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint16_t) + uname_len + sizeof(uint16_t) + aname_len)) {
     return false;
   }
   dr_9p_encode_header(buf, DR_TATTACH, tag);
-  dr_encode_uint32(buf + header_size, fid);
-  dr_encode_uint32(buf + header_size + sizeof(uint32_t), afid);
-  dr_encode_uint16(buf + header_size + sizeof(uint32_t) + sizeof(uint32_t), uname_len);
-  memcpy(buf + header_size + sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint16_t), uname->buf, uname_len);
-  dr_encode_uint16(buf + header_size + sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint16_t) + uname_len, aname_len);
-  memcpy(buf + header_size + sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint16_t) + uname_len + sizeof(uint16_t), aname->buf, aname_len);
-  return dr_9p_encode_finish(buf, header_size + sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint16_t) + uname_len + sizeof(uint16_t) + aname_len, pos);
+  dr_encode_uint32(buf + encode_header_size, fid);
+  dr_encode_uint32(buf + encode_header_size + sizeof(uint32_t), afid);
+  dr_encode_uint16(buf + encode_header_size + sizeof(uint32_t) + sizeof(uint32_t), uname_len);
+  memcpy(buf + encode_header_size + sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint16_t), uname->buf, uname_len);
+  dr_encode_uint16(buf + encode_header_size + sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint16_t) + uname_len, aname_len);
+  memcpy(buf + encode_header_size + sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint16_t) + uname_len + sizeof(uint16_t), aname->buf, aname_len);
+  return dr_9p_encode_finish(buf, encode_header_size + sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint16_t) + uname_len + sizeof(uint16_t) + aname_len, pos);
 }
 
 // size[4] Rattach tag[2] qid[13]
 
 bool dr_9p_encode_Rattach(uint8_t *restrict const buf, const uint32_t size, uint32_t *restrict const pos, const uint16_t tag, const struct dr_file *restrict const f) {
-  if (dr_unlikely(size < header_size + qid_size)) {
+  if (dr_unlikely(size < encode_header_size + encode_qid_size)) {
     return false;
   }
   dr_9p_encode_header(buf, DR_RATTACH, tag);
-  dr_9p_encode_qid(buf + header_size, f);
-  return dr_9p_encode_finish(buf, header_size + qid_size, pos);
+  dr_9p_encode_qid(buf + encode_header_size, f);
+  return dr_9p_encode_finish(buf, encode_header_size + encode_qid_size, pos);
 }
 
 // size[4] Twalk tag[2] fid[4] newfid[4] nwname[2] nwname*(wname[s])
 
 bool dr_9p_encode_Twalk_iterator(uint8_t *restrict const buf, const uint32_t size, uint32_t *restrict const pos, const uint16_t tag, const uint32_t fid, const uint32_t newfid, uint16_t *restrict const nwname) {
-  if (dr_unlikely(size < header_size + sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint16_t))) {
+  if (dr_unlikely(size < encode_header_size + sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint16_t))) {
     return false;
   }
   dr_9p_encode_header(buf, DR_TWALK, tag);
-  dr_encode_uint32(buf + header_size, fid);
-  dr_encode_uint32(buf + header_size + sizeof(uint32_t), newfid);
+  dr_encode_uint32(buf + encode_header_size, fid);
+  dr_encode_uint32(buf + encode_header_size + sizeof(uint32_t), newfid);
   *nwname = 0;
-  *pos = header_size + sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint16_t);
+  *pos = encode_header_size + sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint16_t);
   return true;
 }
 
@@ -207,30 +207,30 @@ bool dr_9p_encode_Twalk_finish(uint8_t *restrict const buf, const uint32_t size,
   if (dr_unlikely(size < p)) {
     return false;
   }
-  dr_encode_uint16(buf + header_size + sizeof(uint32_t) + sizeof(uint32_t), nwname);
+  dr_encode_uint16(buf + encode_header_size + sizeof(uint32_t) + sizeof(uint32_t), nwname);
   return dr_9p_encode_finish(buf, p, pos);
 }
 
 // size[4] Rwalk tag[2] nwqid[2] nwqid*(wqid[13])
 
 bool dr_9p_encode_Rwalk_iterator(uint8_t *restrict const buf, const uint32_t size, uint32_t *restrict const pos, const uint16_t tag, uint16_t *restrict const nwqid) {
-  if (dr_unlikely(size < header_size + sizeof(uint16_t))) {
+  if (dr_unlikely(size < encode_header_size + sizeof(uint16_t))) {
     return false;
   }
   dr_9p_encode_header(buf, DR_RWALK, tag);
   *nwqid = 0;
-  *pos = header_size + sizeof(uint16_t);
+  *pos = encode_header_size + sizeof(uint16_t);
   return true;
 }
 
 bool dr_9p_encode_Rwalk_add(uint8_t *restrict const buf, const uint32_t size, uint32_t *restrict const pos, uint16_t *restrict const nwqid, const struct dr_file *restrict const f) {
   const uint32_t p = *pos;
-  if (dr_unlikely(size < p + qid_size)) {
+  if (dr_unlikely(size < p + encode_qid_size)) {
     return false;
   }
   dr_9p_encode_qid(buf + p, f);
   ++*nwqid;
-  *pos += qid_size;
+  *pos += encode_qid_size;
   return true;
 }
 
@@ -239,32 +239,32 @@ bool dr_9p_encode_Rwalk_finish(uint8_t *restrict const buf, const uint32_t size,
   if (dr_unlikely(size < p)) {
     return false;
   }
-  dr_encode_uint16(buf + header_size, nwqid);
+  dr_encode_uint16(buf + encode_header_size, nwqid);
   return dr_9p_encode_finish(buf, p, pos);
 }
 
 // size[4] Topen tag[2] fid[4] mode[1]
 
 bool dr_9p_encode_Topen(uint8_t *restrict const buf, const uint32_t size, uint32_t *restrict const pos, const uint16_t tag, const uint32_t fid, const uint8_t mode) {
-  if (dr_unlikely(size < header_size + sizeof(uint32_t) + sizeof(uint8_t))) {
+  if (dr_unlikely(size < encode_header_size + sizeof(uint32_t) + sizeof(uint8_t))) {
     return false;
   }
   dr_9p_encode_header(buf, DR_TOPEN, tag);
-  dr_encode_uint32(buf + header_size, fid);
-  dr_encode_uint8(buf + header_size + sizeof(uint32_t), mode);
-  return dr_9p_encode_finish(buf, header_size + sizeof(uint32_t) + sizeof(uint8_t), pos);
+  dr_encode_uint32(buf + encode_header_size, fid);
+  dr_encode_uint8(buf + encode_header_size + sizeof(uint32_t), mode);
+  return dr_9p_encode_finish(buf, encode_header_size + sizeof(uint32_t) + sizeof(uint8_t), pos);
 }
 
 // The iounit field returned by open(9P), if non-zero, reports the maximum size that is guaranteed to be transferred atomically.
 
 DR_WARN_UNUSED_RESULT static bool dr_9p_encode_qid_uint32(const uint8_t type, uint8_t *restrict const buf, const uint32_t size, uint32_t *restrict const pos, const uint16_t tag, const struct dr_file *restrict const arg0, const uint32_t arg1) {
-  if (dr_unlikely(size < header_size + qid_size + sizeof(uint32_t))) {
+  if (dr_unlikely(size < encode_header_size + encode_qid_size + sizeof(uint32_t))) {
     return false;
   }
   dr_9p_encode_header(buf, type, tag);
-  dr_9p_encode_qid(buf + header_size, arg0);
-  dr_encode_uint32(buf + header_size + qid_size, arg1);
-  return dr_9p_encode_finish(buf, header_size + qid_size + sizeof(uint32_t), pos);
+  dr_9p_encode_qid(buf + encode_header_size, arg0);
+  dr_encode_uint32(buf + encode_header_size + encode_qid_size, arg1);
+  return dr_9p_encode_finish(buf, encode_header_size + encode_qid_size + sizeof(uint32_t), pos);
 }
 
 // size[4] Ropen tag[2] qid[13] iounit[4]
@@ -280,16 +280,16 @@ bool dr_9p_encode_Ropen(uint8_t *restrict const buf, const uint32_t size, uint32
 
 bool dr_9p_encode_Tcreate(uint8_t *restrict const buf, const uint32_t size, uint32_t *restrict const pos, const uint16_t tag, const uint32_t fid, const struct dr_str *restrict const name, const uint32_t perm, const uint8_t mode) {
   const uint16_t name_len = name->len;
-  if (dr_unlikely(size < header_size + sizeof(uint32_t) + sizeof(uint16_t) + name_len + sizeof(uint32_t) + sizeof(uint8_t))) {
+  if (dr_unlikely(size < encode_header_size + sizeof(uint32_t) + sizeof(uint16_t) + name_len + sizeof(uint32_t) + sizeof(uint8_t))) {
     return false;
   }
   dr_9p_encode_header(buf, DR_TCREATE, tag);
-  dr_encode_uint32(buf + header_size, fid);
-  dr_encode_uint16(buf + header_size + sizeof(uint32_t), name_len);
-  memcpy(buf + header_size + sizeof(uint32_t) + sizeof(uint16_t), name->buf, name_len);
-  dr_encode_uint32(buf + header_size + sizeof(uint32_t) + sizeof(uint16_t) + name_len, perm);
-  dr_encode_uint8(buf + header_size + sizeof(uint32_t) + sizeof(uint16_t) + name_len + sizeof(uint32_t), mode);
-  return dr_9p_encode_finish(buf, header_size + sizeof(uint32_t) + sizeof(uint16_t) + name_len + sizeof(uint32_t) + sizeof(uint8_t), pos);
+  dr_encode_uint32(buf + encode_header_size, fid);
+  dr_encode_uint16(buf + encode_header_size + sizeof(uint32_t), name_len);
+  memcpy(buf + encode_header_size + sizeof(uint32_t) + sizeof(uint16_t), name->buf, name_len);
+  dr_encode_uint32(buf + encode_header_size + sizeof(uint32_t) + sizeof(uint16_t) + name_len, perm);
+  dr_encode_uint8(buf + encode_header_size + sizeof(uint32_t) + sizeof(uint16_t) + name_len + sizeof(uint32_t), mode);
+  return dr_9p_encode_finish(buf, encode_header_size + sizeof(uint32_t) + sizeof(uint16_t) + name_len + sizeof(uint32_t) + sizeof(uint8_t), pos);
 }
 
 // size[4] Rcreate tag[2] qid[13] iounit[4]
@@ -301,65 +301,65 @@ bool dr_9p_encode_Rcreate(uint8_t *restrict const buf, const uint32_t size, uint
 // size[4] Tread tag[2] fid[4] offset[8] count[4]
 
 bool dr_9p_encode_Tread(uint8_t *restrict const buf, const uint32_t size, uint32_t *restrict const pos, const uint16_t tag, const uint32_t fid, const uint64_t offset, const uint32_t count) {
-  if (dr_unlikely(size < header_size + sizeof(uint32_t) + sizeof(uint64_t) + sizeof(uint32_t))) {
+  if (dr_unlikely(size < encode_header_size + sizeof(uint32_t) + sizeof(uint64_t) + sizeof(uint32_t))) {
     return false;
   }
   dr_9p_encode_header(buf, DR_TREAD, tag);
-  dr_encode_uint32(buf + header_size, fid);
-  dr_encode_uint64(buf + header_size + sizeof(uint32_t), offset);
-  dr_encode_uint32(buf + header_size + sizeof(uint32_t) + sizeof(uint64_t), count);
-  return dr_9p_encode_finish(buf, header_size + sizeof(uint32_t) + sizeof(uint64_t) + sizeof(uint32_t), pos);
+  dr_encode_uint32(buf + encode_header_size, fid);
+  dr_encode_uint64(buf + encode_header_size + sizeof(uint32_t), offset);
+  dr_encode_uint32(buf + encode_header_size + sizeof(uint32_t) + sizeof(uint64_t), count);
+  return dr_9p_encode_finish(buf, encode_header_size + sizeof(uint32_t) + sizeof(uint64_t) + sizeof(uint32_t), pos);
 }
 
 // size[4] Rread tag[2] count[4] data[count]
 
 bool dr_9p_encode_Rread_iterator(uint8_t *restrict const buf, const uint32_t size, uint32_t *restrict const pos, const uint16_t tag) {
-  if (dr_unlikely(size < header_size + sizeof(uint32_t))) {
+  if (dr_unlikely(size < encode_header_size + sizeof(uint32_t))) {
     return false;
   }
   dr_9p_encode_header(buf, DR_RREAD, tag);
-  *pos = header_size + sizeof(uint32_t);
+  *pos = encode_header_size + sizeof(uint32_t);
   return true;
 }
 
 bool dr_9p_encode_Rread_finish(uint8_t *restrict const buf, const uint32_t size, uint32_t *restrict const pos, const uint32_t count) {
-  if (dr_unlikely(size < header_size + sizeof(uint32_t) + count)) {
+  if (dr_unlikely(size < encode_header_size + sizeof(uint32_t) + count)) {
     return false;
   }
-  dr_encode_uint32(buf + header_size, count);
-  return dr_9p_encode_finish(buf, header_size + sizeof(uint32_t) + count, pos);
+  dr_encode_uint32(buf + encode_header_size, count);
+  return dr_9p_encode_finish(buf, encode_header_size + sizeof(uint32_t) + count, pos);
 }
 
 // size[4] Twrite tag[2] fid[4] offset[8] count[4] data[count]
 
 bool dr_9p_encode_Twrite_iterator(uint8_t *restrict const buf, const uint32_t size, uint32_t *restrict const pos, const uint16_t tag, const uint32_t fid, const uint64_t offset) {
-  if (dr_unlikely(size < header_size + sizeof(uint32_t) + sizeof(uint64_t) + sizeof(uint32_t))) {
+  if (dr_unlikely(size < encode_header_size + sizeof(uint32_t) + sizeof(uint64_t) + sizeof(uint32_t))) {
     return false;
   }
   dr_9p_encode_header(buf, DR_TWRITE, tag);
-  dr_encode_uint32(buf + header_size, fid);
-  dr_encode_uint64(buf + header_size + sizeof(uint32_t), offset);
-  *pos = header_size + sizeof(uint32_t) + sizeof(uint64_t) + sizeof(uint32_t);
+  dr_encode_uint32(buf + encode_header_size, fid);
+  dr_encode_uint64(buf + encode_header_size + sizeof(uint32_t), offset);
+  *pos = encode_header_size + sizeof(uint32_t) + sizeof(uint64_t) + sizeof(uint32_t);
   return true;
 }
 
 bool dr_9p_encode_Twrite_finish(uint8_t *restrict const buf, const uint32_t size, uint32_t *restrict const pos, const uint32_t count) {
-  if (dr_unlikely(size < header_size + sizeof(uint32_t) + sizeof(uint64_t) + sizeof(uint32_t) + count)) {
+  if (dr_unlikely(size < encode_header_size + sizeof(uint32_t) + sizeof(uint64_t) + sizeof(uint32_t) + count)) {
     return false;
   }
-  dr_encode_uint32(buf + header_size + sizeof(uint32_t) + sizeof(uint64_t), count);
-  return dr_9p_encode_finish(buf, header_size + sizeof(uint32_t) + sizeof(uint64_t) + sizeof(uint32_t) + count, pos);
+  dr_encode_uint32(buf + encode_header_size + sizeof(uint32_t) + sizeof(uint64_t), count);
+  return dr_9p_encode_finish(buf, encode_header_size + sizeof(uint32_t) + sizeof(uint64_t) + sizeof(uint32_t) + count, pos);
 }
 
 // size[4] Rwrite tag[2] count[4]
 
 DR_WARN_UNUSED_RESULT static bool dr_9p_encode_uint32(const uint8_t type, uint8_t *restrict const buf, const uint32_t size, uint32_t *restrict const pos, const uint16_t tag, const uint32_t arg0) {
-  if (dr_unlikely(size < header_size + sizeof(uint32_t))) {
+  if (dr_unlikely(size < encode_header_size + sizeof(uint32_t))) {
     return false;
   }
   dr_9p_encode_header(buf, type, tag);
-  dr_encode_uint32(buf + header_size, arg0);
-  return dr_9p_encode_finish(buf, header_size + sizeof(uint32_t), pos);
+  dr_encode_uint32(buf + encode_header_size, arg0);
+  return dr_9p_encode_finish(buf, encode_header_size + sizeof(uint32_t), pos);
 }
 
 bool dr_9p_encode_Rwrite(uint8_t *restrict const buf, const uint32_t size, uint32_t *restrict const pos, const uint16_t tag, const uint32_t count) {
@@ -375,11 +375,11 @@ bool dr_9p_encode_Tclunk(uint8_t *restrict const buf, const uint32_t size, uint3
 // size[4] Rclunk tag[2]
 
 DR_WARN_UNUSED_RESULT static bool dr_9p_encode_null(const uint8_t type, uint8_t *restrict const buf, const uint32_t size, uint32_t *restrict const pos, const uint16_t tag) {
-  if (dr_unlikely(size < header_size)) {
+  if (dr_unlikely(size < encode_header_size)) {
     return false;
   }
   dr_9p_encode_header(buf, type, tag);
-  return dr_9p_encode_finish(buf, header_size, pos);
+  return dr_9p_encode_finish(buf, encode_header_size, pos);
 }
 
 bool dr_9p_encode_Rclunk(uint8_t *restrict const buf, const uint32_t size, uint32_t *restrict const pos, const uint16_t tag) {
@@ -407,27 +407,27 @@ bool dr_9p_encode_Tstat(uint8_t *restrict const buf, const uint32_t size, uint32
 // size[4] Rstat tag[2] stat[n]
 
 bool dr_9p_encode_Rstat(uint8_t *restrict const buf, const uint32_t size, uint32_t *restrict const pos, const uint16_t tag, const struct dr_file *restrict const f) {
-  if (dr_unlikely(size < header_size + sizeof(uint16_t))) {
+  if (dr_unlikely(size < encode_header_size + sizeof(uint16_t))) {
     return false;
   }
   dr_9p_encode_header(buf, DR_RSTAT, tag);
-  const uint32_t written = dr_9p_encode_stat(buf + header_size + sizeof(uint16_t), size - header_size - sizeof(uint16_t), f);
+  const uint32_t written = dr_9p_encode_stat(buf + encode_header_size + sizeof(uint16_t), size - encode_header_size - sizeof(uint16_t), f);
   if (dr_unlikely(written == DR_FAIL_UINT32)) {
     return false;
   }
-  dr_encode_uint16(buf + header_size, written);
-  return dr_9p_encode_finish(buf, header_size + sizeof(uint16_t) + written, pos);
+  dr_encode_uint16(buf + encode_header_size, written);
+  return dr_9p_encode_finish(buf, encode_header_size + sizeof(uint16_t) + written, pos);
 }
 
 // size[4] Twstat tag[2] fid[4] stat[n]
 
 bool dr_9p_encode_Twstat(uint8_t *restrict const buf, const uint32_t size, uint32_t *restrict const pos, const uint16_t tag, const uint32_t fid, const struct dr_9p_stat *restrict const stat) {
   const uint32_t ssize = sizeof(uint16_t) + sizeof(uint32_t) + sizeof(uint8_t) + sizeof(uint32_t) + sizeof(uint64_t) + sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint64_t) + sizeof(uint16_t) + stat->name.len + sizeof(uint16_t) + stat->uid.len + sizeof(uint16_t) + stat->gid.len + sizeof(uint16_t) + stat->muid.len;
-  if (dr_unlikely(size < header_size + sizeof(uint32_t) + sizeof(uint16_t) + sizeof(uint16_t) + ssize)) {
+  if (dr_unlikely(size < encode_header_size + sizeof(uint32_t) + sizeof(uint16_t) + sizeof(uint16_t) + ssize)) {
     return false;
   }
   dr_9p_encode_header(buf, DR_TWSTAT, tag);
-  uint32_t spos = header_size;
+  uint32_t spos = encode_header_size;
   dr_encode_uint32(buf + spos, fid);
   spos += sizeof(uint32_t);
   dr_encode_uint16(buf + spos, ssize + sizeof(uint16_t));
